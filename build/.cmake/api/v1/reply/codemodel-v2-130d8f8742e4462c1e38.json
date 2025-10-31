@@ -1,0 +1,78 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "ObjLib",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ObjLib::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ObjLib-Debug-a1826df79ccf4aba33e9.json",
+					"name" : "ObjLib",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ObjLibTest::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ObjLibTest-Debug-7454a490031e9e4a4349.json",
+					"name" : "ObjLibTest",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "build_all::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-build_all-Debug-e90f7ff9e4b52406bf7a.json",
+					"name" : "build_all",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/mohammad/Desktop/C++/Objlib/build",
+		"source" : "/home/mohammad/Desktop/C++/Objlib"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 6
+	}
+}

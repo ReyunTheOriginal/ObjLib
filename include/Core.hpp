@@ -1,0 +1,31 @@
+#pragma once
+
+#include <iostream>
+#include <algorithm>
+#include <string>
+#include <cctype>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+#include <vector>
+#include <random>
+#include <unordered_map>
+#include <filesystem>
+#include <limits>
+#include <cmath>
+#include <format>
+#include <memory>
+#include <typeindex>
+
+#include "Math.hpp"
+#include "EssientialProccesses.hpp"
+#include "Input.hpp"
+#include "GlobalVar.hpp"
+#include "GlobalTypes.hpp"
+#include "Components.hpp"
+#include "Objects.hpp"
+#include "Rendering.hpp"
+#include "HelperFunctions.hpp"
+#include "Time.hpp"
+#include "Frames.hpp"
