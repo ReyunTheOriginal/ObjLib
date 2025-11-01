@@ -40,7 +40,8 @@ gameObject* CreateGameObject(window& Window){
     std::shared_ptr<gameObject> New = std::make_shared<gameObject>();
 
     New->Name = "GameObject(" + std::to_string(New->GetID()) + ")";
-    New->Transform = new Internal::transform();
+    New->Transform = std::make_unique<Internal::transform>();
+    New->Transform->Init(New.get());
 
     New->Transform->Window = &Window;
     New->Transform->Window->WindowObjects.push_back(New);

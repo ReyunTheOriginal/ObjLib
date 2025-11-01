@@ -84,6 +84,13 @@ namespace Math{
     constexpr inline float Dot(const vector2& A, const vector2& B){return A.x * B.x + A.y * B.y;}
 //
     template<typename T>
+    double Sin(T value){return std::sin(value);}
+
+    template<typename T>
+    double Cos(T value){return std::cos(value);}
+
+//
+    template<typename T>
     typename std::enable_if<std::is_arithmetic<T>::value, T>::type
     Clamp(T value, T min, T max){return std::clamp(value, min, max);}
 //

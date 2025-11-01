@@ -48,8 +48,8 @@ namespace obl{
                 vector2 ScreenPos = GameObject->Transform->Window->WorldToScreenPosition(GameObject->Transform->Position);
 
                 SDL_FRect rect;
-                rect.w = ((X * Size) * GameObject->Transform->Window->ActiveCamera->GetZoom());
-                rect.h = ((Y * Size) * GameObject->Transform->Window->ActiveCamera->GetZoom());
+                rect.w = ((X * GameObject->Transform->Size) * GameObject->Transform->Window->ActiveCamera->GetZoom());
+                rect.h = ((Y * GameObject->Transform->Size) * GameObject->Transform->Window->ActiveCamera->GetZoom());
                 rect.x = (ScreenPos.x - rect.w / 2);
                 rect.y = (ScreenPos.y - rect.h / 2);
 

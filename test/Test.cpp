@@ -10,22 +10,20 @@ int main(int argc, char *argv[]){
     );
 
     obl::window* Window2 = obl::CreateWindow("Hello World", 
-        {800, 600}, 
-        SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE, 
-        SDL_RENDERER_ACCELERATED
-    );
-    obl::window* Window3 = obl::CreateWindow("Hello World", 
-        {800, 600}, 
+        {40, 1}, 
         SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE, 
         SDL_RENDERER_ACCELERATED
     );
 
-    obl::Input.GetFocusedWindow()->Debug = true;
+    for (auto& win :obl::Windows){
+        win->Debug = true;
+    }
 
     bool running = true;
 
     obl::gameObject* HeldObject = nullptr;
     bool Dragging = false;
+    obl::gameObject* LastCreated = nullptr;
 
     float time = 0;
 
@@ -54,11 +52,20 @@ int main(int argc, char *argv[]){
 
             if (obl::Input.KeyHeld(SDLK_r)){
                 if (obl::Input.KeyHeld(SDLK_LSHIFT)){
-                    HeldObject->Transform->Rotation -= (60 * obl::Time.DeltaTime);
+                    HeldObject->Transform->LocalRotation -= (60 * obl::Time.DeltaTime);
                 }else{
-                    HeldObject->Transform->Rotation += (60 * obl::Time.DeltaTime);
+                    HeldObject->Transform->LocalRotation += (60 * obl::Time.DeltaTime);
                 }
             }
+
+            if (obl::Input.KeyHeld(SDLK_h)){
+                if (obl::Input.KeyHeld(SDLK_LSHIFT)){
+                    HeldObject->Transform->LocalSize -= (6 * obl::Time.DeltaTime);
+                }else{
+                    HeldObject->Transform->LocalSize += (6 * obl::Time.DeltaTime);
+                }
+            }
+
         }else{
             obl::Input.GetFocusedWindow()->ActiveCamera->ZoomIn(obl::Input.ScrollY * (5 * obl::Time.DeltaTime));
 
@@ -95,10 +102,13 @@ int main(int argc, char *argv[]){
             ren.SetSprite(sprite);
             ren.Color = {obl::RandomRange<int>(0,256),obl::RandomRange<int>(0,256),obl::RandomRange<int>(0,256),255};
             
-            NewObj->Transform->Position = obl::Input.GetFocusedWindow()->ScreenToWorldPosition({(float)(obl::RandomRange<int>(0,obl::Input.GetFocusedWindow()->GetResulotion().x + 1)), (float)(obl::RandomRange<int>(0,obl::Input.GetFocusedWindow()->GetResulotion().y + 1))});
+            NewObj->Transform->LocalPosition = obl::Input.GetFocusedWindow()->ScreenToWorldPosition({(float)(obl::RandomRange<int>(0,obl::Input.GetFocusedWindow()->GetResulotion().x + 1)), (float)(obl::RandomRange<int>(0,obl::Input.GetFocusedWindow()->GetResulotion().y + 1))});
         
             Dragging = true;
             obl::Input.GetFocusedWindow()->Cursor->ToggleCursorLock(true);
+
+            if (LastCreated) NewObj->Transform->SetParent(LastCreated);
+            LastCreated = NewObj;
         }
 
         if (obl::Input.KeyPressed(SDLK_t)){
@@ -128,11 +138,11 @@ int main(int argc, char *argv[]){
         }
 
         if (HeldObject){
-            HeldObject->Transform->Position = obl::Input.GetFocusedWindow()->ScreenToWorldPosition(obl::Input.GetMousePos());
+            HeldObject->Transform->LocalPosition = HeldObject->Transform->WorldToLocal(obl::Input.GetFocusedWindow()->ScreenToWorldPosition(obl::Input.GetMousePos()));
         }
 
         if (Dragging){
-            obl::Input.GetFocusedWindow()->ActiveCamera->Position += (obl::Input.MouseMotion()) * ((10 * obl::Time.DeltaTime) / obl::Input.GetFocusedWindow()->ActiveCamera->GetZoom());
+            obl::Input.GetFocusedWindow()->ActiveCamera->Position -= (obl::Input.MouseMotion()) * ((10 * obl::Time.DeltaTime) / obl::Input.GetFocusedWindow()->ActiveCamera->GetZoom());
         }
 
         obl::RenderWindows();

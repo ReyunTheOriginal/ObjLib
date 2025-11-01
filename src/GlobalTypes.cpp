@@ -44,8 +44,15 @@ namespace obl{
                 for(auto& com : obj->Components){
                     if (obj->Activated && com.second->Enabled)com.second->Run();
                 }
-                for(auto& child : obj->Transform->Children){
-                    child->Transform->Parent = obj.get();
+                gameObject* Parent = obj->Transform->GetParent();
+                if (Parent){
+                    obj->Transform->Position = obj->Transform->LocalToWorld(obj->Transform->LocalPosition);
+                    obj->Transform->Rotation = Parent->Transform->Rotation + obj->Transform->LocalRotation;
+                    obj->Transform->Size = Parent->Transform->Size * obj->Transform->LocalSize;
+                }else{
+                   obj->Transform->Position = obj->Transform->LocalPosition;
+                   obj->Transform->Rotation = obj->Transform->LocalRotation;
+                   obj->Transform->Size = obj->Transform->LocalSize;
                 }
             }
         }

@@ -25,18 +25,7 @@ namespace obl{
             virtual void Draw() {}
             virtual void Init() {}
         };
-
-        struct transform{
-            vector2 Position = {0,0};
-            float Rotation = 0.0;
-
-            gameObject* Parent = nullptr;
-            std::vector<gameObject*> Children;
-
-            window* Window = nullptr;
-
-            transform(float x = 0, float y = 0){Position = {x, y};}
-        };
+        struct transform;
     }
 
     struct gameObject{
@@ -46,7 +35,7 @@ namespace obl{
 
         public:
         std::string Name;
-        Internal::transform* Transform = nullptr;
+        std::unique_ptr<Internal::transform> Transform = nullptr;
 
         bool Activated = true;
 
@@ -91,7 +80,6 @@ namespace obl{
         }
 
         ~gameObject(){
-            delete Transform;
             for (auto& com : Components)delete com.second.get();
             Components.clear();
         }
@@ -100,5 +88,42 @@ namespace obl{
             return this->ID == other.GetID();
         }
     };
+
+    namespace Internal{
+        struct transform{
+            private:
+            gameObject* Parent = nullptr;
+            gameObject* GameObject = nullptr;
+
+            friend struct window;
+
+            public:
+            vector2 Position = {0,0};
+            vector2 LocalPosition = {0,0};
+
+            float Rotation = 0.0;
+            float LocalRotation = 0.0;
+
+            float Size = 1;
+            float LocalSize = 1;
+
+            std::unordered_map<int, gameObject*> Children;
+
+            window* Window = nullptr;
+
+            gameObject* SetParent(gameObject* parent);
+            gameObject* SetChild(gameObject* child);
+
+            gameObject* GetParent();
+            gameObject* GetChild(int childID);
+
+            vector2 WorldToLocal(vector2 WorldPos);
+            vector2 LocalToWorld(vector2 LocalPos);
+
+            void Init(gameObject* obj){GameObject = obj;}
+
+            transform(float x = 0, float y = 0){Position = {x, y};}
+        };
+    }
 
 }

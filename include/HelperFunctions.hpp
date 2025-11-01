@@ -46,9 +46,9 @@ void Print(const auto& P){
     }else if constexpr (std::is_arithmetic_v<type>){
         std::cout << P << std::endl;
     }else if constexpr (std::is_same_v<type, std::string>){
-        std::cout << '"' << P << '"' << std::endl;
+        std::cout << P << std::endl;
     }else if constexpr (std::is_convertible_v<type, std::string_view>){
-        std::cout << P;
+        std::cout << P << std::endl;;
     }else if constexpr (std::is_same_v<type, color>){
         std::cout << "(" << P.red << ", " << P.green << ", " << P.blue << ", " << P.alpha << ")" << std::endl;
     }else{

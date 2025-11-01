@@ -32,7 +32,6 @@ namespace obl{
             public:
             bool Drawn = true;
             color Color = {255,0,0,255};
-            float Size = 1;
 
             bool FlippedX = false;
             bool FlippedY = false;

@@ -78,6 +78,7 @@ namespace obl{
     }
 
     void Quit(){
+        Print("Quit Program");
         if (CursorIMG)SDL_FreeCursor(CursorIMG);
 
         Windows.clear();

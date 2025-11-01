@@ -1,0 +1,5 @@
+/home/mohammad/Desktop/C++/Objlib/build/CMakeFiles/ObjLib.dir
+/home/mohammad/Desktop/C++/Objlib/build/CMakeFiles/build_all.dir
+/home/mohammad/Desktop/C++/Objlib/build/CMakeFiles/ObjLibTest.dir
+/home/mohammad/Desktop/C++/Objlib/build/CMakeFiles/edit_cache.dir
+/home/mohammad/Desktop/C++/Objlib/build/CMakeFiles/rebuild_cache.dir
