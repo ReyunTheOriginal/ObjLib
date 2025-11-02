@@ -15,8 +15,8 @@ void RenderWindows(){
         std::vector<Internal::renderCache> DrawOrder;
         DrawOrder.reserve(win->RenderableObjects.size());
 
-        for (auto* obj : win->RenderableObjects){
-            DrawOrder.push_back(Internal::renderCache{obj, obj->GetConstComponent<components::renderLayer>()});
+        for (auto& obj : win->RenderableObjects){
+            DrawOrder.push_back(Internal::renderCache{obj.second, obj.second->GetConstComponent<components::renderLayer>()});
         }
 
         std::sort(DrawOrder.begin(), DrawOrder.end(), [](const Internal::renderCache& A, const Internal::renderCache& B){
@@ -37,7 +37,11 @@ void RenderWindows(){
         }
 
         if (win->Debug){
-            //Display Debug Information
+            for (auto& obj : DrawOrder){
+                for (auto& com :obj.obj->Components){
+                    com.second->DebugDraw();
+                }
+            }
         }
 
         win->Cursor->Draw();

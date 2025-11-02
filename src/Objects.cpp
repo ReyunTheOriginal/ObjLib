@@ -30,28 +30,25 @@ namespace obl{
             if (!Parent) return WorldPos;
             vector2 Local;
 
-            Local = Parent? WorldPos - Parent->Transform->Position : WorldPos;
+            Local = WorldPos - Parent->Transform->Position;
 
-            float rad = Math::Deg2Rad(Parent->Transform->Rotation);
+            float rad = Math::Deg2Rad(-Parent->Transform->Rotation);
             float cs = Math::Cos(rad);
             float sn = Math::Sin(rad);
 
-            Local /= Size;
-
             Local =  { Local.x * cs - Local.y * sn, Local.x * sn + Local.y * cs };
+            Local /= Size;
             return Local;
         }
         vector2 transform::LocalToWorld(vector2 LocalPos){
             if (!Parent) return LocalPos;
             vector2 World;
 
-            World = LocalPos;
+            World = LocalPos * Size;
 
-            float rad = Math::Deg2Rad(-Parent->Transform->Rotation);
-            float cs = Math::Cos(-rad);
-            float sn = Math::Sin(-rad);
-
-            World *= Size;
+            float rad = Math::Deg2Rad(Parent->Transform->Rotation);
+            float cs = Math::Cos(rad);
+            float sn = Math::Sin(rad);
 
             World =  { World.x * cs - World.y * sn, World.x * sn + World.y * cs };
             return World + Parent->Transform->Position;

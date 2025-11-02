@@ -23,6 +23,7 @@ namespace obl{
             virtual ~component() = default;
             virtual void Run() {}
             virtual void Draw() {}
+            virtual void DebugDraw() {}
             virtual void Init() {}
         };
         struct transform;

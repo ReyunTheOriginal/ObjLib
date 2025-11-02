@@ -7,8 +7,6 @@
 
 namespace obl{
 
-float Pow(float num, float power = 2.0);
-
 struct vector2{
     float x = 0.0,y = 0.0;
 
@@ -63,17 +61,23 @@ struct vector2{
         }
     #pragma endregion
 
-    float mag(){return std::sqrt(Pow(x) + Pow(y));}
+    float mag(){return std::sqrt((x*x) + (y*y));}
+    float Sqrtmag(){return (x*x) + (y*y);}
 
-    vector2 normalized();
+    vector2 normalized(){
+        float Mag = mag();
+        if (Mag != 0)return {x/Mag, y/Mag};
+        return {0.0,0.0};
+    };
 };
 
 namespace Math{
-    static double PI = 3.141592653;
+    constexpr inline double PI = 3.141592653;
 //
-    float Distance(const vector2& A, const vector2& B);
+    inline float Pow(float num, float power = 2.0){return std::pow(num, power);}
 //
-    float DistanceSqrt(const vector2& A, const vector2& B);
+    inline float Distance(const vector2& A, const vector2& B){return std::sqrt(Pow((B.x - A.x)) + Pow((B.y - A.y)));}
+    inline float DistanceSqrt(const vector2& A, const vector2& B){return Pow((B.x - A.x)) + Pow((B.y - A.y));}
 //
     template<typename T>
     typename std::enable_if<std::is_arithmetic<T>::value, T>::type
@@ -85,7 +89,7 @@ namespace Math{
 //
     template<typename T>
     double Sin(T value){return std::sin(value);}
-
+//
     template<typename T>
     double Cos(T value){return std::cos(value);}
 

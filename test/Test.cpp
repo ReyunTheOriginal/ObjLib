@@ -32,7 +32,7 @@ int main(int argc, char *argv[]){
         obl::Update();
 
         //Corrent Problem:
-        /*Object Hierarchy*/
+        /*Polygon Colliders*/
 
         time += obl::Time.DeltaTime;
 
@@ -67,8 +67,8 @@ int main(int argc, char *argv[]){
             }
 
         }else{
-            obl::Input.GetFocusedWindow()->ActiveCamera->ZoomIn(obl::Input.ScrollY * (5 * obl::Time.DeltaTime));
-
+            obl::Input.GetFocusedWindow()->ActiveCamera->ZoomIn(obl::Input.ScrollY * (10 * obl::Time.DeltaTime));
+            obl::Print(obl::Input.GetFocusedWindow()->ActiveCamera->GetZoom());
             if (obl::Input.KeyHeld(SDLK_r)){
                 if (obl::Input.KeyHeld(SDLK_LSHIFT)){
                     obl::Input.GetFocusedWindow()->ActiveCamera->Rotation -= (60 * obl::Time.DeltaTime);
@@ -99,6 +99,14 @@ int main(int argc, char *argv[]){
             obl::gameObject* NewObj = obl::CreateGameObject(*obl::Input.GetFocusedWindow());
 
             auto& ren = NewObj->AddComponent<obl::components::SpriteRenderer>();
+            auto& poly = NewObj->AddComponent<obl::components::PolygonCollider>();
+
+            poly.SetVertex({
+                {  0.0f, -5 },   // top
+                {  5, 0.25f }, // bottom-right
+                { -5, 0.25f }  // bottom-left
+            });
+
             ren.SetSprite(sprite);
             ren.Color = {obl::RandomRange<int>(0,256),obl::RandomRange<int>(0,256),obl::RandomRange<int>(0,256),255};
             

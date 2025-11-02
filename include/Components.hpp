@@ -50,6 +50,21 @@ namespace obl{
                 if (Texture && SDL_WasInit(SDL_INIT_EVERYTHING)) SDL_DestroyTexture(Texture);
             }
         };
-        
+       
+        struct PolygonCollider :Internal::component{
+            private:
+            std::vector<vector2> Vertices;
+
+            public:
+            std::vector<vector2> GetVertices();
+            void AddVertex(vector2 Position, int indexToInsert);
+            void SetVertex(std::vector<vector2> vertices){Vertices = vertices;}
+            void Clear(){Vertices.clear();}
+
+            //bool IsCollidingWith()
+
+            void Run() override;
+            void DebugDraw() override;
+        };
     }
 }

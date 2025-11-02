@@ -32,8 +32,8 @@ namespace obl{
         vector2 Position = {0,0};
         float Rotation = 0;
 
-        void ZoomIn(float value){Zoom = std::max((double)(Zoom - value), 0.0001);}
-        void ZoomOut(float value){Zoom = std::max((double)(Zoom + value), 0.0001);}
+        void ZoomIn(float value){Zoom = (std::max((double)(Zoom - value), 0.0001));}
+        void ZoomOut(float value){Zoom = (std::max((double)(Zoom + value), 0.0001));}
         float GetZoom(){ return Zoom;}
 
         camera(){};
@@ -59,7 +59,7 @@ namespace obl{
         color ClearColor = {0,0,0,255};
 
         std::vector<std::shared_ptr<gameObject>> WindowObjects;
-        std::vector<gameObject*> RenderableObjects;
+        std::unordered_map<int, gameObject*> RenderableObjects;
         std::vector<camera*> Cameras;
 
         vector2 GetResulotion();

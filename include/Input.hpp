@@ -45,6 +45,7 @@ namespace obl{
 
             vector2 MouseMotionV = {0,0};
             vector2 MousePos = {0,0};
+            vector2 MonitorMousePos = {0,0};
 
             vector2 FrozenMousePos = {0,0};
             window* WindowFrozenIn = nullptr;
@@ -71,6 +72,7 @@ namespace obl{
             bool MouseHeld(Uint8 Button);
 
             vector2 GetMousePos(){return MousePos;}
+            vector2 GetMonitorMousePos(){return MonitorMousePos;}
 
             window* GetFocusedWindow();
             

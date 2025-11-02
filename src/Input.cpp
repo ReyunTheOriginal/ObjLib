@@ -3,7 +3,7 @@
 
 namespace obl{
     namespace Internal{
-        #pragma region <InputStruct>
+        #pragma region <Input>
         void input::Update(){
             MouseMotionV = {0,0};
             ScrollY = ScrollX = 0.0;
@@ -55,6 +55,9 @@ namespace obl{
             SDL_GetMouseState(&x, &y);
             MousePos = {(float)x,(float)y};
 
+            SDL_GetGlobalMouseState(&x, &y);
+            MonitorMousePos = {(float)x,(float)y};
+
             if (MouseMovement == false && WindowFrozenIn)SDL_WarpMouseInWindow(WindowFrozenIn->SDLWindow, FrozenMousePos.x, FrozenMousePos.y);
         }
         #pragma region <PressChecks>
@@ -93,11 +96,11 @@ namespace obl{
                 }
             }
             bool input::MouseHeld(Uint8 Button){
-            int x, y;
-            Uint8 state = SDL_GetMouseState(&x, &y);
-            return state & SDL_BUTTON(Button);
-        }
-        #pragma endregion
+                int x, y;
+                Uint8 state = SDL_GetMouseState(&x, &y);
+                return state & SDL_BUTTON(Button);
+            }
+        #pragma endregion <PressChecks>
     
         #pragma region <Getters>
             window* input::GetFocusedWindow(){
@@ -114,9 +117,9 @@ namespace obl{
 
                 return nullptr;
             }
-        #pragma endregion
+        #pragma endregion <Getters>
 
-        #pragma endregion
+        #pragma endregion <Input>
     }//Internal
     Internal::input Input;
 
