@@ -7,24 +7,44 @@ int main(int argc, char *argv[]){
     obj::window* Win = obj::CreateWindow("hello world", obj::vector2(800, 600));
     obj::scene* Scene = obj::CreateScene();
     Win->SetScene(Scene);
-    Scene->BackGroundColor = obj::color::red;
+    Scene->BackGroundColor = obj::color::black;
 
     obj::gameobject* gam = obj::CreateGameObject(Scene);
+    obj::gameobject* gam2 = obj::CreateGameObject(Scene);
+    gam2->Position = {800, 600};
 
     obj::spriteRenderer* sr = gam->AddComponent<obj::spriteRenderer>();
+    obj::spriteRenderer* sr2 = gam2->AddComponent<obj::spriteRenderer>();
     obj::sprite* sp = obj::CreateSprite(obj::exePath() + "/Sprites/Default/Triangle.png");
+    obj::sprite* sp2 = obj::CreateSprite(obj::exePath() + "/Sprites/Default/Circle.png");
     sr->Sprite = sp;
+    sr2->Sprite = sp2;
 
     while(running){
-        SDL_Event event;
-        while(SDL_PollEvent(&event)){
-            if(event.type == SDL_EVENT_QUIT){
-                running = false;
-            }
+        obj::Update();
+
+        if (obj::Input.KeyPressed(obj::KeyCode::A)){
+            std::cerr << "PressedKey A\n";
+        }
+        if (obj::Input.KeyReleased(obj::KeyCode::S)){
+            std::cerr << "ReleasedKey S\n";
+        }
+        if (obj::Input.KeyHeld(obj::KeyCode::D)){
+            std::cerr << "HeldKey D\n";
         }
 
+        if (obj::Input.MouseButtonPressed(1)){
+            std::cerr << "PressedButton LEFT\n";
+        }
+        if (obj::Input.MouseButtonReleased(2)){
+            std::cerr << "ReleasedButton MIDDLE\n";
+        }
+        if (obj::Input.MouseButtonHeld(3)){
+            std::cerr << "HeldButton RIGHT\n";
+        }
+
+
         //SDL_Delay(16);
-        obj::Update();
         obj::Render();
     }
 

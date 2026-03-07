@@ -1,6 +1,4 @@
 #include "EssentialProcesses.hpp"
-#include <iostream>
-
 
 namespace obj{
     //Start up all necessary code to prepare the program
@@ -11,6 +9,8 @@ namespace obj{
     }
     //update processes like physics, positions, and math
     void Update(){
+        Input.Update();
+        
         for (auto& obj : Internal::GlobalGameObjects){
             if (obj.second){
                 //loop through all components and run them
@@ -40,7 +40,6 @@ namespace obj{
         //clear all renderers
         for (auto& win : Internal::GlobalWindows){
             color bgColor = win.second->GetScene()->BackGroundColor;
-            std::cerr << "{ "<<bgColor.r << ", " << bgColor.g<< ", " << bgColor.b <<", " << bgColor.a<<" }\n";
             SDL_SetRenderDrawColor(win.second->SDLrenderer, (Uint8)(bgColor.r * 255), (Uint8)(bgColor.g * 255), (Uint8)(bgColor.b * 255), (Uint8)(255));
             SDL_RenderClear(win.second->SDLrenderer);
         }
@@ -87,5 +86,6 @@ namespace obj{
         Internal::GlobalWindows.clear();
 
         SDL_Quit();
+        std::exit(0);
     }
 }

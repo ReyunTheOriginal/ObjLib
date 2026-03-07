@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -12,6 +13,7 @@
 #include "Gameobject.hpp"
 #include "Scene.hpp"
 #include "Window.hpp"
+#include "Input.hpp"
 
 namespace obj{
     int  Init(); //Start up all necessary code to prepare the program
