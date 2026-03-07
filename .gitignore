@@ -39,6 +39,7 @@
 *.exe
 *.out
 *.app
+*.fuse_hidden*
 
 # debug information files
 *.dwo
