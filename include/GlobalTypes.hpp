@@ -4,7 +4,7 @@
 
 namespace obj{
     struct color{
-        float r,g,b,a = 1;
+        float r,g,b,a = 255;
 
         static const color white;
         static const color black;
@@ -15,14 +15,14 @@ namespace obj{
 
         SDL_Color ToSDL() const {
             return {
-                (Uint8)(r * 255),
-                (Uint8)(g * 255),
-                (Uint8)(b * 255),
-                (Uint8)(a * 255)
+                (Uint8)(r),
+                (Uint8)(g),
+                (Uint8)(b),
+                (Uint8)(a)
             };
         }
 
         color(int red, int green, int blue, int alpha = 255)
-        : r(red/255), g(green/255), b(blue/255), a(alpha/255) {}
+        : r(red), g(green), b(blue), a(alpha) {}
     };
 }

@@ -16,6 +16,9 @@ namespace obj{
                 case SDL_EVENT_QUIT:
                     Quit();
                     break;
+                case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+                    Quit();
+                    break;
                 case SDL_EVENT_KEY_DOWN:
                     if (event.key.repeat == 0) KeysPressed.insert(event.key.key);
                     KeysHeld.insert(event.key.key);

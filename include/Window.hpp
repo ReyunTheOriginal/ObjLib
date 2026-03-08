@@ -22,7 +22,12 @@ namespace obj{
         int FPS = 0;
         bool Debug = false;
 
-        void SetScene(scene* SceneToSet){Scene = SceneToSet;SceneToSet->Window = this;}
+        void SetScene(scene* SceneToSet){
+            Scene = SceneToSet;
+            if (SceneToSet->Windows.find(this) == SceneToSet->Windows.end()){
+                SceneToSet->Windows.insert(this);
+            }
+        }
         scene* GetScene(){return Scene;}
 
         window();

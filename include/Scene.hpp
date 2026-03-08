@@ -1,6 +1,6 @@
 #pragma once
 
-#include <unordered_map>
+#include <unordered_set>
 #include "GlobalLists.hpp"
 #include "Gameobject.hpp"
 #include "GlobalTypes.hpp"
@@ -9,9 +9,9 @@ namespace obj{
     struct window;
 
     struct scene{
-        window* Window = nullptr;
+        std::unordered_set<window*> Windows;
         int GID = 0;
-        std::unordered_map<int, gameobject*> GameObjects;
+        std::unordered_set<gameobject*> GameObjects;
         color BackGroundColor = color::black;
 
 
@@ -19,7 +19,7 @@ namespace obj{
 
         ~scene(){
             for (auto obj : GameObjects){
-                if (obj.second)DestroyGameObject(obj.second);
+                if (obj)DestroyGameObject(obj);
             }
         }
     };

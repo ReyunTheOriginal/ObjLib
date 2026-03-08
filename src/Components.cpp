@@ -13,33 +13,52 @@ namespace obj{
 /////////////////////////////////////////////////////////// 
         #pragma region <spriteRenderer>
             void spriteRenderer::Run(){
-                if (SDLtexture == nullptr && GameObject != nullptr && GameObject->Scene != nullptr && GameObject->Scene->Window != nullptr && GameObject->Scene->Window->SDLrenderer != nullptr){
-                    if (Sprite){
-                        SDLtexture = SDL_CreateTextureFromSurface(GameObject->Scene->Window->SDLrenderer,Sprite->SDLsurface);
+                //loop through all windows with the scene and create a texture for them
+                if (GameObject && GameObject->Scene){
+                    for (window* Win : GameObject->Scene->Windows){
+                        if (Win != nullptr && Win->SDLrenderer != nullptr && !SDLtextures[Win->SDLrenderer] && Sprite){
+                            SDLtextures[Win->SDLrenderer] = SDL_CreateTextureFromSurface(Win->SDLrenderer,Sprite->SDLsurface);
+                        }
                     }
                 }
             }
             void spriteRenderer::Draw(){
-                if (SDLtexture != nullptr && Sprite != nullptr && GameObject != nullptr && GameObject->Scene != nullptr && GameObject->Scene->Window != nullptr && GameObject->Scene->Window->SDLrenderer != nullptr){
-                    //get texture vectors
-                    float w, h;
-                    SDL_GetTextureSize(SDLtexture, &w, &h);
-                    SDL_FRect dst = {GameObject->Position.x, GameObject->Position.y, w, h };
+                if (GameObject != nullptr && GameObject->Scene != nullptr){
+                    for (window* Win : GameObject->Scene->Windows){
+                        auto tex = SDLtextures[Win->SDLrenderer];
+                        if (Win->SDLrenderer != nullptr && tex && Sprite != nullptr){
+                            //normal Draw
+                
+                            //get texture vectors
+                            float w, h;
+                            SDL_GetTextureSize(tex, &w, &h);
+                            //scale the rect
+                            float scaledH = h * GameObject->Size.y;
+                            float scaledW = w * GameObject->Size.x;
 
-                    //render it rotated as necessary
-                    SDL_RenderTextureRotated(
-                        GameObject->Scene->Window->SDLrenderer,
-                        SDLtexture,
-                        NULL,   // src rect (whole texture)
-                        &dst,   // dst rect
-                        GameObject->Rotation,
-                        NULL,   // center (NULL = center of dst)
-                        SDL_FLIP_NONE //not flipped
-                    );
+                            SDL_FRect dst = {GameObject->Position.x - scaledW / 2.0f , GameObject->Position.y - scaledH / 2.0f, scaledW, scaledH };
 
-                }else if (SDLtexture == nullptr && GameObject != nullptr && GameObject->Scene != nullptr && GameObject->Scene->Window != nullptr && GameObject->Scene->Window->SDLrenderer != nullptr){
-                    if (Sprite){
-                        SDLtexture = SDL_CreateTextureFromSurface(GameObject->Scene->Window->SDLrenderer,Sprite->SDLsurface);
+                            //set the texture colors
+                            SDL_SetTextureColorMod(tex, Color.r, Color.g, Color.b);
+                            SDL_SetTextureAlphaMod(tex, Color.a);
+
+                            
+                            //render it rotated as necessary
+                            SDL_RenderTextureRotated(
+                                Win->SDLrenderer,
+                                tex,
+                                NULL,   // src rect (whole texture)
+                                &dst,   // dst rect
+                                GameObject->Rotation,
+                                NULL,   // center (NULL = center of dst)
+                                SDL_FLIP_NONE //not flipped
+                            );
+
+                            //Debug Draw
+                            DebugDraw();
+                        }
+
+
                     }
                 }
             }

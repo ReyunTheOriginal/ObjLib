@@ -2,6 +2,7 @@
 
 #include "GlobalTypes.hpp"
 #include "Sprite.hpp"
+#include <unordered_map>
 
 namespace obj{
     struct gameobject;
@@ -26,7 +27,7 @@ namespace obj{
         #pragma region <spriteRenderer>
             struct spriteRenderer : Internal::component{
                 private:
-                SDL_Texture* SDLtexture = nullptr;
+                std::unordered_map<SDL_Renderer*, SDL_Texture*> SDLtextures;
 
                 public:
                 color Color = {255,255,255};
@@ -37,7 +38,9 @@ namespace obj{
                 void Destroy() override;
 
                 ~spriteRenderer(){
-                    if (SDLtexture)SDL_DestroyTexture(SDLtexture);
+                    for (auto& SDLtexture : SDLtextures){
+                        if (SDLtexture.second)SDL_DestroyTexture(SDLtexture.second);
+                    }
                 }
             };
         #pragma endregion <spriteRenderer>

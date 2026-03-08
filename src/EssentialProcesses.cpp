@@ -26,11 +26,13 @@ namespace obj{
         //set all children/parent relationships to maintain correctness
         for (auto& win : Internal::GlobalWindows){
             scene* Scene = win.second->GetScene();
-            Scene->Window = win.second;
+            if (Scene->Windows.find(win.second) != Scene->Windows.end()){
+                Scene->Windows.insert(win.second);
+            }
             for (auto& obj : Scene->GameObjects){
-                obj.second->Scene = Scene;
-                for (auto& com : obj.second->Components){
-                    com.second->GameObject = obj.second;
+                obj->Scene = Scene;
+                for (auto& com : obj->Components){
+                    com.second->GameObject = obj;
                 }
             }
         }
@@ -40,7 +42,7 @@ namespace obj{
         //clear all renderers
         for (auto& win : Internal::GlobalWindows){
             color bgColor = win.second->GetScene()->BackGroundColor;
-            SDL_SetRenderDrawColor(win.second->SDLrenderer, (Uint8)(bgColor.r * 255), (Uint8)(bgColor.g * 255), (Uint8)(bgColor.b * 255), (Uint8)(255));
+            SDL_SetRenderDrawColor(win.second->SDLrenderer, (Uint8)(bgColor.r), (Uint8)(bgColor.g), (Uint8)(bgColor.b), (Uint8)(255));
             SDL_RenderClear(win.second->SDLrenderer);
         }
 
@@ -48,15 +50,6 @@ namespace obj{
             //loop through all components and Draw them
             for (auto& com : obj.second->Components){
                 if (com.second->Enabled)com.second->Draw();
-            }
-            //loop through all components and Draw their debug states if in a debug window
-            if (obj.second != nullptr && 
-                obj.second->Scene != nullptr && 
-                obj.second->Scene->Window != nullptr &&
-                obj.second->Scene->Window->Debug) {
-                for (auto& com : obj.second->Components){
-                    if (com.second->Enabled)com.second->DebugDraw();
-                }
             }
         }
 
