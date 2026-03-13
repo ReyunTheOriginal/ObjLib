@@ -12,9 +12,11 @@ namespace obj{
     vector2 camera::SetResolution(const vector2& res){
         Resolution = res; 
 
-        if (ActiveScene){
+        if (ActiveScene && !ActiveScene->Windows.empty()){
             for (window* win : ActiveScene->Windows){
-                SDL_SetRenderLogicalPresentation(win->SDLrenderer, res.x, res.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+                if (win && win->SDLrenderer) {
+                    SDL_SetRenderLogicalPresentation(win->SDLrenderer, res.x, res.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+                }
             }
         }
 
@@ -35,6 +37,8 @@ namespace obj{
         if (Zoom <= 0) Zoom = 0.01f;
 
         vector2 result = PosToTranslate;
+
+        //Adjust for letterbox
         vector2 logicalres = {0,0};
         if (ActiveWindow){ 
             vector2 winres = ActiveWindow->GetResolution();
@@ -42,6 +46,7 @@ namespace obj{
             logicalres = winres - dif;
             result -= (logicalres/2);
         }
+
         result.y *= -1;
         result /= Zoom;
 
@@ -56,6 +61,8 @@ namespace obj{
         result = Rotate(result, -Math::Deg2Rad(Rotation));
         result = result * Zoom;
         result.y *= -1;
+
+        //Adjust for letterbox
         vector2 logicalres = {0,0};
         if (ActiveWindow){ 
             vector2 winres = ActiveWindow->GetResolution();
@@ -63,7 +70,6 @@ namespace obj{
             logicalres = winres - dif;
             result += (logicalres/2);
         }
-        
 
         return result;
     }

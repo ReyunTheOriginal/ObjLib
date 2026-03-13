@@ -7,9 +7,11 @@ int main(int argc, char *argv[]){
     obj::Init();
     obj::window* Win = obj::CreateWindow("hello world", obj::vector2(800, 600));
     obj::window* Win2 = obj::CreateWindow("hello Earth", obj::vector2(1200, 600));
+    obj::window* Win3 = obj::CreateWindow("hello Ground", obj::vector2(1200, 1600));
     obj::scene* Scene = obj::CreateScene();
     Win->SetScene(Scene);
     Win2->SetScene(Scene);
+    Win3->SetScene(Scene);
     
     Scene->GetActiveCamera()->ActiveScene = Scene;
     Scene->GetActiveCamera()->SetResolution({800,600});

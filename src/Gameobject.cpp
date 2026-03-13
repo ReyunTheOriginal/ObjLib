@@ -5,7 +5,9 @@ namespace obj{
     gameobject* CreateGameObject(scene* Scene){
         gameobject* newGam = new gameobject();
         newGam->Scene = Scene;
-        Scene->GameObjects.insert(newGam);
+        if (Scene) {
+            Scene->GameObjects.insert(newGam);
+        }
 
         Internal::GID++;
         Internal::GlobalGameObjects[Internal::GID] = newGam;
