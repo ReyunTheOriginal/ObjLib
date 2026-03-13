@@ -5,11 +5,11 @@ namespace obj{
     gameobject* CreateGameObject(scene* Scene){
         gameobject* newGam = new gameobject();
         newGam->Scene = Scene;
-        Scene->GID++;
         Scene->GameObjects.insert(newGam);
 
         Internal::GID++;
         Internal::GlobalGameObjects[Internal::GID] = newGam;
+        newGam->Name = "Gameobject #" + Internal::GID;
         return newGam;
     }
 

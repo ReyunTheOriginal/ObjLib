@@ -14,6 +14,7 @@
 #include "Scene.hpp"
 #include "Window.hpp"
 #include "Input.hpp"
+#include "Camera.hpp"
 
 namespace obj{
     int  Init(); //Start up all necessary code to prepare the program

@@ -29,6 +29,7 @@ namespace obj{
             if (Scene->Windows.find(win.second) != Scene->Windows.end()){
                 Scene->Windows.insert(win.second);
             }
+            Scene->GetActiveCamera()->ActiveScene = Scene;
             for (auto& obj : Scene->GameObjects){
                 obj->Scene = Scene;
                 for (auto& com : obj->Components){
@@ -41,9 +42,23 @@ namespace obj{
     void Render(){
         //clear all renderers
         for (auto& win : Internal::GlobalWindows){
-            color bgColor = win.second->GetScene()->BackGroundColor;
-            SDL_SetRenderDrawColor(win.second->SDLrenderer, (Uint8)(bgColor.r), (Uint8)(bgColor.g), (Uint8)(bgColor.b), (Uint8)(255));
-            SDL_RenderClear(win.second->SDLrenderer);
+           color bgColor = win.second->GetScene()->BackGroundColor;
+           win.second->GetScene()->GetActiveCamera()->ActiveWindow = win.second;
+
+           SDL_SetRenderDrawColor(win.second->SDLrenderer,0,0,0,255);
+           SDL_RenderClear(win.second->SDLrenderer);
+
+            SDL_SetRenderDrawColor(win.second->SDLrenderer,
+                (Uint8)bgColor.r,
+                (Uint8)bgColor.g,
+                (Uint8)bgColor.b,
+                255
+            );
+
+            vector2 Logical = win.second->GetScene()->GetActiveCamera()->GetResolution();
+
+            SDL_FRect rect = {0, 0, Logical.x, Logical.y};
+            SDL_RenderFillRect(win.second->SDLrenderer, &rect);
         }
 
         for (auto& obj : Internal::GlobalGameObjects){

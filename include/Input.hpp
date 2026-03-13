@@ -5,6 +5,7 @@
 #include <unordered_set>
 #include "InputKeys.hpp"
 #include "EssentialProcesses.hpp"
+#include "Window.hpp"
 
 namespace obj{
     namespace Internal{
@@ -19,9 +20,12 @@ namespace obj{
             std::unordered_set<Uint8> MouseButtonsHeld;
 
             public:
-            vector2 MousePosition = {0,0};
+            vector2 ScreenMousePosition = {0,0};
+            vector2 WorldMousePosition = {0,0};
             vector2 GlobalMousePosition = {0,0};
             vector2 MouseMotion = {0,0};
+            vector2 DirectionalInput = {0,0};
+            window* FocusedWindow = nullptr;
 
             void Update();
 

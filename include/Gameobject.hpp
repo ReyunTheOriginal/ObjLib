@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Math.hpp"
-#include "Components.hpp"
 #include <unordered_map>
 #include <memory>
-#include "GlobalLists.hpp"
 #include <typeindex>
 #include <cctype>
 #include <typeinfo>
+#include <string>
+#include "GlobalLists.hpp"
+#include "Components.hpp"
 
 
 
@@ -15,6 +16,7 @@ namespace obj{
     struct scene;
 
     struct gameobject{
+        std::string Name = "new GameObject";
         scene* Scene = nullptr;
         vector2 Position = {0,0};
         vector2 Size = {1,1};

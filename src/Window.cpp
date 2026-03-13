@@ -1,7 +1,20 @@
 #include "Window.hpp"
+#include "Scene.hpp"
 
 namespace obj{
     window::window() = default;
+
+    void window::SetScene(scene* SceneToSet){
+        Scene = SceneToSet;
+        if (SceneToSet->Windows.find(this) == SceneToSet->Windows.end()){
+            SceneToSet->Windows.insert(this);
+        }
+    }
+
+    vector2 window::SetResolution(const vector2& res){
+        SDL_SetWindowSize(SDLwindow, res.x, res.y);
+        return res;
+    }
 
     window* CreateWindow(std::string title, obj::vector2 resolution, Uint64 WindowFlags){
         //create a new window

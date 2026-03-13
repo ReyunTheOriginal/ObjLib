@@ -6,11 +6,13 @@ int main(int argc, char *argv[]){
     bool running = true;
     obj::Init();
     obj::window* Win = obj::CreateWindow("hello world", obj::vector2(800, 600));
-    obj::window* Win2 = obj::CreateWindow("hello Earth", obj::vector2(800, 600));
+    obj::window* Win2 = obj::CreateWindow("hello Earth", obj::vector2(1200, 600));
     obj::scene* Scene = obj::CreateScene();
     Win->SetScene(Scene);
     Win2->SetScene(Scene);
-    Scene->BackGroundColor = obj::color::black;
+    
+    Scene->GetActiveCamera()->ActiveScene = Scene;
+    Scene->GetActiveCamera()->SetResolution({800,600});
 
     obj::gameobject* gam = obj::CreateGameObject(Scene);
     obj::gameobject* gam2 = obj::CreateGameObject(Scene);
@@ -33,7 +35,7 @@ int main(int argc, char *argv[]){
         if (obj::Input.MouseButtonPressed(1)){
             float dis = MAXFLOAT;
             for (obj::gameobject* obj : Win->GetScene()->GameObjects){
-                float newdis = obj::Math::Distance(obj::Input.MousePosition, obj->Position);
+                float newdis = obj::Math::Distance(obj::Input.WorldMousePosition, obj->Position);
                 if (newdis < dis){
                     dis = newdis;
                     HeldObj = obj;
@@ -41,12 +43,32 @@ int main(int argc, char *argv[]){
             }
         }
 
+        if (obj::Input.KeyHeld(obj::KeyCode::R)){
+            if (obj::Input.KeyHeld(obj::KeyCode::LShift)){
+                Scene->GetActiveCamera()->Rotation++;
+            }else{
+                Scene->GetActiveCamera()->Rotation--;
+            }
+        }
+
+        if (obj::Input.KeyHeld(obj::KeyCode::Space)){
+            if (obj::Input.KeyHeld(obj::KeyCode::LShift)){
+                Scene->GetActiveCamera()->Zoom+= 0.01;
+            }else{
+                Scene->GetActiveCamera()->Zoom-= 0.01;
+            }
+        }
+
+        Scene->GetActiveCamera()->Position += obj::Input.DirectionalInput;
+
+        //obj::Print(Scene->GetActiveCamera()->Position);
+
         if (obj::Input.MouseButtonReleased(1)){
             HeldObj = nullptr;
         }
 
         if (HeldObj){
-            HeldObj->Position = obj::Input.MousePosition;
+            HeldObj->Position = obj::Input.WorldMousePosition;
         }
 
         //SDL_Delay(16);

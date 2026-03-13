@@ -2,6 +2,7 @@
 #include "Scene.hpp"
 #include "Window.hpp"
 #include "Gameobject.hpp"
+#include "Camera.hpp"
 #include <iostream>
 
 namespace obj{
@@ -32,11 +33,19 @@ namespace obj{
                             //get texture vectors
                             float w, h;
                             SDL_GetTextureSize(tex, &w, &h);
-                            //scale the rect
-                            float scaledH = h * GameObject->Size.y;
-                            float scaledW = w * GameObject->Size.x;
 
-                            SDL_FRect dst = {GameObject->Position.x - scaledW / 2.0f , GameObject->Position.y - scaledH / 2.0f, scaledW, scaledH };
+                            camera* ActiveCamera = GameObject->Scene->GetActiveCamera();
+                            ActiveCamera->ActiveWindow = Win;
+
+                            //scale the rect
+                            float zoom = ActiveCamera->Zoom;
+                            float scaledH = h * GameObject->Size.y * zoom;
+                            float scaledW = w * GameObject->Size.x * zoom;
+
+                            vector2 ScreenPos = ActiveCamera->WorldToScreenPosition(GameObject->Position);
+
+                            SDL_FRect dst = {ScreenPos.x - scaledW / 2.0f , 
+                                ScreenPos.y - scaledH / 2.0f, scaledW, scaledH };
 
                             //set the texture colors
                             SDL_SetTextureColorMod(tex, Color.r, Color.g, Color.b);
@@ -49,7 +58,7 @@ namespace obj{
                                 tex,
                                 NULL,   // src rect (whole texture)
                                 &dst,   // dst rect
-                                GameObject->Rotation,
+                                GameObject->Rotation + ActiveCamera->Rotation,
                                 NULL,   // center (NULL = center of dst)
                                 SDL_FLIP_NONE //not flipped
                             );

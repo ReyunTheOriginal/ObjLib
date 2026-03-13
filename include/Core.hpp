@@ -23,6 +23,7 @@
 #include "Sprite.hpp"
 #include "Components.hpp"
 #include "Gameobject.hpp"
+#include "Camera.hpp"
 #include "Scene.hpp"
 #include "Window.hpp"
 #include "GlobalLists.hpp"

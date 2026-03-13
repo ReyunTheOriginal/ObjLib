@@ -1,4 +1,6 @@
 #include "Input.hpp"
+#include "GlobalLists.hpp"
+#include "Scene.hpp"
 
 namespace obj{
     void Internal::input::Update(){
@@ -9,6 +11,7 @@ namespace obj{
         MouseButtonsReleased.clear();
 
         MouseMotion = {0,0};
+        DirectionalInput = {0,0};
 
         SDL_Event event;
         while (SDL_PollEvent(&event)){
@@ -47,9 +50,43 @@ namespace obj{
             }
         }
 
-        SDL_GetMouseState(&MousePosition.x, &MousePosition.y);
-        SDL_GetGlobalMouseState(&GlobalMousePosition.x, &GlobalMousePosition.y); 
+        SDL_GetMouseState(&ScreenMousePosition.x, &ScreenMousePosition.y);
+        SDL_GetGlobalMouseState(&GlobalMousePosition.x, &GlobalMousePosition.y);
 
+        // Get The Focused window
+        SDL_Window* FoWindow = SDL_GetMouseFocus();
+        if (FoWindow){
+            //loop through all windows and get the one with the correct sdlWindow
+            for (auto& win : Internal::GlobalWindows){
+                if (win.second->SDLwindow == FoWindow){
+                    FocusedWindow = win.second;
+                    break;
+                }
+            }
+        }
+
+        //Adjust the mouse position for resolution difference
+        if (FocusedWindow){
+            camera* camera = FocusedWindow->GetScene()->GetActiveCamera();
+
+            vector2 winres = FocusedWindow->GetResolution();
+            vector2 dif = winres-camera->GetResolution();
+            ScreenMousePosition -= dif/2;
+
+            //get the world position
+            WorldMousePosition = camera->ScreenToWorldPosition(ScreenMousePosition);
+        }else{
+            //default for World Mouse Position
+            WorldMousePosition = {-1, -1};
+        }
+
+        DirectionalInput.y =
+        (KeyHeld(KeyCode::W) || KeyHeld(KeyCode::Up)) -
+        (KeyHeld(KeyCode::S) || KeyHeld(KeyCode::Down));
+
+    DirectionalInput.x =
+        (KeyHeld(KeyCode::D) || KeyHeld(KeyCode::Right)) -
+        (KeyHeld(KeyCode::A) || KeyHeld(KeyCode::Left));
         
     }
 
