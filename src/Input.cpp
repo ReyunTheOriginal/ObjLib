@@ -67,14 +67,18 @@ namespace obj{
 
         //Adjust the mouse position for resolution difference
         if (FocusedWindow){
-            camera* camera = FocusedWindow->GetScene()->GetActiveCamera();
+           camera* camera = FocusedWindow->GetScene()->ActiveCamera;
+            camera->ActiveWindow = FocusedWindow;
 
-            vector2 winres = FocusedWindow->GetResolution();
-            vector2 dif = winres-camera->GetResolution();
-            ScreenMousePosition -= dif/2;
+            // Convert physical mouse coords to logical (letterboxed) render coords
+            float logicalX, logicalY;
+            SDL_RenderCoordinatesFromWindow(
+                FocusedWindow->SDLrenderer,
+                ScreenMousePosition.x, ScreenMousePosition.y,
+                &logicalX, &logicalY
+            );
 
-            //get the world position
-            WorldMousePosition = camera->ScreenToWorldPosition(ScreenMousePosition);
+            WorldMousePosition = camera->ScreenToWorldPosition({logicalX, logicalY});
         }else{
             //default for World Mouse Position
             WorldMousePosition = {-1, -1};

@@ -10,7 +10,7 @@
 #include "GlobalTypes.hpp"
 #include "Sprite.hpp"
 #include "Components.hpp"
-#include "Gameobject.hpp"
+#include "GameObject.hpp"
 #include "Scene.hpp"
 #include "Window.hpp"
 #include "Input.hpp"
@@ -19,6 +19,5 @@
 namespace obj{
     int  Init(); //Start up all necessary code to prepare the program
     void Update(); //update processes like physics, positions, and math
-    void Render(); //Render all renderable objects
     void Quit(); //safely quit the entire program
 }

@@ -1,5 +1,5 @@
 #include "Scene.hpp"
-#include "Gameobject.hpp"
+#include "GameObject.hpp"
 #include "Camera.hpp"
 
 namespace obj{
@@ -9,22 +9,17 @@ namespace obj{
         }
     }
 
-    camera* scene::SetActiveCamera(camera* Camera){
-        ActiveCamera = Camera;
-        return ActiveCamera;
-    }
-
     scene* CreateScene(){
         //create a new Scene
         scene* newSce = new scene();
 
         //add the window to the global list and increase the ID
-        Internal::SID++;
         Internal::GlobalScenes[Internal::SID] = newSce;
+        newSce->ID = Internal::SID;
+        Internal::SID++;
 
-        if (!newSce->ActiveCamera){
+        if (!newSce->ActiveCamera)
             newSce->ActiveCamera = CreateCamera();
-        }
 
         return newSce;  // Returns a copy/move; no dangling reference
     }

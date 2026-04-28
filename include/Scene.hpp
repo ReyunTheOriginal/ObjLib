@@ -3,7 +3,7 @@
 #include <unordered_set>
 #include "GlobalLists.hpp"
 #include "GlobalTypes.hpp"
-#include "Gameobject.hpp"
+#include "GameObject.hpp"
 
 namespace obj{
     struct window;
@@ -11,19 +11,19 @@ namespace obj{
 
     struct scene{
         private:
-        camera* ActiveCamera = nullptr;
-
+        int ID = 0;
         friend scene* CreateScene();
 
         public:
         std::unordered_set<window*> Windows;
-        std::unordered_set<gameobject*> GameObjects;
+        std::unordered_set<gameObject*> GameObjects;
 
         color BackGroundColor = color::DarkGray;
 
-        camera* GetActiveCamera(){return ActiveCamera;}
-        camera* SetActiveCamera(camera* Camera);
-
+        camera* ActiveCamera = nullptr;
+        
+        int GetID(){return ID;}
+        
         scene(){};
         ~scene();
     };

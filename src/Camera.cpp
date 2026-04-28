@@ -33,43 +33,28 @@ namespace obj{
         };
     }
 
-    vector2 camera::ScreenToWorldPosition(const vector2& PosToTranslate){
+    vector2 camera::ScreenToWorldPosition(const vector2& PosToTranslate) {
         if (Zoom <= 0) Zoom = 0.01f;
-
         vector2 result = PosToTranslate;
 
-        //Adjust for letterbox
-        vector2 logicalres = {0,0};
-        if (ActiveWindow){ 
-            vector2 winres = ActiveWindow->GetResolution();
-            vector2 dif = winres-Resolution;
-            logicalres = winres - dif;
-            result -= (logicalres/2);
-        }
+        vector2 res = GetResolution();
+        result -= (res / 2);
 
         result.y *= -1;
         result /= Zoom;
-
         result = Rotate(result, Math::Deg2Rad(Rotation));
         result = result + Position;
-
         return result;
     }
-    vector2 camera::WorldToScreenPosition(const vector2& PosToTranslate){
-        vector2 result = PosToTranslate - Position;
 
+    vector2 camera::WorldToScreenPosition(const vector2& PosToTranslate) {
+        vector2 result = PosToTranslate - Position;
         result = Rotate(result, -Math::Deg2Rad(Rotation));
         result = result * Zoom;
         result.y *= -1;
 
-        //Adjust for letterbox
-        vector2 logicalres = {0,0};
-        if (ActiveWindow){ 
-            vector2 winres = ActiveWindow->GetResolution();
-            vector2 dif = winres-Resolution;
-            logicalres = winres - dif;
-            result += (logicalres/2);
-        }
+        vector2 res = GetResolution();
+        result += (res / 2);
 
         return result;
     }

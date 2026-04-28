@@ -10,12 +10,16 @@
 #include "GlobalLists.hpp"
 #include "Components.hpp"
 
-
-
 namespace obj{
     struct scene;
 
-    struct gameobject{
+    struct gameObject{
+        private:
+        int ID = 0;
+
+        friend gameObject* CreateGameObject(scene* Scene);
+
+        public:
         std::string Name = "new GameObject";
         scene* Scene = nullptr;
         vector2 Position = {0,0};
@@ -25,6 +29,8 @@ namespace obj{
         std::unordered_map<std::type_index, Internal::component*> Components;
 
         Internal::component* AddComponent();
+
+        int GetID(){return ID;}
 
         template<typename T>
         T* GetComponent(){
@@ -51,13 +57,13 @@ namespace obj{
             }
         }
 
-        ~gameobject(){
+        ~gameObject(){
             for(auto& com : Components){
                 com.second->Destroy();
             }
         }
     };
 
-    gameobject* CreateGameObject(scene* Scene);
-    void DestroyGameObject(gameobject*);
+    gameObject* CreateGameObject(scene* Scene);
+    void DestroyGameObject(gameObject*);
 }

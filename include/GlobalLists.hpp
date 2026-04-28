@@ -3,7 +3,7 @@
 #include <unordered_map>
 
 namespace obj{
-    struct gameobject;
+    struct gameObject;
     struct scene;
     struct window;
 
@@ -12,7 +12,7 @@ namespace obj{
         extern int SID;
         extern int WID;
 
-        extern std::unordered_map<int, gameobject*> GlobalGameObjects;
+        extern std::unordered_map<int, gameObject*> GlobalGameObjects;
         extern std::unordered_map<int, scene*> GlobalScenes;
         extern std::unordered_map<int, window*> GlobalWindows;
 

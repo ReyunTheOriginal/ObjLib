@@ -1,21 +1,24 @@
-#include "Gameobject.hpp"
+#include "GameObject.hpp"
 #include "Scene.hpp"
 
 namespace obj{
-    gameobject* CreateGameObject(scene* Scene){
-        gameobject* newGam = new gameobject();
+    gameObject* CreateGameObject(scene* Scene){
+        gameObject* newGam = new gameObject();
         newGam->Scene = Scene;
         if (Scene) {
             Scene->GameObjects.insert(newGam);
         }
 
-        Internal::GID++;
         Internal::GlobalGameObjects[Internal::GID] = newGam;
-        newGam->Name = "Gameobject #" + Internal::GID;
+        newGam->ID = Internal::GID;
+
+        Internal::GID++;
+        
+        newGam->Name = "GameObject #" + Internal::GID;
         return newGam;
     }
 
-    void DestroyGameObject(gameobject* GameObject){
+    void DestroyGameObject(gameObject* GameObject){
         if (GameObject){
             for(auto com : GameObject->Components){
                 com.second->Destroy();

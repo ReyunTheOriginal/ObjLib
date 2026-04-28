@@ -23,8 +23,9 @@ namespace obj{
         newWin->SDLrenderer = SDL_CreateRenderer(newWin->SDLwindow, NULL);
 
         //add the window to the global list and increase the ID
-        Internal::WID++;
         Internal::GlobalWindows[Internal::WID] = newWin;
+        newWin->ID = Internal::WID;
+        Internal::WID++;
 
         return newWin;  // Returns a copy/move; no dangling reference
     }

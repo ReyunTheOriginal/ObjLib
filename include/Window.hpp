@@ -12,8 +12,10 @@
 namespace obj{
     struct window{
         private:
-        std::string Title = "obj::Hello, World!";
         scene* Scene = nullptr;
+        int ID = 0;
+
+        friend window* CreateWindow(std::string title, obj::vector2 resolution, Uint64 WindowFlags);
         public:
         
         SDL_Window* SDLwindow = nullptr;
@@ -21,8 +23,13 @@ namespace obj{
         int FPS = 0;
         bool Debug = false;
 
+        int GetID(){return ID;}
+
         void SetScene(scene* SceneToSet);
         scene* GetScene(){return Scene;}
+        
+        void SetTitle(std::string NewTitle){SDL_SetWindowTitle(SDLwindow, NewTitle.c_str());}
+        std::string GetTitle(){return SDL_GetWindowTitle(SDLwindow);}
 
         vector2 GetResolution(){int x, y; SDL_GetWindowSize(SDLwindow,&x, &y);return {(float)x,(float)y};}
         vector2 SetResolution(const vector2& res);

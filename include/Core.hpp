@@ -22,7 +22,7 @@
 #include "GlobalTypes.hpp"
 #include "Sprite.hpp"
 #include "Components.hpp"
-#include "Gameobject.hpp"
+#include "GameObject.hpp"
 #include "Camera.hpp"
 #include "Scene.hpp"
 #include "Window.hpp"
@@ -31,3 +31,4 @@
 #include "HelperFunctions.hpp"
 #include "InputKeys.hpp"
 #include "Input.hpp"
+#include "Rendering.hpp"
