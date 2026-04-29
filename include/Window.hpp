@@ -10,10 +10,12 @@
 #include "Scene.hpp"
 
 namespace obj{
+    
     struct window{
         private:
         scene* Scene = nullptr;
         int ID = 0;
+        vector2 CachedResolution = {0, 0};
 
         friend window* CreateWindow(std::string title, obj::vector2 resolution, Uint64 WindowFlags);
         public:
@@ -31,7 +33,7 @@ namespace obj{
         void SetTitle(std::string NewTitle){SDL_SetWindowTitle(SDLwindow, NewTitle.c_str());}
         std::string GetTitle(){return SDL_GetWindowTitle(SDLwindow);}
 
-        vector2 GetResolution(){int x, y; SDL_GetWindowSize(SDLwindow,&x, &y);return {(float)x,(float)y};}
+        vector2 GetResolution(){return CachedResolution;}
         vector2 SetResolution(const vector2& res);
 
         window();

@@ -2,12 +2,14 @@
 
 namespace obj{
     namespace Internal{
-        int GID = 0; //incremental ID for GameObjects
-        int SID = 0; //incremental ID for Scenes
-        int WID = 0; //incremental ID for Windows
+        int Gam_ID = 0; //incremental ID for GameObjects
+        int Sce_ID = 0; //incremental ID for Scenes
+        int Win_ID = 0; //incremental ID for Windows
+        int Spr_ID = 0; //incremental ID for Sprites
 
-        std::unordered_map<int, gameObject*> GlobalGameObjects;
-        std::unordered_map<int, scene*> GlobalScenes;
-        std::unordered_map<int, window*> GlobalWindows;
+        std::vector<gameObject*> GlobalGameObjects;
+        std::vector<scene*> GlobalScenes;
+        std::vector<window*> GlobalWindows;
+        std::vector<sprite*> GlobalSprites;
     }
 } // namespace obj

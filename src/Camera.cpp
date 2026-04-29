@@ -10,7 +10,9 @@ namespace obj{
     }
 
     vector2 camera::SetResolution(const vector2& res){
-        Resolution = res; 
+        //if (Resolution.x == res.x && Resolution.y == res.y) return Resolution; // Skip if unchanged
+        
+        Resolution = res;
 
         if (ActiveScene && !ActiveScene->Windows.empty()){
             for (window* win : ActiveScene->Windows){

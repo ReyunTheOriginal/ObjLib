@@ -8,35 +8,34 @@
 #include "Window.hpp"
 
 namespace obj{
-    namespace Internal{
-        struct input{
-            private:
-            std::unordered_set<SDL_Keycode> KeysPressed;
-            std::unordered_set<SDL_Keycode> KeysReleased;
-            std::unordered_set<SDL_Keycode> KeysHeld;
+    namespace Input{
+        
+        namespace Internal{
+            extern std::unordered_set<SDL_Keycode> KeysPressed;
+            extern std::unordered_set<SDL_Keycode> KeysReleased;
+            extern std::unordered_set<SDL_Keycode> KeysHeld;
 
-            std::unordered_set<Uint8> MouseButtonsPressed;
-            std::unordered_set<Uint8> MouseButtonsReleased;
-            std::unordered_set<Uint8> MouseButtonsHeld;
+            extern std::unordered_set<Uint8> MouseButtonsPressed;
+            extern std::unordered_set<Uint8> MouseButtonsReleased;
+            extern std::unordered_set<Uint8> MouseButtonsHeld;
+        }
 
-            public:
-            vector2 ScreenMousePosition = {0,0};
-            vector2 WorldMousePosition = {0,0};
-            vector2 GlobalMousePosition = {0,0};
-            vector2 MouseMotion = {0,0};
-            vector2 DirectionalInput = {0,0};
-            window* FocusedWindow = nullptr;
+        extern vector2 ScreenMousePosition;
+        extern vector2 WorldMousePosition;
+        extern vector2 GlobalMousePosition;
+        extern vector2 MouseMotion;
+        extern vector2 DirectionalInput;
+        extern window* FocusedWindow;
 
-            void Update();
+        void Update();
 
-            bool KeyPressed(SDL_Keycode Key);
-            bool KeyReleased(SDL_Keycode Key);
-            bool KeyHeld(SDL_Keycode Key);
+        bool KeyPressed(SDL_Keycode Key);
+        bool KeyReleased(SDL_Keycode Key);
+        bool KeyHeld(SDL_Keycode Key);
 
-            bool MouseButtonPressed(int Button);
-            bool MouseButtonReleased(int Button);
-            bool MouseButtonHeld(int Button);
-        };
+        bool MouseButtonPressed(int Button);
+        bool MouseButtonReleased(int Button);
+        bool MouseButtonHeld(int Button);
+
     }
-    extern Internal::input Input;
 }

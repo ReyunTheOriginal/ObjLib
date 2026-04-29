@@ -6,24 +6,29 @@ namespace obj{
         gameObject* newGam = new gameObject();
         newGam->Scene = Scene;
         if (Scene) {
-            Scene->GameObjects.insert(newGam);
+            Scene->GameObjects.push_back(newGam);
         }
 
-        Internal::GlobalGameObjects[Internal::GID] = newGam;
-        newGam->ID = Internal::GID;
+        Internal::GlobalGameObjects.push_back(newGam);
+        newGam->ID = Internal::Gam_ID;
 
-        Internal::GID++;
-        
-        newGam->Name = "GameObject #" + Internal::GID;
+        Internal::Gam_ID++;
+
+        newGam->Name = "GameObject #" + Internal::Gam_ID;
         return newGam;
+    }
+
+    void gameObject::SendToScene(scene* SceneToSendTo){
+        if (Scene){
+            std::erase(Scene->GameObjects, this);
+
+            SceneToSendTo->GameObjects.push_back(this);
+        }
     }
 
     void DestroyGameObject(gameObject* GameObject){
         if (GameObject){
-            for(auto com : GameObject->Components){
-                com.second->Destroy();
-            }
-            delete GameObject;
+            delete GameObject; // Destructor will handle cleanup
         }
     }
 }

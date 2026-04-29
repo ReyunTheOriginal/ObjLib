@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_set>
+#include <vector>
 #include "GlobalLists.hpp"
 #include "GlobalTypes.hpp"
 #include "GameObject.hpp"
@@ -15,8 +16,10 @@ namespace obj{
         friend scene* CreateScene();
 
         public:
-        std::unordered_set<window*> Windows;
-        std::unordered_set<gameObject*> GameObjects;
+        std::vector<window*> Windows;
+        std::vector<gameObject*> GameObjects;
+
+        std::vector<Internal::component*> RenderableComponenets;
 
         color BackGroundColor = color::DarkGray;
 

@@ -32,6 +32,8 @@ namespace obj{
 
         int GetID(){return ID;}
 
+        void SendToScene(scene* SceneToSendTo);
+
         template<typename T>
         T* GetComponent(){
             auto ref = Components.find(typeid(T));
@@ -42,6 +44,7 @@ namespace obj{
         template<typename T>
         T* AddComponent(){
             auto comp = new T();
+            comp->RenderLayer = new Internal::renderLayer();
             comp->GameObject = this;
 
             auto [it, inserted] = Components.emplace(std::type_index(typeid(T)), comp);
@@ -59,8 +62,12 @@ namespace obj{
 
         ~gameObject(){
             for(auto& com : Components){
-                com.second->Destroy();
+                if (com.second){
+                    com.second->Destroy();
+                    delete com.second->RenderLayer; // Clean up RenderLayer
+                }
             }
+            Components.clear();
         }
     };
 

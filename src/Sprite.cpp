@@ -1,26 +1,36 @@
 #include "Sprite.hpp"
 
-namespace obj{
-    //get the set image path
-    std::string sprite::GetImagePath(){
-        return this->SpritePath;
-    }
-    
+namespace obj{    
     //safely create the sprite
     sprite* CreateSprite(std::string ImagePath){
         if (std::filesystem::exists(ImagePath)){
-            sprite* ref = new sprite();
+            sprite* newSprite = new sprite();
+            
+            Internal::GlobalSprites.push_back(newSprite);
+            newSprite->ID = Internal::Spr_ID;
+            Internal::Spr_ID++;
 
-            ref->SDLsurface = IMG_Load(ImagePath.c_str());
-            ref->SpritePath = ImagePath;
+            newSprite->SDLsurface = IMG_Load(ImagePath.c_str());
+            newSprite->SpritePath = ImagePath;
 
-            return ref;
+            for (window* Win : Internal::GlobalWindows){
+                newSprite->Textures[Win->SDLrenderer] = SDL_CreateTextureFromSurface(Win->SDLrenderer,newSprite->SDLsurface);
+            }
+
+            return newSprite;
         }else{
+            std::cout << "Sprite not Found:" << '"'<< ImagePath << '"' << "\n";
             return nullptr;
         }
     }
     //safely destroy the sprite
     void DestroySprite(sprite* sprite){
+        if (sprite->SDLsurface)SDL_DestroySurface(sprite->SDLsurface);
+
+        for (auto& tex : sprite->Textures){
+            SDL_DestroyTexture(tex.second);
+        }
+        
         delete sprite;
     }
 }

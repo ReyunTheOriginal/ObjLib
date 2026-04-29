@@ -1,4 +1,7 @@
-Version: 4.4.5
+Version: v4.6.0-Beta
 
 Changes:
-- Fixed Input.WorldMousePosition giving incorrect positions in different windows
+- Added Time with timescale, deltatime and RealTime
+- Added FPS with SetTargetFPS(), FPS, and ExactFPS
+- made it so instead of SpriteRenderers holding a texture for each renderer, the sprite holds the texture and the sprite renderer simply uses it
+- some general optimizations

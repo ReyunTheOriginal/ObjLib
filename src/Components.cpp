@@ -4,24 +4,21 @@
 #include "GameObject.hpp"
 #include "Camera.hpp"
 #include <iostream>
+#include <algorithm>
+#include "Sprite.hpp"
 
 namespace obj{
     #pragma region <Components>
 /////////////////////////////////////////////////////////// 
         #pragma region <spriteRenderer>
             void spriteRenderer::Run(){
-                //loop through all windows with the scene and create a texture for them
-                if (GameObject && GameObject->Scene){
-                    for (window* Win : GameObject->Scene->Windows){
-                        if (Win != nullptr && Win->SDLrenderer != nullptr && !SDLtextures[Win->SDLrenderer] && Sprite){
-                            SDLtextures[Win->SDLrenderer] = SDL_CreateTextureFromSurface(Win->SDLrenderer,Sprite->SDLsurface);
-                        }
-                    }
-                }
+                // Add to renderable components if not already present
+                GameObject->Scene->RenderableComponenets.push_back(this);
             }
+
             void spriteRenderer::Draw(SDL_Renderer* renderer){
-                if (GameObject != nullptr && GameObject->Scene != nullptr){
-                    auto tex = SDLtextures[renderer];
+                if (GameObject != nullptr && GameObject->Scene != nullptr && Sprite->Textures.contains(renderer)){
+                    auto tex = Sprite->Textures[renderer];
                     if (renderer != nullptr && tex && Sprite != nullptr){
                         //normal Draw
             
@@ -56,15 +53,8 @@ namespace obj{
                             NULL,   // center (NULL = center of dst)
                             SDL_FLIP_NONE //not flipped
                         );
-
-                        //Debug Draw
-                        DebugDraw();
                     }
                 }
-            }
-            void spriteRenderer::Destroy(){
-                if (Sprite) DestroySprite(Sprite);
-                delete this;
             }
         #pragma endregion <spriteRenderer>
 ////////////////////////////////////////////////////////////
