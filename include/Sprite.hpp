@@ -27,9 +27,16 @@ namespace obj{
 
         std::string GetImagePath(){return SpritePath;}
         int GetID(){return ID;}
+
+        ~sprite(){
+            if (SDLsurface)SDL_DestroySurface(SDLsurface);
+
+            for (auto& tex : Textures){
+                SDL_DestroyTexture(tex.second);
+            }
+        }
     };
 
     sprite* CreateSprite(std::string ImagePath); //safely create the sprite
-    void DestroySprite(sprite* sprite); //safely destroy the sprite
 
 }

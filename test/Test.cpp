@@ -1,6 +1,6 @@
 #include "../include/Core.hpp"
 
-obj::gameObject* HeldObj = nullptr;
+/*obj::gameObject* HeldObj = nullptr;
 
 int main(int argc, char *argv[]){
     bool running = true;
@@ -34,12 +34,10 @@ int main(int argc, char *argv[]){
     obj::sprite* sp2 = obj::CreateSprite(obj::exePath() + "/Sprites/Default/Circle.png");
     obj::sprite* sp3 = obj::CreateSprite(obj::exePath() + "/Sprites/Default/Square.png");
 
-    obj::window* Win2 = obj::CreateWindow("hello Earth", obj::vector2(1200, 600));
-    Win2->SetScene(Scene);
-
     sr->Sprite = sp;
     sr2->Sprite = sp2;
     sr3->Sprite = sp3;
+
 
     sr3->RenderLayer->Order = 2;
 
@@ -60,6 +58,10 @@ int main(int argc, char *argv[]){
                     HeldObj = obj;
                 }
             }
+        }
+
+        if (obj::Input::KeyPressed(obj::KeyCode::G)){
+            sr->FlipVertical = !sr->FlipVertical;
         }
 
         float move = 5 * obj::Time::DeltaTime;
@@ -102,4 +104,120 @@ int main(int argc, char *argv[]){
 
     obj::Quit();
     return 0;
+}*/
+
+using namespace obj;
+
+sprite* SquareSprite = CreateSprite(exePath() + "/Sprites/Default/Square.png");
+
+std::vector<gameObject*> Pillers;
+
+void CreatePiller(scene* Scene){
+    float openingSize = RandomRange((float)0, (float)70/32);
+    float openingloc = RandomRange((float)-120/32, (float)120/32);
+
+    gameObject* TopObj = CreateGameObject(Scene);
+    spriteRenderer* TopRen = TopObj->AddComponent<spriteRenderer>();
+
+    TopObj->Transform->Position = {550/32, (350 + openingSize + openingloc)/32};
+    TopObj->Transform->Scale = {0.3, 2};
+
+    TopRen->Sprite = SquareSprite;
+
+    TopRen->Color = {255, 0, 0};
+
+    Pillers.push_back(TopObj);
+
+    gameObject* DownObj = CreateGameObject(Scene);
+    spriteRenderer* DownRen = DownObj->AddComponent<spriteRenderer>();
+
+    DownObj->Transform->Position = {550/32, (-350 - openingSize + openingloc)/32};
+
+    DownObj->Transform->Scale = {0.3, 2};
+
+    DownRen->Sprite = SquareSprite;
+
+    DownRen->Color = {255, 0, 0};
+
+    Pillers.push_back(DownObj);
+
 }
+
+int main(){
+    Init();
+
+    FPS::SetTargetFrameRate(60);
+
+    window* Window = CreateWindow("Flappy Bird Test", {800, 600});
+    scene* Scene = CreateScene();
+    Window->SetScene(Scene);
+    gameObject* flappy = CreateGameObject(Scene);
+
+    spriteRenderer* renderer = flappy->AddComponent<spriteRenderer>();
+    
+    renderer->Sprite = SquareSprite;
+    renderer->Color = {0, 255, 0};
+
+    flappy->Transform->Scale = {0.3, 0.3};
+    flappy->Transform->Position.x = -200/32;
+
+    vector2 Velocity = {0,0};
+
+
+    bool running = true;
+
+    float Gravity = 740/32;
+    float JumpForce = 320/32;
+    float PillerSpeed = 250/32;
+
+    float pillerTimer = 0;
+
+    float pillerCoolDown = 3;
+
+    UI::canvas* Canvas = UI::CreateCanvas(Scene->ActiveCamera);
+
+    UI::screenObject* scren = UI::CreateScreenObject(Canvas);
+
+    sprite* CircleSprite = CreateSprite(exePath() + "/Sprites/Default/Triangle.png");
+
+    UI::image* i = scren->AddComponent<UI::image>();
+
+    i->Sprite = CircleSprite;
+
+    while (running){
+        Update();
+
+        pillerTimer += Time::DeltaTime;
+
+        Velocity.y -= Gravity * Time::DeltaTime;
+
+        if (Input::KeyPressed(KeyCode::Space)){
+            Velocity.y = JumpForce;
+        }
+
+        scren->UITransform->Position = Input::ScreenMousePosition;
+
+        if (pillerTimer >= pillerCoolDown){
+            pillerCoolDown = RandomRange((float)0.8, (float)3);
+            CreatePiller(Scene);
+            pillerTimer = 0;
+        }
+
+        for (int i = (int)Pillers.size() - 1; i >= 0; i--){
+            gameObject* piller = Pillers[i];
+            piller->Transform->Position.x -= PillerSpeed * Time::DeltaTime;
+
+            if (piller->Transform->Position.x <= -500){
+                Pillers.erase(Pillers.begin() + i);
+                Destroy(piller);
+            }
+        }
+
+        flappy->Transform->Position += Velocity * Time::DeltaTime;
+        
+        Render();
+    }
+    return 0;
+}
+
+

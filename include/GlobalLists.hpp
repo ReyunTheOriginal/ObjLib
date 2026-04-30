@@ -9,13 +9,15 @@ namespace obj{
     struct window;
     struct sprite;
 
+    namespace UI{
+        struct screenObject;
+    }
+
     namespace Internal{
-        extern int Gam_ID; //incremental ID for GameObjects
-        extern int Sce_ID; //incremental ID for Scenes
-        extern int Win_ID; //incremental ID for Windows
-        extern int Spr_ID; //incremental ID for Sprites
+        extern int Obj_ID; //incremental ID for Engine Objects
 
         extern std::vector<gameObject*> GlobalGameObjects;
+        extern std::vector<UI::screenObject*> GlobalScreenObjects;
         extern std::vector<scene*> GlobalScenes;
         extern std::vector<window*> GlobalWindows;
         extern std::vector<sprite*> GlobalSprites;

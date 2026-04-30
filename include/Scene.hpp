@@ -1,14 +1,17 @@
 #pragma once
 
-#include <unordered_set>
 #include <vector>
 #include "GlobalLists.hpp"
 #include "GlobalTypes.hpp"
-#include "GameObject.hpp"
 
 namespace obj{
     struct window;
     struct camera;
+    struct gameObject;
+    
+    namespace Internal{
+        struct component;
+    }
 
     struct scene{
         private:
@@ -32,5 +35,4 @@ namespace obj{
     };
 
     scene* CreateScene();
-    void DestroyScene(scene* Scene);
 }

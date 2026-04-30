@@ -38,11 +38,16 @@ namespace obj{
 
         window();
         ~window(){
+            std::erase(Internal::GlobalWindows, this);
+            
+            if (Scene){
+                std::erase(Scene->Windows, this);
+            }
+
             if (SDLrenderer)SDL_DestroyRenderer(this->SDLrenderer);
             if (SDLwindow)SDL_DestroyWindow(this->SDLwindow);
         };
     };
 
     window* CreateWindow(std::string title,obj::vector2 resolution,Uint64 WindowFlags = SDL_WINDOW_RESIZABLE);
-    void DestroyWindow(window* Window);
 }

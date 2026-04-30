@@ -11,7 +11,7 @@
 #include "Math.hpp"
 #include "GlobalTypes.hpp"
 #include "Sprite.hpp"
-#include "Components.hpp"
+#include "Components/ComponentBase.hpp"
 #include "GameObject.hpp"
 #include "Camera.hpp"
 #include "Scene.hpp"
@@ -24,3 +24,4 @@
 #include "Rendering.hpp"
 #include "Time.hpp"
 #include "Framerate.hpp"
+#include "UI/UIBase.hpp"

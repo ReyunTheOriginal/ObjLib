@@ -7,8 +7,8 @@ namespace obj{
             sprite* newSprite = new sprite();
             
             Internal::GlobalSprites.push_back(newSprite);
-            newSprite->ID = Internal::Spr_ID;
-            Internal::Spr_ID++;
+            newSprite->ID = Internal::Obj_ID;
+            Internal::Obj_ID++;
 
             newSprite->SDLsurface = IMG_Load(ImagePath.c_str());
             newSprite->SpritePath = ImagePath;
@@ -22,15 +22,5 @@ namespace obj{
             std::cout << "Sprite not Found:" << '"'<< ImagePath << '"' << "\n";
             return nullptr;
         }
-    }
-    //safely destroy the sprite
-    void DestroySprite(sprite* sprite){
-        if (sprite->SDLsurface)SDL_DestroySurface(sprite->SDLsurface);
-
-        for (auto& tex : sprite->Textures){
-            SDL_DestroyTexture(tex.second);
-        }
-        
-        delete sprite;
     }
 }

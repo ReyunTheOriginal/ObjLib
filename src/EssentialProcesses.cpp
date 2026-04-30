@@ -1,4 +1,22 @@
 #include "EssentialProcesses.hpp"
+#include <algorithm>
+
+#include <iostream>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3_ttf/SDL_ttf.h>
+#include <SDL3_mixer/SDL_mixer.h>
+#include "GlobalLists.hpp"
+#include "Scene.hpp"
+#include "GlobalTypes.hpp"
+#include "Component.hpp"
+#include "GameObject.hpp"
+#include "Scene.hpp"
+#include "Window.hpp"
+#include "Input.hpp"
+#include "Camera.hpp"
+#include "UI/ScreenObject.hpp"
+#include "Time.hpp"
 
 namespace obj{
     //Start up all necessary code to prepare the program
@@ -12,7 +30,23 @@ namespace obj{
         Input::Update();
         Time::Update();
         
-        for (auto& obj : Internal::GlobalGameObjects){
+        // Create a snapshot to avoid iterator invalidation if objects are destroyed during update
+        auto GameObjectsSnapshot = Internal::GlobalGameObjects;
+        for (auto& obj : GameObjectsSnapshot){
+            if (obj){
+                //loop through all components and run them
+                for (auto& com : obj->Components){
+                    if (com.second){
+                        if (!com.second->DidInit){com.second->Init(); com.second->DidInit = true;}
+                        if (com.second->Enabled)com.second->Run();
+                    }
+                }
+            }
+        }
+
+        // Create a snapshot to avoid iterator invalidation if objects are destroyed during update
+        auto ScreenObjectsSnapshot = Internal::GlobalScreenObjects;
+        for (auto& obj : ScreenObjectsSnapshot){
             if (obj){
                 //loop through all components and run them
                 for (auto& com : obj->Components){
@@ -25,17 +59,15 @@ namespace obj{
         }
 
         //set all children/parent relationships to maintain correctness
-        for (auto& win : Internal::GlobalWindows){
-            scene* Scene = win->GetScene();
-            if (Scene) {
-                camera* ActiveCamera = Scene->ActiveCamera;
-                if (ActiveCamera) {
-                    ActiveCamera->ActiveScene = Scene;
-                }
-                for (auto& obj : Scene->GameObjects){
-                    obj->Scene = Scene;
-                    for (auto& com : obj->Components){
-                        com.second->GameObject = obj;
+        // Create a snapshot of windows too
+        auto WindowsSnapshot = Internal::GlobalWindows;
+        for (auto& win : WindowsSnapshot){
+            if (win){
+                scene* Scene = win->GetScene();
+                if (Scene) {
+                    camera* ActiveCamera = Scene->ActiveCamera;
+                    if (ActiveCamera) {
+                        ActiveCamera->ActiveScene = Scene;
                     }
                 }
             }
@@ -46,14 +78,14 @@ namespace obj{
     void Quit(){
         //clear all scenes (this will delete all gameobjects through scene destructors)
         for (auto& scene : Internal::GlobalScenes){
-            DestroyScene(scene);
+            delete scene;
         }
         Internal::GlobalScenes.clear();
         Internal::GlobalGameObjects.clear(); // These are already deleted by scene destructors
 
         //clear all windows
         for (auto& win : Internal::GlobalWindows){
-            DestroyWindow(win);
+            delete win;
         }
         Internal::GlobalWindows.clear();
 

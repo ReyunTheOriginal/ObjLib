@@ -1,5 +1,7 @@
 #include "Time.hpp"
 
+#include <cmath>
+
 namespace obj{
     namespace Time{
         float TimeScale = 1;
@@ -17,7 +19,9 @@ namespace obj{
         void Update(){
             Uint64 now = SDL_GetPerformanceCounter();
 
-            RealTime = ((double)(now - last) / perfFrequency);
+            RealTime = ((float)(now - last) / (float)perfFrequency);
+            RealTime = std::min(RealTime, 0.3f);
+
             DeltaTime = RealTime * TimeScale;
 
             // Frame rate limiting
@@ -31,10 +35,10 @@ namespace obj{
                 DeltaTime = RealTime * TimeScale;
             }
 
-            ::obj::FPS::ExactFPS = 1/DeltaTime;
+            ::obj::FPS::ExactFPS = 1/RealTime;
             
             Internal::FrameCount++;
-            Internal::FrameTimer += DeltaTime;
+            Internal::FrameTimer += RealTime;
 
             if (Internal::FrameTimer >= 1.0){
                 ::obj::FPS::FPS = Internal::FrameCount;

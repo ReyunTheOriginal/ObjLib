@@ -1,8 +1,12 @@
 #pragma once
 
-#include <SDL3/SDL.h>
-
 namespace obj{
+    namespace Internal{
+        struct renderSorter{
+            int Order;
+            int Layer;
+        };
+    }
     struct color{
         float r,g,b,a = 255;
 
@@ -38,15 +42,6 @@ namespace obj{
         static const color LightPurple;
         static const color Transparent;
     #pragma endregion <Color Presets>
-
-        SDL_Color ToSDL() const {
-            return {
-                (Uint8)(r),
-                (Uint8)(g),
-                (Uint8)(b),
-                (Uint8)(a)
-            };
-        }
 
         static color FromHex(unsigned int hexValue, float alpha = 255) {
             float r = (float)((hexValue >> 16) & 0xFF);

@@ -31,22 +31,16 @@ namespace obj{
         newWin->CachedResolution = resolution;
 
         //add the window to the global list and increase the ID
-        newWin->ID = Internal::Win_ID;
+        newWin->ID = Internal::Obj_ID;
         Internal::GlobalWindows.push_back(newWin);
-        Internal::Win_ID++;
+        Internal::Obj_ID++;
 
         for (sprite* spri : Internal::GlobalSprites){
-            if (!spri->Textures.contains(newWin->SDLrenderer)){
+            if (spri->SDLsurface && !spri->Textures.contains(newWin->SDLrenderer)){
                 spri->Textures[newWin->SDLrenderer] = SDL_CreateTextureFromSurface(newWin->SDLrenderer,spri->SDLsurface);
             }
         }
 
         return newWin;  // Returns a copy/move; no dangling reference
-    }
-
-    void DestroyWindow(window* Window){
-        if (Window){
-            delete Window;
-        }
     }
 }

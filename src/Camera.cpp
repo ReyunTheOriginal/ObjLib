@@ -1,4 +1,6 @@
 #include "Camera.hpp"
+#include "Scene.hpp"
+#include "Window.hpp"
 
 namespace obj{
     camera* CreateCamera(){
@@ -35,6 +37,8 @@ namespace obj{
         };
     }
 
+    const float PixelsPerUnit = 32;
+
     vector2 camera::ScreenToWorldPosition(const vector2& PosToTranslate) {
         if (Zoom <= 0) Zoom = 0.01f;
         vector2 result = PosToTranslate;
@@ -43,7 +47,7 @@ namespace obj{
         result -= (res / 2);
 
         result.y *= -1;
-        result /= Zoom;
+        result /= (Zoom * PixelsPerUnit);
         result = Rotate(result, Math::Deg2Rad(Rotation));
         result = result + Position;
         return result;
@@ -52,7 +56,7 @@ namespace obj{
     vector2 camera::WorldToScreenPosition(const vector2& PosToTranslate) {
         vector2 result = PosToTranslate - Position;
         result = Rotate(result, -Math::Deg2Rad(Rotation));
-        result = result * Zoom;
+        result *= (Zoom * PixelsPerUnit);
         result.y *= -1;
 
         vector2 res = GetResolution();

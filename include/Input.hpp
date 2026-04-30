@@ -1,13 +1,12 @@
 #pragma once
 
-#include <SDL3/SDL.h>
-#include "Math.hpp"
 #include <unordered_set>
-#include "InputKeys.hpp"
-#include "EssentialProcesses.hpp"
-#include "Window.hpp"
+#include <SDL3/SDL.h>
 
 namespace obj{
+    struct vector2;
+    struct window;
+
     namespace Input{
         
         namespace Internal{

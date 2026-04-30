@@ -1,6 +1,11 @@
 #include "Input.hpp"
+
 #include "GlobalLists.hpp"
-#include "Scene.hpp"
+#include "Math.hpp"
+#include "InputKeys.hpp"
+#include "EssentialProcesses.hpp"
+#include "Window.hpp"
+#include "Camera.hpp"
 
 namespace obj{
     namespace Input{
@@ -86,18 +91,21 @@ namespace obj{
 
         //Adjust the mouse position for resolution difference
         if (FocusedWindow){
-           camera* camera = FocusedWindow->GetScene()->ActiveCamera;
-            camera->ActiveWindow = FocusedWindow;
+            scene* Scene = FocusedWindow->GetScene();
+            if (Scene){
+                camera* camera = Scene->ActiveCamera;
+                camera->ActiveWindow = FocusedWindow;
 
-            // Convert physical mouse coords to logical (letterboxed) render coords
-            float logicalX, logicalY;
-            SDL_RenderCoordinatesFromWindow(
-                FocusedWindow->SDLrenderer,
-                ScreenMousePosition.x, ScreenMousePosition.y,
-                &logicalX, &logicalY
-            );
+                // Convert physical mouse coords to logical (letterboxed) render coords
+                float logicalX, logicalY;
+                SDL_RenderCoordinatesFromWindow(
+                    FocusedWindow->SDLrenderer,
+                    ScreenMousePosition.x, ScreenMousePosition.y,
+                    &logicalX, &logicalY
+                );
 
-            WorldMousePosition = camera->ScreenToWorldPosition({logicalX, logicalY});
+                WorldMousePosition = camera->ScreenToWorldPosition({logicalX, logicalY});
+            }
         }else{
             //default for World Mouse Position
             WorldMousePosition = {-1, -1};

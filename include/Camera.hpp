@@ -2,9 +2,15 @@
 
 #include "Math.hpp"
 #include "GlobalTypes.hpp"
-#include "Window.hpp"
 
-namespace obj{    
+namespace obj{
+    struct scene;
+    struct window;
+    
+    namespace UI{
+        struct canvas;
+    }
+
     struct camera{
         private:
         vector2 Resolution = {800, 600};
@@ -13,9 +19,10 @@ namespace obj{
         vector2 Position = {0,0};
         float Rotation = 0;
         float Zoom = 1;
-        color ColorTint = {255,0,0,0};
+
         scene* ActiveScene = nullptr;
         window* ActiveWindow = nullptr;
+        UI::canvas* ActiveCanvas = nullptr;
 
         vector2 GetResolution(){return Resolution;}
         vector2 SetResolution(const vector2& res);

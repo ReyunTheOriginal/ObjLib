@@ -13,6 +13,9 @@
 
 extern std::mt19937 gen;
 
+struct SDL_FPoint;
+struct SDL_Point;
+
 namespace obj{
     //captialized string helpers
     std::string Lower(std::string stri);
@@ -34,6 +37,10 @@ namespace obj{
             T output = RandomI(gen);
             return output;
         }
+    }
+
+    void Destroy(auto& Obj){
+        delete Obj;
     }
 
     //general print() for any type i can think of

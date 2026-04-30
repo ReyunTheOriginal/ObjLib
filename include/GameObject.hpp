@@ -1,30 +1,33 @@
 #pragma once
 
-#include "Math.hpp"
+#include <typeinfo>
+#include <string>
 #include <unordered_map>
 #include <memory>
 #include <typeindex>
 #include <cctype>
-#include <typeinfo>
-#include <string>
-#include "GlobalLists.hpp"
-#include "Components.hpp"
+
+#include "Component.hpp"
 
 namespace obj{
+    struct gameObject;
     struct scene;
+
+    namespace Internal{
+        struct transform;
+        struct renderSorter;
+    }
 
     struct gameObject{
         private:
         int ID = 0;
 
         friend gameObject* CreateGameObject(scene* Scene);
+        scene* Scene = nullptr;
 
         public:
         std::string Name = "new GameObject";
-        scene* Scene = nullptr;
-        vector2 Position = {0,0};
-        vector2 Size = {1,1};
-        float Rotation = 0;
+        Internal::transform* Transform = nullptr;
         
         std::unordered_map<std::type_index, Internal::component*> Components;
 
@@ -32,7 +35,8 @@ namespace obj{
 
         int GetID(){return ID;}
 
-        void SendToScene(scene* SceneToSendTo);
+        scene* GetScene(){return Scene;}
+        void SetScene(scene* SceneToSendTo);
 
         template<typename T>
         T* GetComponent(){
@@ -44,7 +48,7 @@ namespace obj{
         template<typename T>
         T* AddComponent(){
             auto comp = new T();
-            comp->RenderLayer = new Internal::renderLayer();
+            comp->RenderLayer = new Internal::renderSorter();
             comp->GameObject = this;
 
             auto [it, inserted] = Components.emplace(std::type_index(typeid(T)), comp);
@@ -54,23 +58,13 @@ namespace obj{
         void RemoveComponent(){
             auto ref = Components.find(typeid(T));
             if (ref != Components.end()){
-                ref->second->Destroy();
-                delete ref->second;
                 Components.erase(ref);
+                delete ref->second;
             }
         }
 
-        ~gameObject(){
-            for(auto& com : Components){
-                if (com.second){
-                    com.second->Destroy();
-                    delete com.second->RenderLayer; // Clean up RenderLayer
-                }
-            }
-            Components.clear();
-        }
+        ~gameObject();
     };
 
     gameObject* CreateGameObject(scene* Scene);
-    void DestroyGameObject(gameObject*);
 }
