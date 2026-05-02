@@ -15,7 +15,6 @@ namespace obj{
         bool FlipHorizontal = false;
         bool FlipVertical = false;
 
-        void Run() override;
-        void Draw(SDL_Renderer* renderer) override;
+        void Draw(window* Window) override;
     };
 }

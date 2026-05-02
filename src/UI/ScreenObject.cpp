@@ -36,7 +36,7 @@ namespace obj{
 
             ::obj::Internal::GlobalScreenObjects.push_back(newObj);
             newObj->ID = ::obj::Internal::Obj_ID;
-            newObj->Name = "screenObject #" + ::obj::Internal::Obj_ID;
+            newObj->Name = "screenObject #" + std::to_string(::obj::Internal::Obj_ID);
             ::obj::Internal::Obj_ID++;
             return newObj;
         }

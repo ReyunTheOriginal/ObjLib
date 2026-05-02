@@ -9,23 +9,15 @@
 
 namespace obj{
 
-    void spriteRenderer::Run(){
-        // Add to renderable components only once per scene
-        if (GameObject && GameObject->GetScene()){
-            auto& vec = GameObject->GetScene()->RenderableComponenets;
-            vec.push_back(this);
-        }
-    }
-
-    void spriteRenderer::Draw(SDL_Renderer* renderer){
-        if (renderer && GameObject && GameObject->GetScene() && Sprite && Sprite->Textures.contains(renderer)){
-            auto tex = Sprite->Textures[renderer];
+    void spriteRenderer::Draw(window* Window){
+        if (Window->SDLrenderer && GameObject && GameObject->GetScene() && Sprite && Sprite->Textures.contains(Window->SDLrenderer)){
+            auto tex = Sprite->Textures[Window->SDLrenderer];
             if (tex){
                 //get texture vectors
                 float w, h;
                 SDL_GetTextureSize(tex, &w, &h);
 
-                camera* ActiveCamera = GameObject->GetScene()->ActiveCamera;
+                camera* ActiveCamera = Window->ActiveCamera;
 
                 //scale the rect
                 float zoom = ActiveCamera->Zoom;
@@ -57,7 +49,7 @@ namespace obj{
                 
                 //render it rotated as necessary
                 SDL_RenderTextureRotated(
-                    renderer,
+                    Window->SDLrenderer,
                     tex,
                     NULL,   // src rect (whole texture)
                     &dst,   // dst rect

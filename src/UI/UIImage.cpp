@@ -9,17 +9,9 @@
 namespace obj{
 
     namespace UI{
-        void image::Run(){
-            // Add to renderable components only once per scene
-            if (ScreenObject && ScreenObject->GetCanvas()){
-                auto& vec = ScreenObject->GetCanvas()->RenderableUI;
-                vec.push_back(this);
-            }
-        }
-
-        void image::Draw(SDL_Renderer* renderer){
-            if (renderer && ScreenObject->GetCanvas() != nullptr && Sprite && Sprite->Textures.contains(renderer)){
-                auto tex = Sprite->Textures[renderer];
+        void image::Draw(window* Window){
+            if (Window->SDLrenderer && ScreenObject->GetCanvas() != nullptr && Sprite && Sprite->Textures.contains(Window->SDLrenderer)){
+                auto tex = Sprite->Textures[Window->SDLrenderer];
                 if (tex){
                     //get texture vectors
                     float w, h;
@@ -31,8 +23,8 @@ namespace obj{
 
                     //scale the rect
                     float zoom = ActiveCamera->Zoom;
-                    float scaledH = h * ScreenObject->UITransform->Scale.y * zoom;
-                    float scaledW = w * ScreenObject->UITransform->Scale.x * zoom;
+                    float scaledH = h * ScreenObject->UITransform->Scale.y;
+                    float scaledW = w * ScreenObject->UITransform->Scale.x;
 
                     SDL_FRect dst = {ScreenObject->UITransform->Position.x - scaledW / 2.0f , 
                         ScreenObject->UITransform->Position.y - scaledH / 2.0f, scaledW, scaledH };
@@ -57,7 +49,7 @@ namespace obj{
                     
                     //render it rotated as necessary
                     SDL_RenderTextureRotated(
-                        renderer,
+                        Window->SDLrenderer,
                         tex,
                         NULL,   // src rect (whole texture)
                         &dst,   // dst rect

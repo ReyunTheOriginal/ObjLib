@@ -19,10 +19,14 @@
 #include "Time.hpp"
 
 namespace obj{
+    bool ObjMessages = true;
+
     //Start up all necessary code to prepare the program
     int Init(){
         SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS);
-        std::cout << "\033[1;32m--- Initiated \033[1;31mObjLib\033[1;32m ---\033[0m" << "\n";
+        TTF_Init();
+        MIX_Init();
+        if (ObjMessages)std::cout << "\033[1;32m--- Initiated {\033[1;31mObjLib\033[1;32m} ---\033[0m" << "\n";
         return 0;
     }
     //update processes like physics, positions, and math
@@ -63,12 +67,9 @@ namespace obj{
         auto WindowsSnapshot = Internal::GlobalWindows;
         for (auto& win : WindowsSnapshot){
             if (win){
-                scene* Scene = win->GetScene();
-                if (Scene) {
-                    camera* ActiveCamera = Scene->ActiveCamera;
-                    if (ActiveCamera) {
-                        ActiveCamera->ActiveScene = Scene;
-                    }
+                camera* ActiveCamera = win->ActiveCamera;
+                if (ActiveCamera) {
+                    ActiveCamera->ActiveWindow = win;
                 }
             }
         }
@@ -76,22 +77,23 @@ namespace obj{
     
     //safely quit the entire program
     void Quit(){
+        //clear all windows
+        auto windows = Internal::GlobalWindows;  // Make a copy
+        for (auto& win : windows){
+            delete win;
+        }
+        Internal::GlobalWindows.clear();
+        
         //clear all scenes (this will delete all gameobjects through scene destructors)
-        for (auto& scene : Internal::GlobalScenes){
+        auto scenes = Internal::GlobalScenes;  // Make a copy
+        for (auto& scene : scenes){
             delete scene;
         }
         Internal::GlobalScenes.clear();
         Internal::GlobalGameObjects.clear(); // These are already deleted by scene destructors
 
-        //clear all windows
-        for (auto& win : Internal::GlobalWindows){
-            delete win;
-        }
-        Internal::GlobalWindows.clear();
-
         SDL_Quit();
-
-        std::cout << "\033[1;32m--- Exited \033[1;31mObjLib\033[1;32m ---\033[0m" << "\n";
+        if (ObjMessages)std::cout << "\033[1;32m--- Exited {\033[1;31mObjLib\033[1;32m} ---\033[0m" << "\n";
         std::exit(0);
     }
 }

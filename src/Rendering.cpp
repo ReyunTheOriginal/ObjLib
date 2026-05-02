@@ -27,61 +27,63 @@ namespace obj{
     void RenderCanvases(window* Win){
         if (!Win)return;
 
-        for (window* win : Internal::GlobalWindows){
+        scene* Scene = Win->GetScene();
+        if (!Scene) return;
 
-            scene* Scene = win->GetScene();
-            if (!Scene) return;
+        camera* ActiveCamera = Win->ActiveCamera;
+        if (!ActiveCamera)return;
 
-            camera* ActiveCamera = Scene->ActiveCamera;
-            if (!ActiveCamera)return;
+        UI::canvas* Canvas = ActiveCamera->ActiveCanvas;
+        if (!Canvas)return;
 
-            UI::canvas* Canvas = ActiveCamera->ActiveCanvas;
-            if (!Canvas)return;
+        std::vector<Internal::screenRenderCache> DrawOrder;
+        DrawOrder.reserve(Canvas->UI.size());
 
-            std::vector<Internal::screenRenderCache> DrawOrder;
-            DrawOrder.reserve(Canvas->RenderableUI.size());
-
-            for (UI::Internal::screenComponent* com : Canvas->RenderableUI){
-                if (com)DrawOrder.push_back(Internal::screenRenderCache{com, com->RenderLayer});
+        for (UI::screenObject* obj : Canvas->UI){
+            for (auto& com : obj->Components){
+                if (com.second)DrawOrder.push_back(Internal::screenRenderCache{com.second, com.second->RenderLayer});
             }
-
-            std::sort(DrawOrder.begin(), DrawOrder.end(), [](const Internal::screenRenderCache& A, const Internal::screenRenderCache& B){
-                if (A.Layer->Layer == B.Layer->Layer && A.Layer->Order == B.Layer->Order){
-                    return A.com->ScreenObject->GetID() < B.com->ScreenObject->GetID();
-                }else if (A.Layer->Layer == B.Layer->Layer){
-                    return A.Layer->Order < B.Layer->Order;
-                }else{
-                    return A.Layer->Layer < B.Layer->Layer;
-                }
-            });
-
-            //loop through all components and Draw them
-            for (auto& renderer : DrawOrder){
-                renderer.com->Draw(win->SDLrenderer);
-            }
-
-            if (win->Debug){
-                //loop through all components and Draw them
-                for (auto& renderer : DrawOrder){
-                    renderer.com->DebugDraw(win->SDLrenderer);
-                }
-            }
-
         }
+
+        std::sort(DrawOrder.begin(), DrawOrder.end(), [](const Internal::screenRenderCache& A, const Internal::screenRenderCache& B){
+            if (A.Layer->Layer == B.Layer->Layer && A.Layer->Order == B.Layer->Order){
+                return A.com->ScreenObject->GetID() < B.com->ScreenObject->GetID();
+            }else if (A.Layer->Layer == B.Layer->Layer){
+                return A.Layer->Order < B.Layer->Order;
+            }else{
+                return A.Layer->Layer < B.Layer->Layer;
+            }
+        });
+
+        //loop through all components and Draw them
+        auto copy = DrawOrder;
+        for (auto& renderer : copy){
+            renderer.com->Draw(Win);
+        }
+
+        if (Win->Debug){
+            //loop through all components and Draw them
+            auto copy = DrawOrder;
+            for (auto& renderer : copy){
+                renderer.com->DebugDraw(Win);
+            }
+        }
+
     }
 
     void RenderDefaultWorld(window* Win){
         if (!Win)return;
-
-        scene* Scene = Win->GetScene();
         
         // Always clear to black for letterbox effect
         SDL_SetRenderDrawColor(Win->SDLrenderer, 0, 0, 0, 255);
         SDL_RenderClear(Win->SDLrenderer);
 
-        camera* ActiveCamera = Scene->ActiveCamera;
+        scene* Scene = Win->GetScene();
+        if (!Scene) return;
+
+        camera* ActiveCamera = Win->ActiveCamera;
         
-        if (Scene && ActiveCamera){
+        if (ActiveCamera){
             vector2 Logical = ActiveCamera->GetResolution();
 
             //Draw the background first<
@@ -105,15 +107,17 @@ namespace obj{
 
         scene* Scene = Win->GetScene();
 
-        camera* ActiveCamera = Scene->ActiveCamera;
-        
-        if (Scene && ActiveCamera){
-            std::vector<Internal::renderCache> DrawOrder;
-            DrawOrder.reserve(Scene->RenderableComponenets.size());
+        if (!Scene) return;
 
-            for (auto& com : Scene->RenderableComponenets){
-                if (com) {
-                    DrawOrder.push_back(Internal::renderCache{com, com->RenderLayer});
+        camera* ActiveCamera = Win->ActiveCamera;
+        
+        if (ActiveCamera){
+            std::vector<Internal::renderCache> DrawOrder;
+            DrawOrder.reserve(Scene->GameObjects.size());
+
+            for (gameObject* obj : Scene->GameObjects){
+                for (auto& com : obj->Components){
+                    if (com.second)DrawOrder.push_back(Internal::renderCache{com.second, com.second->RenderLayer});
                 }
             }
 
@@ -129,43 +133,25 @@ namespace obj{
             });
 
             //loop through all components and Draw them
-            for (auto& renderer : DrawOrder){
-                renderer.com->Draw(Win->SDLrenderer);
+            auto copy = DrawOrder;
+            for (auto& renderer : copy){
+                renderer.com->Draw(Win);
             }
 
             if (Win->Debug){
+                auto copy = DrawOrder;
                 //loop through all components and Draw them
-                for (auto& renderer : DrawOrder){
-                    renderer.com->DebugDraw(Win->SDLrenderer);
+                for (auto& renderer : copy){
+                    renderer.com->DebugDraw(Win);
                 }
             }
         }
 
     }// RenderWorldObjects()
 
-    void ClearRenderables(){
-        // Clear renderable components after all windows are rendered
-        auto ScenesSnapshot = Internal::GlobalScenes;
-        for (auto& scene : ScenesSnapshot){
-            if (scene){
-                scene->RenderableComponenets.clear();
-
-                camera* cam = scene->ActiveCamera;
-
-                if (cam){
-                    UI::canvas* canvas = cam->ActiveCanvas;
-
-                    if (canvas){
-                        canvas->RenderableUI.clear();
-                    }
-                }
-            }
-        }
-    }
-
     //Render all renderable objects
     void Render(){
-        const auto& windows = Internal::GlobalWindows;
+        auto windows = Internal::GlobalWindows;  // Make a copy
 
         for (window* Win : windows){
             RenderDefaultWorld(Win);
@@ -175,7 +161,6 @@ namespace obj{
             //present all renderers
             SDL_RenderPresent(Win->SDLrenderer);
         }
-        ClearRenderables();
     }
 
 

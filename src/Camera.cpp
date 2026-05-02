@@ -3,8 +3,10 @@
 #include "Window.hpp"
 
 namespace obj{
-    camera* CreateCamera(){
+    camera* CreateCamera(window* Window){
         camera* Camera = new camera();
+
+        Window->ActiveCamera = Camera;
         return Camera;
     }
     void DestroyCamera(camera* Camera){
@@ -16,12 +18,8 @@ namespace obj{
         
         Resolution = res;
 
-        if (ActiveScene && !ActiveScene->Windows.empty()){
-            for (window* win : ActiveScene->Windows){
-                if (win && win->SDLrenderer) {
-                    SDL_SetRenderLogicalPresentation(win->SDLrenderer, res.x, res.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
-                }
-            }
+        if (ActiveWindow && ActiveWindow->SDLrenderer) {
+            SDL_SetRenderLogicalPresentation(ActiveWindow->SDLrenderer, res.x, res.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
         }
 
         return Resolution;

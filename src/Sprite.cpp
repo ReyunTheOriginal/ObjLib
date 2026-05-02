@@ -1,4 +1,5 @@
 #include "Sprite.hpp"
+#include <filesystem>
 
 namespace obj{    
     //safely create the sprite
@@ -13,7 +14,8 @@ namespace obj{
             newSprite->SDLsurface = IMG_Load(ImagePath.c_str());
             newSprite->SpritePath = ImagePath;
 
-            for (window* Win : Internal::GlobalWindows){
+            auto windows = Internal::GlobalWindows;  // Make a copy
+            for (window* Win : windows){
                 newSprite->Textures[Win->SDLrenderer] = SDL_CreateTextureFromSurface(Win->SDLrenderer,newSprite->SDLsurface);
             }
 

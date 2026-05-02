@@ -22,8 +22,8 @@ namespace obj{
         
         SDL_Window* SDLwindow = nullptr;
         SDL_Renderer* SDLrenderer = nullptr;
-        int FPS = 0;
         bool Debug = false;
+        camera* ActiveCamera = nullptr;
 
         int GetID(){return ID;}
 
@@ -41,7 +41,7 @@ namespace obj{
             std::erase(Internal::GlobalWindows, this);
             
             if (Scene){
-                std::erase(Scene->Windows, this);
+                if (Scene)std::erase(Scene->Windows, this);
             }
 
             if (SDLrenderer)SDL_DestroyRenderer(this->SDLrenderer);

@@ -20,7 +20,6 @@ namespace obj{
         float Rotation = 0;
         float Zoom = 1;
 
-        scene* ActiveScene = nullptr;
         window* ActiveWindow = nullptr;
         UI::canvas* ActiveCanvas = nullptr;
 
@@ -29,10 +28,10 @@ namespace obj{
 
         vector2 ScreenToWorldPosition(const vector2& PosToTranslate);
         vector2 WorldToScreenPosition(const vector2& PosToTranslate);
-        camera(){if (ActiveScene) SetResolution(Resolution);};
+        camera(){SetResolution(Resolution);};
     };
 
-    camera* CreateCamera();
+    camera* CreateCamera(window* Window);
     void DestroyCamera(camera* Camera);
     
 }

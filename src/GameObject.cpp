@@ -35,7 +35,7 @@ namespace obj{
 
         Internal::GlobalGameObjects.push_back(newGam);
         newGam->ID = Internal::Obj_ID;
-        newGam->Name = "GameObject #" + Internal::Obj_ID;
+        newGam->Name = "GameObject #" + std::to_string(Internal::Obj_ID);
         Internal::Obj_ID++;
         return newGam;
     }

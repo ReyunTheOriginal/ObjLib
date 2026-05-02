@@ -7,6 +7,7 @@ struct SDL_Renderer;
 
 namespace obj{
     struct gameObject;
+    struct window;
 
     namespace Internal{
         struct renderSorter;
@@ -18,8 +19,8 @@ namespace obj{
             bool DidInit = false;
 
             virtual void Run() {} //any updating that needs to be done
-            virtual void Draw(SDL_Renderer* renderer) {} //any rendering
-            virtual void DebugDraw(SDL_Renderer* renderer) {} //any rendering in the window debug mode
+            virtual void Draw(window* Window) {} //any rendering
+            virtual void DebugDraw(window* Window) {} //any rendering in the window debug mode
             virtual void Init() {} //any init that needs to be ran once
             virtual void OnDestroy(){}
             virtual ~component(){

@@ -26,6 +26,7 @@ namespace obj{
     vector2 MouseMotion = {0,0};
     vector2 DirectionalInput = {0,0};
     window* FocusedWindow = nullptr;
+    vector2 MouseScroll = {0,0};
 
     void Update(){
         Internal::KeysPressed.clear();
@@ -36,6 +37,7 @@ namespace obj{
 
         MouseMotion = {0,0};
         DirectionalInput = {0,0};
+        MouseScroll = {0,0};
 
         SDL_Event event;
         while (SDL_PollEvent(&event)){
@@ -69,6 +71,10 @@ namespace obj{
                     Internal::KeysHeld.clear();
                     Internal::MouseButtonsHeld.clear();
                     break;
+                case SDL_EVENT_MOUSE_WHEEL:
+                    MouseScroll.y = event.wheel.y;
+                    MouseScroll.x = event.wheel.x;
+                    break;
                 default:
                     break;
             }
@@ -80,9 +86,10 @@ namespace obj{
         // Get The Focused window
         SDL_Window* FoWindow = SDL_GetMouseFocus();
         if (FoWindow){
+            auto windows = ::obj::Internal::GlobalWindows;  // Make a copy
             //loop through all windows and get the one with the correct sdlWindow
-            for (auto& win : ::obj::Internal::GlobalWindows){
-                if (win->SDLwindow == FoWindow){
+            for (auto win : windows){
+                if (win && win->SDLwindow == FoWindow){
                     FocusedWindow = win;
                     break;
                 }
@@ -92,20 +99,19 @@ namespace obj{
         //Adjust the mouse position for resolution difference
         if (FocusedWindow){
             scene* Scene = FocusedWindow->GetScene();
-            if (Scene){
-                camera* camera = Scene->ActiveCamera;
-                camera->ActiveWindow = FocusedWindow;
+            camera* camera = FocusedWindow->ActiveCamera;
+            camera->ActiveWindow = FocusedWindow;
 
-                // Convert physical mouse coords to logical (letterboxed) render coords
-                float logicalX, logicalY;
-                SDL_RenderCoordinatesFromWindow(
-                    FocusedWindow->SDLrenderer,
-                    ScreenMousePosition.x, ScreenMousePosition.y,
-                    &logicalX, &logicalY
-                );
+            // Convert physical mouse coords to logical (letterboxed) render coords
+            float logicalX, logicalY;
+            SDL_RenderCoordinatesFromWindow(
+                FocusedWindow->SDLrenderer,
+                ScreenMousePosition.x, ScreenMousePosition.y,
+                &logicalX, &logicalY
+            );
 
-                WorldMousePosition = camera->ScreenToWorldPosition({logicalX, logicalY});
-            }
+            ScreenMousePosition = {logicalX, logicalY};
+            WorldMousePosition = camera->ScreenToWorldPosition({logicalX, logicalY});
         }else{
             //default for World Mouse Position
             WorldMousePosition = {-1, -1};

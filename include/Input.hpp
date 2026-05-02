@@ -25,6 +25,7 @@ namespace obj{
         extern vector2 MouseMotion;
         extern vector2 DirectionalInput;
         extern window* FocusedWindow;
+        extern vector2 MouseScroll;
 
         void Update();
 

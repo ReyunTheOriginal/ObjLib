@@ -1,6 +1,7 @@
 #pragma once
 
 namespace obj{
+
     namespace Internal{
         struct renderSorter{
             int Order;
@@ -47,10 +48,10 @@ namespace obj{
             float r = (float)((hexValue >> 16) & 0xFF);
             float g = (float)((hexValue >> 8) & 0xFF);
             float b = (float)(hexValue & 0xFF);
-            return color((int)r, (int)g, (int)b, (int)alpha);
+            return color(r, g, b, alpha);
         }
 
-        color(int red, int green, int blue, int alpha = 255)
+        color(float red, float green, float blue, float alpha = 255)
         : r(red), g(green), b(blue), a(alpha) {}
         // Example usage: color myColor = color::FromHex(0xFF0000);  // Red
     };

@@ -108,13 +108,26 @@ int main(int argc, char *argv[]){
 
 using namespace obj;
 
-sprite* SquareSprite = CreateSprite(exePath() + "/Sprites/Default/Square.png");
+struct obst{
+    gameObject* obj1 = nullptr;
+    gameObject* obj2 = nullptr;
 
-std::vector<gameObject*> Pillers;
+    bool GavePoint = false;
 
-void CreatePiller(scene* Scene){
-    float openingSize = RandomRange((float)0, (float)70/32);
-    float openingloc = RandomRange((float)-120/32, (float)120/32);
+    ~obst(){
+        Destroy(obj1);
+        Destroy(obj2);
+    }
+};
+
+std::vector<obst*> Pillers;
+
+void CreatePiller(scene* Scene, sprite* sp){
+
+    obst* newobst = new obst();
+
+    float openingSize = RandomRange((float)0, (float)70);
+    float openingloc = RandomRange((float)-120, (float)120);
 
     gameObject* TopObj = CreateGameObject(Scene);
     spriteRenderer* TopRen = TopObj->AddComponent<spriteRenderer>();
@@ -122,11 +135,11 @@ void CreatePiller(scene* Scene){
     TopObj->Transform->Position = {550/32, (350 + openingSize + openingloc)/32};
     TopObj->Transform->Scale = {0.3, 2};
 
-    TopRen->Sprite = SquareSprite;
+    TopRen->Sprite = sp;
 
     TopRen->Color = {255, 0, 0};
 
-    Pillers.push_back(TopObj);
+    newobst->obj1 = TopObj;
 
     gameObject* DownObj = CreateGameObject(Scene);
     spriteRenderer* DownRen = DownObj->AddComponent<spriteRenderer>();
@@ -135,27 +148,36 @@ void CreatePiller(scene* Scene){
 
     DownObj->Transform->Scale = {0.3, 2};
 
-    DownRen->Sprite = SquareSprite;
+    DownRen->Sprite = sp;
 
     DownRen->Color = {255, 0, 0};
 
-    Pillers.push_back(DownObj);
+    newobst->obj2 = DownObj;
+
+    Pillers.push_back(newobst);
 
 }
 
 int main(){
     Init();
 
+    //FPS::SetTargetFrameRate(2);
+
+    sprite* SquareSprite = CreateSprite(exePath() + "/Sprites/Default/Square.png");
+
     FPS::SetTargetFrameRate(60);
 
     window* Window = CreateWindow("Flappy Bird Test", {800, 600});
+
     scene* Scene = CreateScene();
     Window->SetScene(Scene);
+
     gameObject* flappy = CreateGameObject(Scene);
 
     spriteRenderer* renderer = flappy->AddComponent<spriteRenderer>();
     
     renderer->Sprite = SquareSprite;
+
     renderer->Color = {0, 255, 0};
 
     flappy->Transform->Scale = {0.3, 0.3};
@@ -166,23 +188,28 @@ int main(){
 
     bool running = true;
 
-    float Gravity = 740/32;
+    float Gravity = 720/32;
     float JumpForce = 320/32;
     float PillerSpeed = 250/32;
 
     float pillerTimer = 0;
 
-    float pillerCoolDown = 3;
+    float pillerCoolDown = 1;
 
-    UI::canvas* Canvas = UI::CreateCanvas(Scene->ActiveCamera);
+    UI::canvas* Canvas = UI::CreateCanvas(Window->ActiveCamera);
 
-    UI::screenObject* scren = UI::CreateScreenObject(Canvas);
 
-    sprite* CircleSprite = CreateSprite(exePath() + "/Sprites/Default/Triangle.png");
+    UI::screenObject* TextScren = UI::CreateScreenObject(Canvas);
 
-    UI::image* i = scren->AddComponent<UI::image>();
+    sprite* CircleSprite = CreateSprite(exePath() + "/Sprites/Default/Circle.png");
 
-    i->Sprite = CircleSprite;
+    UI::Text* text = TextScren->AddComponent<UI::Text>();
+
+    Font* font = CreateFont(exePath() + "/Fonts/Times New Roman.ttf", 32);
+
+    text->SetFont(font);
+
+    int points = 0;
 
     while (running){
         Update();
@@ -195,21 +222,32 @@ int main(){
             Velocity.y = JumpForce;
         }
 
-        scren->UITransform->Position = Input::ScreenMousePosition;
+        text->SetText("Score: " + std::to_string(points));
+        TextScren->UITransform->Position = {(float)(text->GetTexture()->w /2), (float)(text->GetTexture()->h /2)};
 
         if (pillerTimer >= pillerCoolDown){
             pillerCoolDown = RandomRange((float)0.8, (float)3);
-            CreatePiller(Scene);
+            CreatePiller(Scene, SquareSprite);
             pillerTimer = 0;
         }
 
         for (int i = (int)Pillers.size() - 1; i >= 0; i--){
-            gameObject* piller = Pillers[i];
-            piller->Transform->Position.x -= PillerSpeed * Time::DeltaTime;
+            if (Pillers[i] && Pillers[i]->obj1 && Pillers[i]->obj2){
 
-            if (piller->Transform->Position.x <= -500){
-                Pillers.erase(Pillers.begin() + i);
-                Destroy(piller);
+                Pillers[i]->obj1->Transform->Position.x -= PillerSpeed * Time::DeltaTime;
+                Pillers[i]->obj2->Transform->Position.x -= PillerSpeed * Time::DeltaTime;
+
+                if (Pillers[i]->obj1->Transform->Position.x < flappy->Transform->Position.x){
+                    if (!Pillers[i]->GavePoint){
+                        points++;
+                        Pillers[i]->GavePoint = true;
+                    }
+                }
+
+                if (Pillers[i]->obj1->Transform->Position.x <= -25){
+                    delete Pillers[i];
+                    Pillers.erase(Pillers.begin() + i);
+                }
             }
         }
 

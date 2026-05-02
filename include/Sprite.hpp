@@ -4,7 +4,6 @@
 #include <iostream>
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
-#include <filesystem>
 #include <unordered_map>
 
 #include "GlobalLists.hpp"

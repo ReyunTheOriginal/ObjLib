@@ -22,11 +22,7 @@ namespace obj{
         std::vector<window*> Windows;
         std::vector<gameObject*> GameObjects;
 
-        std::vector<Internal::component*> RenderableComponenets;
-
         color BackGroundColor = color::DarkGray;
-
-        camera* ActiveCamera = nullptr;
         
         int GetID(){return ID;}
         

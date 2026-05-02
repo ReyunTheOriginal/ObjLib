@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <algorithm>
 
 namespace obj{
     struct camera;
@@ -16,9 +17,9 @@ namespace obj{
             bool Enabled = true;
             std::vector<screenObject*> UI;
 
-            std::vector<Internal::screenComponent*> RenderableUI;
-
             camera* Camera = nullptr;
+
+            ~canvas();
         };
 
         canvas* CreateCanvas(camera* Camera);

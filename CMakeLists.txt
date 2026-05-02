@@ -12,8 +12,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/test)
 find_package(SDL3 REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SDL3_IMAGE REQUIRED sdl3-image)
-#find_package(SDL3-ttf REQUIRED)
-#find_package(SDL3-mixer REQUIRED)
+pkg_check_modules(SDL3_TTF REQUIRED sdl3-ttf)
+pkg_check_modules(SDL3_MIXER REQUIRED sdl3-mixer)
 
 # Library target
 file(GLOB_RECURSE OBJLIB_SRC "src/*.cpp")
@@ -25,11 +25,11 @@ target_include_directories(ObjLib PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(ObjLib PUBLIC
     SDL3::SDL3
     ${SDL3_IMAGE_LIBRARIES}
-    #SDL3-ttf::SDL3-ttf
-    #SDL3-mixer::SDL3-mixer
+    ${SDL3_TTF_LIBRARIES}
+    ${SDL3_MIXER_LIBRARIES}
 )
 
-target_include_directories(ObjLib PUBLIC ${SDL3_IMAGE_INCLUDE_DIRS})
+target_include_directories(ObjLib PUBLIC ${SDL3_IMAGE_INCLUDE_DIRS} ${SDL3_TTF_INCLUDE_DIRS} ${SDL3_MIXER_INCLUDE_DIRS})
 
 # Executable for testing
 add_executable(ObjLibTest test/Test.cpp)

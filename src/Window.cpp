@@ -8,13 +8,16 @@ namespace obj{
     window::window() = default;
 
     void window::SetScene(scene* SceneToSet){
+        if (Scene){
+            std::erase(Scene->Windows, this);
+        }
+
         Scene = SceneToSet;
         // Add window to scene if not already present
         if (std::find(SceneToSet->Windows.begin(), SceneToSet->Windows.end(), this) == SceneToSet->Windows.end()){
             SceneToSet->Windows.push_back(this);
-            vector2 res = SceneToSet->ActiveCamera->GetResolution();
-            SDL_SetRenderLogicalPresentation(SDLrenderer, res.x, res.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
         }
+        
     }
 
     vector2 window::SetResolution(const vector2& res){
@@ -26,9 +29,15 @@ namespace obj{
     window* CreateWindow(std::string title, obj::vector2 resolution, Uint64 WindowFlags){
         //create a new window
         window* newWin = new window();
+        newWin->ActiveCamera = CreateCamera(newWin);
         newWin->SDLwindow = SDL_CreateWindow(title.c_str(), (int)resolution.x, (int)resolution.y, WindowFlags);
         newWin->SDLrenderer = SDL_CreateRenderer(newWin->SDLwindow, NULL);
         newWin->CachedResolution = resolution;
+
+        newWin->ActiveCamera->ActiveWindow = newWin;
+        newWin->ActiveCamera->SetResolution(resolution);
+
+
 
         //add the window to the global list and increase the ID
         newWin->ID = Internal::Obj_ID;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Math.hpp"
-#include "UI/screenComponent.hpp"
+#include "UI/ScreenComponent.hpp"
 #include <vector>
 
 #include <typeinfo>

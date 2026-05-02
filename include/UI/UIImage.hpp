@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GlobalTypes.hpp"
-#include "UI/screenComponent.hpp"
+#include "UI/ScreenComponent.hpp"
 
 namespace obj{
     struct sprite;
@@ -18,8 +18,7 @@ namespace obj{
             bool FlipHorizontal = false;
             bool FlipVertical = false;
 
-            void Run() override;
-            void Draw(SDL_Renderer* renderer) override;
+            void Draw(window* Window) override;
         };
     }
 }

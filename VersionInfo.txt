@@ -1,7 +1,5 @@
-Version: v4.7.0-Beta
+Version: v4.8.0-Beta
 
 Changes:
-- Added UI, only Image so far.
-- cleaned up the rendering code.
-- switched to a transform-based gameobject instead of just raw vectors on the object itself.
-- so many little things i forgot them, but my VScode is literally glowing with uncommited changes
+- added loading fonts
+- added Text UI
