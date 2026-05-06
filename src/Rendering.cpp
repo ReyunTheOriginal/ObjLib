@@ -9,9 +9,10 @@
 #include "Window.hpp"
 #include "Camera.hpp"
 #include "UI/UIBase.hpp"
+#include "Components/Transform.hpp"
+
 
 namespace obj{
-
     namespace Internal{
         struct renderCache{
             component* com = nullptr;
@@ -23,6 +24,41 @@ namespace obj{
             renderSorter* Layer = nullptr;
         };
     } //Internal
+
+    void AddChildrenToUIDraw(std::vector<Internal::screenRenderCache>& List, UI::Internal::transformUI* transform){
+        if (!transform || !transform->GetScreenObject() || !transform->GetScreenObject()->Enabled) return;
+        
+        UI::screenObject* obj = transform->GetScreenObject();
+        
+        auto componentsCopy = obj->Components;
+        
+        for (auto& comp : componentsCopy){
+            if (comp.second && comp.second->Enabled && comp.second->RenderLayer){
+                List.push_back(Internal::screenRenderCache{comp.second, comp.second->RenderLayer});
+            }
+        }
+
+        for (UI::Internal::transformUI* child : transform->GetChildren())
+            AddChildrenToUIDraw(List, child);
+    }
+
+    void AddChildrenToDraw(std::vector<Internal::renderCache>& List, Internal::transform* transform){
+        if (!transform || !transform->GetGameObject() || !transform->GetGameObject()->Enabled) return;
+        
+        gameObject* obj = transform->GetGameObject();
+        
+        auto componentsCopy = obj->Components;
+        
+        for (auto& comp : componentsCopy){
+            if (comp.second && comp.second->Enabled && comp.second->RenderLayer){
+                List.push_back(Internal::renderCache{comp.second, comp.second->RenderLayer});
+            }
+        }
+
+        for (Internal::transform* child : transform->GetChildren()){
+            AddChildrenToDraw(List, child);
+        }
+    }
 
     void RenderCanvases(window* Win){
         if (!Win)return;
@@ -39,10 +75,8 @@ namespace obj{
         std::vector<Internal::screenRenderCache> DrawOrder;
         DrawOrder.reserve(Canvas->UI.size());
 
-        for (UI::screenObject* obj : Canvas->UI){
-            for (auto& com : obj->Components){
-                if (com.second)DrawOrder.push_back(Internal::screenRenderCache{com.second, com.second->RenderLayer});
-            }
+        for (UI::Internal::transformUI* obj : Canvas->ObjectParent->GetChildren()){
+            AddChildrenToUIDraw(DrawOrder, obj);
         }
 
         std::sort(DrawOrder.begin(), DrawOrder.end(), [](const Internal::screenRenderCache& A, const Internal::screenRenderCache& B){
@@ -115,10 +149,8 @@ namespace obj{
             std::vector<Internal::renderCache> DrawOrder;
             DrawOrder.reserve(Scene->GameObjects.size());
 
-            for (gameObject* obj : Scene->GameObjects){
-                for (auto& com : obj->Components){
-                    if (com.second)DrawOrder.push_back(Internal::renderCache{com.second, com.second->RenderLayer});
-                }
+            for (Internal::transform* obj : Scene->ObjectParent->GetChildren()){
+                AddChildrenToDraw(DrawOrder, obj);
             }
 
             std::sort(DrawOrder.begin(), DrawOrder.end(), [](const Internal::renderCache& A, const Internal::renderCache& B){

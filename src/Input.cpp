@@ -22,7 +22,7 @@ namespace obj{
 
     vector2 ScreenMousePosition = {0,0};
     vector2 WorldMousePosition = {0,0};
-    vector2 GlobalMousePosition = {0,0};
+    vector2 MonitorMousePosition = {0,0};
     vector2 MouseMotion = {0,0};
     vector2 DirectionalInput = {0,0};
     window* FocusedWindow = nullptr;
@@ -81,7 +81,7 @@ namespace obj{
         }
 
         SDL_GetMouseState(&ScreenMousePosition.x, &ScreenMousePosition.y);
-        SDL_GetGlobalMouseState(&GlobalMousePosition.x, &GlobalMousePosition.y);
+        SDL_GetGlobalMouseState(&MonitorMousePosition.x, &MonitorMousePosition.y);
 
         // Get The Focused window
         SDL_Window* FoWindow = SDL_GetMouseFocus();

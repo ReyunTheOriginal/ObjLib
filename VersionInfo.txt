@@ -1,5 +1,6 @@
-Version: v4.8.0-Beta
+Version: v4.8.1-Beta
 
 Changes:
-- added loading fonts
-- added Text UI
+- made objects not run or draw if they have a parent which is not enabled
+- added the skeleton of a polygon collider (only getting the world vertices and debugDrawing them)
+- finished the first version of the python Polygon Editor tool

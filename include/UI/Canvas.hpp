@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <algorithm>
+#include "UI/ScreenObject.hpp"
 
 namespace obj{
     struct camera;
@@ -17,8 +18,11 @@ namespace obj{
             bool Enabled = true;
             std::vector<screenObject*> UI;
 
+            Internal::transformUI* ObjectParent = nullptr;
+
             camera* Camera = nullptr;
 
+            canvas(){ObjectParent = new Internal::transformUI(nullptr);}
             ~canvas();
         };
 

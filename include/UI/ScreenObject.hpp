@@ -8,6 +8,7 @@
 #include "GlobalTypes.hpp"
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <memory>
 #include <typeindex>
 #include <cctype>
@@ -21,29 +22,48 @@ namespace obj{
     }
 
     namespace UI{
+        struct screenObject;
+        struct canvas;
 
         namespace Internal{
             struct transformUI{
+                private:
+                screenObject* ScreenObject = nullptr;
+                transformUI* Parent = nullptr;
+                std::unordered_set<transformUI*> Children;
+
+                public:
                 vector2 Position = {0,0};
                 vector2 Scale = {1,1};
                 float Rotation = 0;
 
-                std::vector<transformUI*> Children;
+                screenObject* GetScreenObject(){return ScreenObject;}
+                transformUI* GetParent(){return Parent;}
+                std::unordered_set<transformUI*> GetChildren(){return Children;}
+
+                void SetParent(transformUI* ParentToSet);
+
+                transformUI(screenObject* screenObj){
+                    ScreenObject = screenObj;
+                }
+
+                ~transformUI();
+
             };
         }
-
-        struct canvas;
 
         struct screenObject{
             private:
             canvas* Canvas = nullptr;
             int ID = 0;
 
-            friend screenObject* CreateScreenObject(canvas* Canvas);
+            friend screenObject* CreateScreenObject(canvas* Canvas, Internal::transformUI* Parent);
 
             public:
             std::string Name = "new GameObject";
             Internal::transformUI* UITransform;
+
+            bool Enabled = true;
             
             int GetID(){return ID;}
             canvas* GetCanvas(){return Canvas;}
@@ -78,9 +98,8 @@ namespace obj{
             }
 
             ~screenObject();
-
         };
 
-        screenObject* CreateScreenObject(canvas* Canvas);
+        screenObject* CreateScreenObject(canvas* Canvas, Internal::transformUI* Parent = nullptr);
     }//UI
 }//obj

@@ -8,6 +8,8 @@
 namespace obj{
     struct vector2{
         float x = 0,y = 0;
+
+        vector2() = default;
         vector2(float X, float Y){x = X, y = Y;}
 
         #pragma region <Operators>
@@ -40,6 +42,9 @@ namespace obj{
                 return *this;
             }
 
+            bool operator==(const vector2& other) const {
+                return x == other.x && y == other.y;
+            }
 
             vector2 operator+= (const vector2 other){
                 x += other.x; y+= other.y;
@@ -66,7 +71,7 @@ namespace obj{
             float Mag = mag();
             if (Mag != 0)return {x/Mag, y/Mag};
             return {0.0,0.0};
-        };
+        }
     };
 
 namespace Math{
@@ -139,4 +144,24 @@ namespace Math{
     constexpr inline float Fract(float v) {return v - std::floor(v);}
 }
 
+}
+
+#include <functional> // Required for std::hash
+
+namespace std {
+    template <>
+    struct hash<obj::vector2> {
+        size_t operator()(const obj::vector2& v) const {
+            // Snap and convert to integer to kill ALL float jitter
+            auto snap = [](float val) { 
+                return static_cast<long long>(std::round(val * 1000.0f)); 
+            };
+            
+            size_t h1 = hash<long long>{}(snap(v.x));
+            size_t h2 = hash<long long>{}(snap(v.y));
+            
+            // Standard hash combination logic
+            return h1 ^ (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
+        }
+    };
 }

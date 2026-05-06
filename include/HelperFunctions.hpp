@@ -21,6 +21,8 @@ namespace obj{
     std::string Lower(std::string stri);
     std::string Upper(std::string stri);
 
+    std::vector<vector2> ImportPolygon(const std::string& filename, float SizeMultiplier = 1);
+
     //Platform Dynamic path to the executale to the app
     std::string exePath();
 
@@ -37,10 +39,6 @@ namespace obj{
             T output = RandomI(gen);
             return output;
         }
-    }
-
-    void Destroy(auto& Obj){
-        delete Obj;
     }
 
     //general print() for any type i can think of

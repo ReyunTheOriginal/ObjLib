@@ -7,6 +7,23 @@
 #include "Components/ComponentBase.hpp"
 
 namespace obj{
+    void Internal::transform::SetParent(transform* ParentToSet){
+        if (Parent){
+            if (Parent->Children.contains(this)){
+                Parent->Children.erase(this);
+            }
+        }
+
+        if (ParentToSet == nullptr)
+            ParentToSet = GameObject->GetScene()->ObjectParent;
+
+        if (!ParentToSet->Children.contains(this)){
+            ParentToSet->Children.insert(this);
+        }
+
+        Parent = ParentToSet;
+    }
+    
     gameObject::~gameObject(){
         // Remove from scene
             if (Scene){
@@ -16,22 +33,35 @@ namespace obj{
             // Remove from global list
             std::erase(Internal::GlobalGameObjects, this);
 
+            // Delete all components
             for(auto& com : Components){
                 if (com.second){
                     delete com.second;
                 }
             }
+
+            // Delete Transform last (it will handle cascading deletion of children)
+            if (Transform){
+                delete Transform;
+            }
+            
             Components.clear();
     }
     
-    gameObject* CreateGameObject(scene* Scene){
+    gameObject* CreateGameObject(scene* Scene, Internal::transform* Parent){
         if (!Scene)return nullptr;
 
         gameObject* newGam = new gameObject();
         newGam->Scene = Scene;
         Scene->GameObjects.push_back(newGam);
 
-        newGam->Transform = new Internal::transform;
+        newGam->Transform = new Internal::transform(newGam);
+
+        if (Parent == nullptr){
+            newGam->Transform->SetParent(Scene->ObjectParent);
+        }else{
+            newGam->Transform->SetParent(Parent);
+        }
 
         Internal::GlobalGameObjects.push_back(newGam);
         newGam->ID = Internal::Obj_ID;

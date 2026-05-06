@@ -17,9 +17,27 @@
 #include "Camera.hpp"
 #include "UI/ScreenObject.hpp"
 #include "Time.hpp"
+#include "Font.hpp"
+#include "Sprite.hpp"
+#include "UI/Canvas.hpp"
+#include <vector>
+#include <variant>
 
 namespace obj{
+    using AnyType = std::variant<
+        Internal::component*,
+        gameObject*,
+        Font*,
+        UI::canvas*,
+        UI::screenObject*,
+        sprite*
+    >;
+
+    std::vector<AnyType*> QueuedForDestruction;
+
     bool ObjMessages = true;
+
+    bool IsQuiting = false;
 
     //Start up all necessary code to prepare the program
     int Init(){
@@ -31,19 +49,41 @@ namespace obj{
     }
     //update processes like physics, positions, and math
     void Update(){
+        if (IsQuiting) return;
+
+        for (int i=0;i<QueuedForDestruction.size();i++){
+            delete QueuedForDestruction[i];
+        }   
+        QueuedForDestruction.clear();
+
         Input::Update();
         Time::Update();
         
-        // Create a snapshot to avoid iterator invalidation if objects are destroyed during update
-        auto GameObjectsSnapshot = Internal::GlobalGameObjects;
-        for (auto& obj : GameObjectsSnapshot){
-            if (obj){
-                //loop through all components and run them
-                for (auto& com : obj->Components){
-                    if (com.second){
-                        if (!com.second->DidInit){com.second->Init(); com.second->DidInit = true;}
-                        if (com.second->Enabled)com.second->Run();
-                    }
+        // Helper lambda to recursively update enabled game objects and their children
+        std::function<void(Internal::transform*)> UpdateChildren = [&](Internal::transform* transform){
+            if (!transform || !transform->GetGameObject() || !transform->GetGameObject()->Enabled) return;
+            
+            gameObject* obj = transform->GetGameObject();
+            auto componentsCopy = obj->Components;
+            
+            for (auto& com : componentsCopy){
+                if (com.second && com.second->Enabled){
+                    if (!com.second->DidInit){com.second->Init(); com.second->DidInit = true;}
+                    com.second->Run();
+                }
+            }
+            
+            for (Internal::transform* child : transform->GetChildren()){
+                UpdateChildren(child);
+            }
+        };
+        
+        // Update all game objects from their scene roots
+        auto ScenesSnapshot = Internal::GlobalScenes;
+        for (auto& scene : ScenesSnapshot){
+            if (scene && scene->ObjectParent){
+                for (Internal::transform* obj : scene->ObjectParent->GetChildren()){
+                    UpdateChildren(obj);
                 }
             }
         }
@@ -51,12 +91,12 @@ namespace obj{
         // Create a snapshot to avoid iterator invalidation if objects are destroyed during update
         auto ScreenObjectsSnapshot = Internal::GlobalScreenObjects;
         for (auto& obj : ScreenObjectsSnapshot){
-            if (obj){
+            if (obj && obj->Enabled){
                 //loop through all components and run them
                 for (auto& com : obj->Components){
-                    if (com.second){
+                    if (com.second && com.second->Enabled){
                         if (!com.second->DidInit){com.second->Init(); com.second->DidInit = true;}
-                        if (com.second->Enabled)com.second->Run();
+                        com.second->Run();
                     }
                 }
             }
@@ -77,6 +117,8 @@ namespace obj{
     
     //safely quit the entire program
     void Quit(){
+        QueuedForDestruction.clear();
+
         //clear all windows
         auto windows = Internal::GlobalWindows;  // Make a copy
         for (auto& win : windows){
@@ -86,9 +128,10 @@ namespace obj{
         
         //clear all scenes (this will delete all gameobjects through scene destructors)
         auto scenes = Internal::GlobalScenes;  // Make a copy
-        for (auto& scene : scenes){
+
+        for (auto& scene : scenes)
             delete scene;
-        }
+
         Internal::GlobalScenes.clear();
         Internal::GlobalGameObjects.clear(); // These are already deleted by scene destructors
 

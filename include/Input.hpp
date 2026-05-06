@@ -21,7 +21,7 @@ namespace obj{
 
         extern vector2 ScreenMousePosition;
         extern vector2 WorldMousePosition;
-        extern vector2 GlobalMousePosition;
+        extern vector2 MonitorMousePosition;
         extern vector2 MouseMotion;
         extern vector2 DirectionalInput;
         extern window* FocusedWindow;

@@ -1,6 +1,7 @@
 #include "Camera.hpp"
 #include "Scene.hpp"
 #include "Window.hpp"
+#include "EssentialProcesses.hpp"
 
 namespace obj{
     camera* CreateCamera(window* Window){
@@ -34,8 +35,6 @@ namespace obj{
             RotateAround.x * s + RotateAround.y * c
         };
     }
-
-    const float PixelsPerUnit = 32;
 
     vector2 camera::ScreenToWorldPosition(const vector2& PosToTranslate) {
         if (Zoom <= 0) Zoom = 0.01f;

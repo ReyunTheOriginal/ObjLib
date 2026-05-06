@@ -3,6 +3,7 @@
 #include <vector>
 #include "GlobalLists.hpp"
 #include "GlobalTypes.hpp"
+#include "Components/Transform.hpp"
 
 namespace obj{
     struct window;
@@ -22,11 +23,14 @@ namespace obj{
         std::vector<window*> Windows;
         std::vector<gameObject*> GameObjects;
 
+        Internal::transform* ObjectParent = nullptr;
+        
+
         color BackGroundColor = color::DarkGray;
         
         int GetID(){return ID;}
         
-        scene(){};
+        scene(){ObjectParent = new Internal::transform(nullptr);}
         ~scene();
     };
 

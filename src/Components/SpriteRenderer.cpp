@@ -4,6 +4,7 @@
 #include "Sprite.hpp"
 #include "Camera.hpp"
 #include "Components/Transform.hpp"
+#include "EssentialProcesses.hpp"
 
 #include <unordered_map>
 
@@ -13,16 +14,12 @@ namespace obj{
         if (Window->SDLrenderer && GameObject && GameObject->GetScene() && Sprite && Sprite->Textures.contains(Window->SDLrenderer)){
             auto tex = Sprite->Textures[Window->SDLrenderer];
             if (tex){
-                //get texture vectors
-                float w, h;
-                SDL_GetTextureSize(tex, &w, &h);
-
                 camera* ActiveCamera = Window->ActiveCamera;
 
                 //scale the rect
                 float zoom = ActiveCamera->Zoom;
-                float scaledH = h * GameObject->Transform->Scale.y * zoom;
-                float scaledW = w * GameObject->Transform->Scale.x * zoom;
+                float scaledH = (GameObject->Transform->Scale.y * PixelsPerUnit) * zoom;
+                float scaledW = (GameObject->Transform->Scale.x * PixelsPerUnit) * zoom;
 
                 vector2 ScreenPos = ActiveCamera->WorldToScreenPosition(GameObject->Transform->Position);
 

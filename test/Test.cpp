@@ -1,6 +1,6 @@
 #include "../include/Core.hpp"
-
-/*obj::gameObject* HeldObj = nullptr;
+/*
+obj::gameObject* HeldObj = nullptr;
 
 int main(int argc, char *argv[]){
     bool running = true;
@@ -13,18 +13,18 @@ int main(int argc, char *argv[]){
 
     Win->SetScene(Scene);
 
-    Scene->ActiveCamera->SetResolution({800,600});
+    Win->ActiveCamera->SetResolution({800,600});
 
-    Scene->ActiveCamera->Position = {0,0};
+    Win->ActiveCamera->Position = {0,0};
 
     obj::gameObject* gam = obj::CreateGameObject(Scene);
     obj::gameObject* gam2 = obj::CreateGameObject(Scene);
     obj::gameObject* gam3 = obj::CreateGameObject(Scene);
-    gam2->Position = {400, 300};
-    gam2->Size = {0.5, 2};
+    gam2->Transform->Position = {400, 300};
+    gam2->Transform->Scale = {0.5, 2};
 
-    gam3->Size = {0.5, 0.5};
-    gam3->Position = {0,0};
+    gam3->Transform->Scale = {0.5, 0.5};
+    gam3->Transform->Position = {0,0};
 
     obj::spriteRenderer* sr = gam->AddComponent<obj::spriteRenderer>();
     obj::spriteRenderer* sr2 = gam2->AddComponent<obj::spriteRenderer>();
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]){
         if (obj::Input::MouseButtonPressed(1)){
             float dis = MAXFLOAT;
             for (obj::gameObject* obj : obj::Input::FocusedWindow->GetScene()->GameObjects){
-                float newdis = obj::Math::Distance(obj::Input::WorldMousePosition, obj->Position);
+                float newdis = obj::Math::Distance(obj::Input::WorldMousePosition, obj->Transform->Position);
                 if (newdis < dis){
                     dis = newdis;
                     HeldObj = obj;
@@ -67,34 +67,34 @@ int main(int argc, char *argv[]){
         float move = 5 * obj::Time::DeltaTime;
 
         if (obj::Input::KeyHeld(obj::KeyCode::Up)){
-            Scene->ActiveCamera->SetResolution(Scene->ActiveCamera->GetResolution() + obj::vector2(move, move));
+            Win->ActiveCamera->SetResolution(Win->ActiveCamera->GetResolution() + obj::vector2(move, move));
         }
         if (obj::Input::KeyHeld(obj::KeyCode::Down)){
-            Scene->ActiveCamera->SetResolution(Scene->ActiveCamera->GetResolution() + obj::vector2(-move, -move));
+            Win->ActiveCamera->SetResolution(Win->ActiveCamera->GetResolution() + obj::vector2(-move, -move));
         }
 
         if (obj::Input::KeyHeld(obj::KeyCode::Space)){
             if (obj::Input::KeyHeld(obj::KeyCode::LShift)){
-                Scene->ActiveCamera->Zoom+= (obj::Time::DeltaTime);
+                Win->ActiveCamera->Zoom+= (obj::Time::DeltaTime);
             }else{
-                Scene->ActiveCamera->Zoom-= (obj::Time::DeltaTime);
+                Win->ActiveCamera->Zoom-= (obj::Time::DeltaTime);
             }
         }
 
-        Scene->ActiveCamera->Position += obj::Input::DirectionalInput;
+        Win->ActiveCamera->Position += obj::Input::DirectionalInput * obj::Time::DeltaTime;
 
         if (obj::Input::MouseButtonReleased(1)){
             HeldObj = nullptr;
         }
 
         if (HeldObj){
-            HeldObj->Position = obj::Input::WorldMousePosition;
+            HeldObj->Transform->Position = obj::Input::WorldMousePosition;
 
             if (obj::Input::KeyHeld(obj::KeyCode::R)){
                 if (obj::Input::KeyHeld(obj::KeyCode::LShift)){
-                    HeldObj->Rotation += (150 * obj::Time::DeltaTime);
+                    HeldObj->Transform->Rotation += (150 * obj::Time::DeltaTime);
                 }else{
-                    HeldObj->Rotation -= (150 * obj::Time::DeltaTime);
+                    HeldObj->Transform->Rotation -= (150 * obj::Time::DeltaTime);
                 }
             }
         }
@@ -105,6 +105,7 @@ int main(int argc, char *argv[]){
     obj::Quit();
     return 0;
 }*/
+
 
 using namespace obj;
 
@@ -132,8 +133,8 @@ void CreatePiller(scene* Scene, sprite* sp){
     gameObject* TopObj = CreateGameObject(Scene);
     spriteRenderer* TopRen = TopObj->AddComponent<spriteRenderer>();
 
-    TopObj->Transform->Position = {550/32, (350 + openingSize + openingloc)/32};
-    TopObj->Transform->Scale = {0.3, 2};
+    TopObj->Transform->Position = {550/64, (350 + openingSize + openingloc)/64};
+    TopObj->Transform->Scale = {0.3 * 3.33, 2 * 3.33};
 
     TopRen->Sprite = sp;
 
@@ -144,9 +145,9 @@ void CreatePiller(scene* Scene, sprite* sp){
     gameObject* DownObj = CreateGameObject(Scene);
     spriteRenderer* DownRen = DownObj->AddComponent<spriteRenderer>();
 
-    DownObj->Transform->Position = {550/32, (-350 - openingSize + openingloc)/32};
+    DownObj->Transform->Position = {550/64, (-350 - openingSize + openingloc)/64};
 
-    DownObj->Transform->Scale = {0.3, 2};
+    DownObj->Transform->Scale = {0.3 * 3.33, 2 * 3.33};
 
     DownRen->Sprite = sp;
 
@@ -175,22 +176,27 @@ int main(){
     gameObject* flappy = CreateGameObject(Scene);
 
     spriteRenderer* renderer = flappy->AddComponent<spriteRenderer>();
+
+    gameObject* testobj = CreateGameObject(Scene);
+    collider* col = testobj->AddComponent<collider>();
+
+    col->Vertices = ImportPolygon(exePath() + "/Polygon.json", 0.5);
     
     renderer->Sprite = SquareSprite;
 
     renderer->Color = {0, 255, 0};
 
-    flappy->Transform->Scale = {0.3, 0.3};
-    flappy->Transform->Position.x = -200/32;
+    flappy->Transform->Scale = {0.3 * 3.33, 0.3 * 3.33};
+    flappy->Transform->Position.x = -200/64;
 
     vector2 Velocity = {0,0};
 
 
     bool running = true;
 
-    float Gravity = 720/32;
-    float JumpForce = 320/32;
-    float PillerSpeed = 250/32;
+    float Gravity = 720/64;
+    float JumpForce = 320/64;
+    float PillerSpeed = 250/64;
 
     float pillerTimer = 0;
 
@@ -198,21 +204,45 @@ int main(){
 
     UI::canvas* Canvas = UI::CreateCanvas(Window->ActiveCamera);
 
-
-    UI::screenObject* TextScren = UI::CreateScreenObject(Canvas);
-
     sprite* CircleSprite = CreateSprite(exePath() + "/Sprites/Default/Circle.png");
 
+    UI::screenObject* TextScren = UI::CreateScreenObject(Canvas);
+    UI::screenObject* TextScren2 = UI::CreateScreenObject(Canvas, TextScren->UITransform);
     UI::Text* text = TextScren->AddComponent<UI::Text>();
-
-    Font* font = CreateFont(exePath() + "/Fonts/Times New Roman.ttf", 32);
+    UI::Text* text2 = TextScren2->AddComponent<UI::Text>();
+    Font* font = CreateFont(exePath() + "/Fonts/Times New Roman.ttf", 64);
 
     text->SetFont(font);
+    text2->SetFont(font);
+
+    TextScren2->UITransform->Position = {400, 300};
 
     int points = 0;
 
+    Window->Debug = true;
+
+    FPS::SetTargetFrameRate(60);
+
     while (running){
         Update();
+
+        if (Input::KeyPressed(KeyCode::J)){
+            TextScren->Enabled = !TextScren->Enabled;
+        }
+
+        testobj->Transform->Position = Input::WorldMousePosition;
+
+        if (Input::KeyHeld(KeyCode::R)){
+            if (Input::KeyHeld(KeyCode::LShift)){
+                testobj->Transform->Rotation -= 1;
+            }else{
+                testobj->Transform->Rotation += 1;
+            }
+        }
+
+        if (Input::KeyPressed(KeyCode::L)){
+            testobj->Transform->Rotation += 90;
+        }
 
         pillerTimer += Time::DeltaTime;
 

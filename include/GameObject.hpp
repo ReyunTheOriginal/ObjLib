@@ -3,6 +3,7 @@
 #include <typeinfo>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <memory>
 #include <typeindex>
 #include <cctype>
@@ -22,12 +23,16 @@ namespace obj{
         private:
         int ID = 0;
 
-        friend gameObject* CreateGameObject(scene* Scene);
+        friend gameObject* CreateGameObject(scene* Scene, Internal::transform* Parent);
         scene* Scene = nullptr;
+
+        std::unordered_set<std::string> Tags;
 
         public:
         std::string Name = "new GameObject";
         Internal::transform* Transform = nullptr;
+
+        bool Enabled = true;
         
         std::unordered_map<std::type_index, Internal::component*> Components;
 
@@ -37,6 +42,24 @@ namespace obj{
 
         scene* GetScene(){return Scene;}
         void SetScene(scene* SceneToSendTo);
+
+        std::string AddTag(std::string newTag){
+            if (!Tags.contains(newTag)){
+                Tags.insert(newTag);
+            }
+
+            return newTag;
+        }
+
+        void RemoveTag(std::string Tag){
+            if (Tags.contains(Tag)){
+                Tags.erase(Tag);
+            }
+        }
+
+        bool HasTag(std::string Tag){
+            return Tags.contains(Tag);
+        }
 
         template<typename T>
         T* GetComponent(){
@@ -66,5 +89,5 @@ namespace obj{
         ~gameObject();
     };
 
-    gameObject* CreateGameObject(scene* Scene);
+    gameObject* CreateGameObject(scene* Scene, Internal::transform* Parent = nullptr);
 }

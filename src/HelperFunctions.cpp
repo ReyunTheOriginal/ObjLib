@@ -1,5 +1,9 @@
 #include "HelperFunctions.hpp"
 
+#include <fstream>
+#include <vector>
+#include <nlohmann/json.hpp>
+
 #ifdef _WIN32
 #include <windows.h>
 #elif __APPLE__
@@ -22,6 +26,37 @@ namespace obj{
         return stri;
     }
 
+    using json = nlohmann::json;
+
+    std::vector<vector2> ImportPolygon(const std::string& filename, float SizeMultiplier) {
+        std::vector<vector2> points;
+
+        // Check if file exists
+        if (!std::filesystem::exists(filename)) {
+            std::cout << "Polygon Json not Found\n";
+            return points;
+        }
+
+        std::ifstream file(filename);
+
+        // Extra safety: check if it actually opened
+        if (!file.is_open()) {
+            std::cout << "Polygon Json not Found\n";
+            return points;
+        }
+
+        json j;
+        file >> j;
+
+        for (auto& item : j) {
+            float x = item["x"];
+            float y = item["y"];
+            points.emplace_back(x * SizeMultiplier, y * SizeMultiplier);
+        }
+
+        return points;
+    }
+    
     //Platform Dynamic path to the executale to the app
     std::string exePath(){
         namespace fs = std::filesystem;
