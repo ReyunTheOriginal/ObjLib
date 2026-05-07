@@ -51,11 +51,11 @@ namespace obj{
 
                 //scale the rect
                 float zoom = ActiveCamera->Zoom;
-                float scaledH = h * ScreenObject->UITransform->Scale.y;
-                float scaledW = w * ScreenObject->UITransform->Scale.x;
+                float scaledH = h * ScreenObject->UITransform->GetWorldScale().y;
+                float scaledW = w * ScreenObject->UITransform->GetWorldScale().x;
 
-                SDL_FRect dst = {ScreenObject->UITransform->Position.x - scaledW / 2.0f , 
-                    ScreenObject->UITransform->Position.y - scaledH / 2.0f, scaledW, scaledH };
+                SDL_FRect dst = {ScreenObject->UITransform->GetWorldPosition().x - scaledW / 2.0f , 
+                    ScreenObject->UITransform->GetWorldPosition().y - scaledH / 2.0f, scaledW, scaledH };
 
                 //set the texture colors
                 SDL_SetTextureColorMod(Texture, Color.r, Color.g, Color.b);
@@ -69,7 +69,7 @@ namespace obj{
                     Texture,
                     NULL,   // src rect (whole texture)
                     &dst,   // dst rect
-                    ScreenObject->UITransform->Rotation,
+                    ScreenObject->UITransform->GetWorldRotation(),
                     NULL,   // center (NULL = center of dst)
                     Flip
                 );

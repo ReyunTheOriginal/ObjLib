@@ -78,7 +78,7 @@ namespace obj{
             return static_cast<T*>(it->second);
         }
         template<typename T>
-        void RemoveComponent(){
+        void DestroyComponent(){
             auto ref = Components.find(typeid(T));
             if (ref != Components.end()){
                 Components.erase(ref);

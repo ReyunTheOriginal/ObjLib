@@ -1,6 +1,9 @@
-Version: v4.8.1-Beta
+Version: v4.9.0-Beta
+
+please ignore any mispells of words here, i can't be bothered searching the correct spelling
 
 Changes:
-- made objects not run or draw if they have a parent which is not enabled
-- added the skeleton of a polygon collider (only getting the world vertices and debugDrawing them)
-- finished the first version of the python Polygon Editor tool
+- split Update()'s responsabilities into Update() and Apply()
+- added hiararchy for gameObjects and ScreenObjects in Position, Rotation, Scale, Activation, and Deletion basically completly remaking how transforms work
+- fixed colliders to account for rotation and scaling of objects
+- fixed the long standing issue of spriterenderers rotating in the opposite direction

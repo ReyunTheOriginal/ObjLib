@@ -18,11 +18,12 @@ namespace obj{
         }
 
         canvas::~canvas(){
-            auto copy = UI;
+            auto copy = ScreenObjects;
             for (auto& obj : copy){
                 if (obj) delete obj;
             }
-            UI.clear();
+            copy.clear();
+            ScreenObjects.clear();
         }
 
 

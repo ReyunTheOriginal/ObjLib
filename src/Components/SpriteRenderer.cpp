@@ -18,10 +18,10 @@ namespace obj{
 
                 //scale the rect
                 float zoom = ActiveCamera->Zoom;
-                float scaledH = (GameObject->Transform->Scale.y * PixelsPerUnit) * zoom;
-                float scaledW = (GameObject->Transform->Scale.x * PixelsPerUnit) * zoom;
+                float scaledH = (GameObject->Transform->GetWorldScale().y * PixelsPerUnit) * zoom;
+                float scaledW = (GameObject->Transform->GetWorldScale().x * PixelsPerUnit) * zoom;
 
-                vector2 ScreenPos = ActiveCamera->WorldToScreenPosition(GameObject->Transform->Position);
+                vector2 ScreenPos = ActiveCamera->WorldToScreenPosition(GameObject->Transform->GetWorldPosition());
 
                 SDL_FRect dst = {ScreenPos.x - scaledW / 2.0f , 
                     ScreenPos.y - scaledH / 2.0f, scaledW, scaledH };
@@ -50,7 +50,7 @@ namespace obj{
                     tex,
                     NULL,   // src rect (whole texture)
                     &dst,   // dst rect
-                    GameObject->Transform->Rotation + ActiveCamera->Rotation,
+                    -(GameObject->Transform->GetWorldRotation() + ActiveCamera->Rotation),
                     NULL,   // center (NULL = center of dst)
                     Flip
                 );

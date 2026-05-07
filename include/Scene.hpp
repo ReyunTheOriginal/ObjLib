@@ -22,15 +22,14 @@ namespace obj{
         public:
         std::vector<window*> Windows;
         std::vector<gameObject*> GameObjects;
-
-        Internal::transform* ObjectParent = nullptr;
+        std::vector<gameObject*> ParentlessGameObjects;
         
 
         color BackGroundColor = color::DarkGray;
         
         int GetID(){return ID;}
         
-        scene(){ObjectParent = new Internal::transform(nullptr);}
+        scene(){}
         ~scene();
     };
 

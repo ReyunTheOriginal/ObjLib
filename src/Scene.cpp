@@ -8,11 +8,12 @@ namespace obj{
         std::erase(Internal::GlobalScenes, this);
         
         // Delete all game objects - use a snapshot to avoid issues
-        auto GameObjectsSnapshot = GameObjects;
-        for (auto obj : GameObjectsSnapshot){
-            if (obj) delete obj; // Direct delete to avoid DestroyGameObject which modifies collections
+        auto GameObjectsSnapshot = ParentlessGameObjects;
+        for (gameObject* obj : GameObjectsSnapshot){
+            delete obj;
         }
         GameObjects.clear();
+        GameObjectsSnapshot.clear();
         
         // Clear windows (not owned by scene, just references)
         Windows.clear();

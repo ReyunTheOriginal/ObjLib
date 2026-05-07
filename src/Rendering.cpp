@@ -73,10 +73,10 @@ namespace obj{
         if (!Canvas)return;
 
         std::vector<Internal::screenRenderCache> DrawOrder;
-        DrawOrder.reserve(Canvas->UI.size());
+        DrawOrder.reserve(Canvas->ScreenObjects.size());
 
-        for (UI::Internal::transformUI* obj : Canvas->ObjectParent->GetChildren()){
-            AddChildrenToUIDraw(DrawOrder, obj);
+        for (UI::screenObject* obj : Canvas->ParentlessScreenObjects){
+            AddChildrenToUIDraw(DrawOrder, obj->UITransform);
         }
 
         std::sort(DrawOrder.begin(), DrawOrder.end(), [](const Internal::screenRenderCache& A, const Internal::screenRenderCache& B){
@@ -149,8 +149,8 @@ namespace obj{
             std::vector<Internal::renderCache> DrawOrder;
             DrawOrder.reserve(Scene->GameObjects.size());
 
-            for (Internal::transform* obj : Scene->ObjectParent->GetChildren()){
-                AddChildrenToDraw(DrawOrder, obj);
+            for (gameObject* obj : Scene->ParentlessGameObjects){
+                AddChildrenToDraw(DrawOrder, obj->Transform);
             }
 
             std::sort(DrawOrder.begin(), DrawOrder.end(), [](const Internal::renderCache& A, const Internal::renderCache& B){

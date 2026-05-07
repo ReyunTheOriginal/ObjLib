@@ -17,7 +17,7 @@ namespace obj{
             struct screenComponent{
                 screenObject* ScreenObject = nullptr;
 
-                ::obj::Internal::renderSorter* RenderLayer;
+                ::obj::Internal::renderSorter* RenderLayer = nullptr;
 
                 bool Enabled = true;
                 bool DidInit = false;

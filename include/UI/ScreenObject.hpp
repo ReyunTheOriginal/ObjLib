@@ -32,14 +32,33 @@ namespace obj{
                 transformUI* Parent = nullptr;
                 std::unordered_set<transformUI*> Children;
 
-                public:
                 vector2 Position = {0,0};
                 vector2 Scale = {1,1};
                 float Rotation = 0;
 
+                public:
+                vector2 LocalPosition = {0,0};
+                vector2 LocalScale = {1,1};
+                float LocalRotation = 0;
+
                 screenObject* GetScreenObject(){return ScreenObject;}
                 transformUI* GetParent(){return Parent;}
                 std::unordered_set<transformUI*> GetChildren(){return Children;}
+
+                vector2 GetWorldPosition(){return Position;}
+                vector2 GetWorldScale(){return Scale;}
+                float GetWorldRotation(){return Rotation;}
+
+                void SetWorldPositionRaw(vector2 position){Position = position;}
+                void SetWorldScaleRaw(vector2 scale){Scale = scale;}
+                void SetWorldRotationRaw(float rotation){Rotation = rotation;}
+
+                void SetWorldPosition(vector2 Pos);
+                void SetWorldScale(vector2 Scale);
+                void SetWorldRotation(float Rotation);
+
+                vector2 WorldToLocal(vector2 WorldPos);
+                vector2 LocalToWorld(vector2 LocalPos);
 
                 void SetParent(transformUI* ParentToSet);
 

@@ -20,7 +20,8 @@ namespace obj{
     
     extern bool ObjMessages;
     int  Init(); //Start up all necessary code to prepare the program
-    void Update(); //update processes like physics, positions, and math
+    void Apply(); //Apply things like Phyiscs, Hiararchies, and Delete things
+    void Update(); //update processes like Input, Time, and FPS
     void Quit(); //safely quit the entire program
 
     //IT IS HIGHLY RECOMMENDED TO NEVER USE THIS, USE Destroy() instead

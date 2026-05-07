@@ -2,27 +2,22 @@
 
 #include <vector>
 #include <algorithm>
-#include "UI/ScreenObject.hpp"
 
 namespace obj{
     struct camera;
+    struct gameObject;
 
     namespace UI{
         struct screenObject;
 
-        namespace Internal{
-            struct screenComponent;
-        }
-
         struct canvas{
             bool Enabled = true;
-            std::vector<screenObject*> UI;
-
-            Internal::transformUI* ObjectParent = nullptr;
+            std::vector<screenObject*> ScreenObjects;
+            std::vector<screenObject*> ParentlessScreenObjects;
 
             camera* Camera = nullptr;
 
-            canvas(){ObjectParent = new Internal::transformUI(nullptr);}
+            canvas(){}
             ~canvas();
         };
 

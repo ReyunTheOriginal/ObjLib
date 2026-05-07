@@ -7,23 +7,6 @@
 #include "Components/ComponentBase.hpp"
 
 namespace obj{
-    void Internal::transform::SetParent(transform* ParentToSet){
-        if (Parent){
-            if (Parent->Children.contains(this)){
-                Parent->Children.erase(this);
-            }
-        }
-
-        if (ParentToSet == nullptr)
-            ParentToSet = GameObject->GetScene()->ObjectParent;
-
-        if (!ParentToSet->Children.contains(this)){
-            ParentToSet->Children.insert(this);
-        }
-
-        Parent = ParentToSet;
-    }
-    
     gameObject::~gameObject(){
         // Remove from scene
             if (Scene){
@@ -41,11 +24,9 @@ namespace obj{
             }
 
             // Delete Transform last (it will handle cascading deletion of children)
-            if (Transform){
+            if (Transform)
                 delete Transform;
-            }
-            
-            Components.clear();
+             Components.clear();
     }
     
     gameObject* CreateGameObject(scene* Scene, Internal::transform* Parent){
@@ -57,11 +38,18 @@ namespace obj{
 
         newGam->Transform = new Internal::transform(newGam);
 
-        if (Parent == nullptr){
-            newGam->Transform->SetParent(Scene->ObjectParent);
-        }else{
-            newGam->Transform->SetParent(Parent);
-        }
+        newGam->Transform->SetParent(Parent);
+
+        // Update world position, rotation, and scale based on parent
+        newGam->Transform->SetWorldPositionRaw(newGam->Transform->LocalToWorld(newGam->Transform->LocalPosition));
+        
+        newGam->Transform->SetWorldRotationRaw(newGam->Transform->GetParent() ? 
+            newGam->Transform->GetParent()->GetWorldRotation() + newGam->Transform->LocalRotation : 
+            newGam->Transform->LocalRotation);
+        
+        newGam->Transform->SetWorldScaleRaw(newGam->Transform->GetParent() ? 
+            newGam->Transform->GetParent()->GetWorldScale() * newGam->Transform->LocalScale : 
+            newGam->Transform->LocalScale);
 
         Internal::GlobalGameObjects.push_back(newGam);
         newGam->ID = Internal::Obj_ID;

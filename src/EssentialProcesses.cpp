@@ -37,8 +37,6 @@ namespace obj{
 
     bool ObjMessages = true;
 
-    bool IsQuiting = false;
-
     //Start up all necessary code to prepare the program
     int Init(){
         SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS);
@@ -47,56 +45,147 @@ namespace obj{
         if (ObjMessages)std::cout << "\033[1;32m--- Initiated {\033[1;31mObjLib\033[1;32m} ---\033[0m" << "\n";
         return 0;
     }
-    //update processes like physics, positions, and math
-    void Update(){
-        if (IsQuiting) return;
 
+    void UpdateTransform(Internal::transform* trans){
+        if (!trans) return;
+            
+        // Update world position, rotation, and scale based on parent
+        trans->SetWorldPositionRaw(trans->LocalToWorld(trans->LocalPosition));
+        
+        trans->SetWorldRotationRaw(trans->GetParent() ? 
+            trans->GetParent()->GetWorldRotation() + trans->LocalRotation : 
+            trans->LocalRotation);
+        
+        trans->SetWorldScaleRaw(trans->GetParent() ? 
+            trans->GetParent()->GetWorldScale() * trans->LocalScale : 
+            trans->LocalScale);
+        
+        // Recursively update children
+        for (auto child : trans->GetChildren()){
+            UpdateTransform(child);
+        }
+    }
+
+    void UpdateUITransforms(UI::Internal::transformUI* trans){
+        if (!trans) return;
+            
+        // Update world position, rotation, and scale based on parent
+        vector2 worldPos = trans->LocalPosition;
+        if (trans->GetParent()){
+            // Rotate by parent's rotation
+            float rad = Math::Deg2Rad(trans->GetParent()->GetWorldRotation());
+            float cs = Math::Cos(rad);
+            float sn = Math::Sin(rad);
+            worldPos = { worldPos.x * cs - worldPos.y * sn, worldPos.x * sn + worldPos.y * cs };
+            
+            // Scale by parent's scale
+            worldPos.x *= trans->GetParent()->GetWorldScale().x;
+            worldPos.y *= trans->GetParent()->GetWorldScale().y;
+            
+            // Add parent's position
+            worldPos += trans->GetParent()->GetWorldPosition();
+        }
+        trans->SetWorldPositionRaw(worldPos);
+        
+        trans->SetWorldRotationRaw(trans->GetParent() ? 
+            trans->GetParent()->GetWorldRotation() + trans->LocalRotation : 
+            trans->LocalRotation);
+        
+        trans->SetWorldScaleRaw(trans->GetParent() ? 
+            trans->GetParent()->GetWorldScale() * trans->LocalScale : 
+            trans->LocalScale);
+        
+        // Recursively update children
+        for (auto child : trans->GetChildren()){
+            UpdateUITransforms(child);
+        }
+    }
+
+    void RunComponents(Internal::transform* transform){
+        if (!transform || !transform->GetGameObject() || !transform->GetGameObject()->Enabled) return;
+            
+        gameObject* obj = transform->GetGameObject();
+        auto componentsCopy = obj->Components;
+        
+        for (auto& com : componentsCopy){
+            if (com.second && com.second->Enabled){
+                if (!com.second->DidInit){com.second->Init(); com.second->DidInit = true;}
+                com.second->Run();
+            }
+        }
+        
+        for (Internal::transform* child : transform->GetChildren()){
+            RunComponents(child);
+        }
+    }
+
+    void RunUIComponents(UI::Internal::transformUI* transform){
+        if (!transform || !transform->GetScreenObject() || !transform->GetScreenObject()->Enabled) return;
+            
+        UI::screenObject* obj = transform->GetScreenObject();
+        auto componentsCopy = obj->Components;
+        
+        for (auto& com : componentsCopy){
+            if (com.second && com.second->Enabled){
+                if (!com.second->DidInit){com.second->Init(); com.second->DidInit = true;}
+                com.second->Run();
+            }
+        }
+        
+        for (UI::Internal::transformUI* child : transform->GetChildren()){
+            RunUIComponents(child);
+        }
+    }
+
+    //Apply things like Phyiscs, Hiararchies, and Delete things
+    void Apply(){
         for (int i=0;i<QueuedForDestruction.size();i++){
+            std::visit([](auto* ptr) {
+                delete ptr;
+            }, *QueuedForDestruction[i]);
             delete QueuedForDestruction[i];
         }   
         QueuedForDestruction.clear();
-
-        Input::Update();
-        Time::Update();
         
-        // Helper lambda to recursively update enabled game objects and their children
-        std::function<void(Internal::transform*)> UpdateChildren = [&](Internal::transform* transform){
-            if (!transform || !transform->GetGameObject() || !transform->GetGameObject()->Enabled) return;
-            
-            gameObject* obj = transform->GetGameObject();
-            auto componentsCopy = obj->Components;
-            
-            for (auto& com : componentsCopy){
-                if (com.second && com.second->Enabled){
-                    if (!com.second->DidInit){com.second->Init(); com.second->DidInit = true;}
-                    com.second->Run();
-                }
-            }
-            
-            for (Internal::transform* child : transform->GetChildren()){
-                UpdateChildren(child);
-            }
-        };
-        
-        // Update all game objects from their scene roots
+        // First pass: Update ALL transforms recursively (parents before children)
         auto ScenesSnapshot = Internal::GlobalScenes;
         for (auto& scene : ScenesSnapshot){
-            if (scene && scene->ObjectParent){
-                for (Internal::transform* obj : scene->ObjectParent->GetChildren()){
-                    UpdateChildren(obj);
+            if (scene){
+                // Update all objects, handling both parentless and parented
+                for (gameObject* obj : scene->GameObjects){
+                    // Only update if object has no parent (root objects)
+                    if (obj->Transform && !obj->Transform->GetParent()){
+                        UpdateTransform(obj->Transform);
+                    }
                 }
             }
         }
 
-        // Create a snapshot to avoid iterator invalidation if objects are destroyed during update
-        auto ScreenObjectsSnapshot = Internal::GlobalScreenObjects;
-        for (auto& obj : ScreenObjectsSnapshot){
-            if (obj && obj->Enabled){
-                //loop through all components and run them
-                for (auto& com : obj->Components){
-                    if (com.second && com.second->Enabled){
-                        if (!com.second->DidInit){com.second->Init(); com.second->DidInit = true;}
-                        com.second->Run();
+        // Second pass: Update components (after all transforms are correct)
+        for (auto& scene : ScenesSnapshot){
+            if (scene){
+                for (gameObject* obj : scene->GameObjects){
+                    if (obj->Transform && !obj->Transform->GetParent()){
+                        RunComponents(obj->Transform);
+                    }
+                }
+            }
+        }
+
+        // Update UI from parentless screen objects
+        for (auto& Win : Internal::GlobalWindows){
+            if (Win->ActiveCamera->ActiveCanvas){
+                // First pass: Update UI transforms recursively
+                for (UI::screenObject* obj : Win->ActiveCamera->ActiveCanvas->ParentlessScreenObjects){
+                    if (obj->UITransform && !obj->UITransform->GetParent()){
+                        UpdateUITransforms(obj->UITransform);
+                    }
+                }
+                
+                // Second pass: Update UI components
+                for (UI::screenObject* obj : Win->ActiveCamera->ActiveCanvas->ParentlessScreenObjects){
+                    if (obj->UITransform && !obj->UITransform->GetParent()){
+                        RunUIComponents(obj->UITransform);
                     }
                 }
             }
@@ -113,6 +202,12 @@ namespace obj{
                 }
             }
         }
+    }
+    
+    //update processes like Input, Time, and FPS
+    void Update(){
+        Input::Update();
+        Time::Update();
     }
     
     //safely quit the entire program
@@ -136,7 +231,7 @@ namespace obj{
         Internal::GlobalGameObjects.clear(); // These are already deleted by scene destructors
 
         SDL_Quit();
-        if (ObjMessages)std::cout << "\033[1;32m--- Exited {\033[1;31mObjLib\033[1;32m} ---\033[0m" << "\n";
+        if (ObjMessages)std::cout << "\n" << "\033[1;32m--- Exited {\033[1;31mObjLib\033[1;32m} ---\033[0m" << "\n";
         std::exit(0);
     }
 }

@@ -15,7 +15,7 @@ namespace obj{
         struct component{
             gameObject* GameObject = nullptr;
             bool Enabled = true;
-            Internal::renderSorter* RenderLayer;
+            Internal::renderSorter* RenderLayer = nullptr;
             bool DidInit = false;
 
             virtual void Run() {} //any updating that needs to be done
