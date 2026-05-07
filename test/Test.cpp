@@ -1,113 +1,136 @@
 #include "../include/Core.hpp"
-/*
-obj::gameObject* HeldObj = nullptr;
 
 int main(int argc, char *argv[]){
     bool running = true;
     obj::Init();
     
-    obj::window* Win = obj::CreateWindow("hello Earth", obj::vector2(1200, 600));
-    //SDL_SetRenderVSync(Win->SDLrenderer, 1);
+    // ===== WINDOW & SCENE SETUP =====
+    obj::window* Win = obj::CreateWindow("ObjLib Transform Hierarchy Test", obj::vector2(1400, 800));
+    obj::FPS::SetTargetFrameRate(60);
 
     obj::scene* Scene = obj::CreateScene();
-
     Win->SetScene(Scene);
+    Win->ActiveCamera->SetResolution({800, 600});
+    Win->ActiveCamera->Position = {0, 0};
 
-    Win->ActiveCamera->SetResolution({800,600});
+    // ===== SPRITE SETUP =====
+    obj::sprite* spCircle = obj::CreateSprite(obj::exePath() + "/Sprites/Default/Circle.png");
+    obj::sprite* spSquare = obj::CreateSprite(obj::exePath() + "/Sprites/Default/Square.png");
+    obj::sprite* spTriangle = obj::CreateSprite(obj::exePath() + "/Sprites/Default/Triangle.png");
 
-    Win->ActiveCamera->Position = {0,0};
+    // ===== UI SETUP =====
+    obj::UI::canvas* Canvas = obj::UI::CreateCanvas(Win->ActiveCamera);
+    obj::Font* Font = obj::CreateFont(obj::exePath() + "/Fonts/Times New Roman.ttf", 20);
 
-    obj::gameObject* gam = obj::CreateGameObject(Scene);
-    obj::gameObject* gam2 = obj::CreateGameObject(Scene);
-    obj::gameObject* gam3 = obj::CreateGameObject(Scene);
-    gam2->Transform->Position = {400, 300};
-    gam2->Transform->Scale = {0.5, 2};
+    // Title
+    obj::UI::screenObject* titleDisplay = obj::UI::CreateScreenObject(Canvas);
+    titleDisplay->UITransform->SetWorldPosition({10, 10});
+    obj::UI::Text* titleText = titleDisplay->AddComponent<obj::UI::Text>();
+    titleText->SetFont(Font);
+    titleText->SetText("Transform Hierarchy Test");
 
-    gam3->Transform->Scale = {0.5, 0.5};
-    gam3->Transform->Position = {0,0};
+    // Info Display
+    obj::UI::screenObject* infoDisplay = obj::UI::CreateScreenObject(Canvas);
+    infoDisplay->UITransform->SetWorldPosition({10, 40});
+    obj::UI::Text* infoText = infoDisplay->AddComponent<obj::UI::Text>();
+    infoText->SetFont(Font);
+    infoText->SetText("Controls: Q=Spawn root  W=Spawn child  E=Rotate parent  R=Scale parent");
 
-    obj::spriteRenderer* sr = gam->AddComponent<obj::spriteRenderer>();
-    obj::spriteRenderer* sr2 = gam2->AddComponent<obj::spriteRenderer>();
-    obj::spriteRenderer* sr3 = gam3->AddComponent<obj::spriteRenderer>();
+    obj::UI::screenObject* posDisplay = obj::UI::CreateScreenObject(Canvas);
+    posDisplay->UITransform->SetWorldPosition({10, 70});
+    obj::UI::Text* posText = posDisplay->AddComponent<obj::UI::Text>();
+    posText->SetFont(Font);
+    posText->SetText("Parent Pos: (0, 0)  Child Pos: (0, 0)");
 
-    obj::sprite* sp = obj::CreateSprite(obj::exePath() + "/Sprites/Default/Triangle.png");
-    obj::sprite* sp2 = obj::CreateSprite(obj::exePath() + "/Sprites/Default/Circle.png");
-    obj::sprite* sp3 = obj::CreateSprite(obj::exePath() + "/Sprites/Default/Square.png");
+    // ===== GAME OBJECTS =====
+    obj::gameObject* parentObj = nullptr;
+    obj::gameObject* childObj = nullptr;
 
-    sr->Sprite = sp;
-    sr2->Sprite = sp2;
-    sr3->Sprite = sp3;
-
-
-    sr3->RenderLayer->Order = 2;
-
-    sr->Color = {255,0,0,128};
-    sr2->Color = {0, 255, 0, 255};
-
+    // ===== MAIN LOOP =====
     while(running){
         obj::Update();
 
-        Win->SetTitle(std::to_string(obj::FPS::FPS));
+        // ===== SPAWN ROOT OBJECT (Q) =====
+        if (obj::Input::KeyPressed(obj::KeyCode::Q)){
+            if (parentObj) obj::Destroy(parentObj);
+            
+            parentObj = obj::CreateGameObject(Scene);
+            parentObj->Transform->SetWorldPosition({-1, 0});
+            parentObj->Transform->SetWorldScale({1, 1});
+            
+            obj::spriteRenderer* sr = parentObj->AddComponent<obj::spriteRenderer>();
+            sr->Sprite = spCircle;
+            sr->Color = {255, 0, 0, 255};
+            
+            childObj = nullptr;
+        }
 
-        if (obj::Input::MouseButtonPressed(1)){
-            float dis = MAXFLOAT;
-            for (obj::gameObject* obj : obj::Input::FocusedWindow->GetScene()->GameObjects){
-                float newdis = obj::Math::Distance(obj::Input::WorldMousePosition, obj->Transform->Position);
-                if (newdis < dis){
-                    dis = newdis;
-                    HeldObj = obj;
-                }
+        // ===== SPAWN CHILD OBJECT (W) =====
+        if (obj::Input::KeyPressed(obj::KeyCode::W)){
+            if (!parentObj) {
+                infoText->SetText("Create parent first! (Q)");
+            } else {
+                if (childObj) obj::Destroy(childObj);
+                
+                childObj = obj::CreateGameObject(Scene, parentObj->Transform);
+                childObj->Transform->SetWorldPosition({1, 0});
+                childObj->Transform->SetWorldScale({0.5, 0.5});
+                
+                obj::spriteRenderer* sr = childObj->AddComponent<obj::spriteRenderer>();
+                sr->Sprite = spSquare;
+                sr->Color = {0, 255, 0, 255};
             }
         }
 
-        if (obj::Input::KeyPressed(obj::KeyCode::G)){
-            sr->FlipVertical = !sr->FlipVertical;
-        }
-
-        float move = 5 * obj::Time::DeltaTime;
-
-        if (obj::Input::KeyHeld(obj::KeyCode::Up)){
-            Win->ActiveCamera->SetResolution(Win->ActiveCamera->GetResolution() + obj::vector2(move, move));
-        }
-        if (obj::Input::KeyHeld(obj::KeyCode::Down)){
-            Win->ActiveCamera->SetResolution(Win->ActiveCamera->GetResolution() + obj::vector2(-move, -move));
-        }
-
-        if (obj::Input::KeyHeld(obj::KeyCode::Space)){
-            if (obj::Input::KeyHeld(obj::KeyCode::LShift)){
-                Win->ActiveCamera->Zoom+= (obj::Time::DeltaTime);
-            }else{
-                Win->ActiveCamera->Zoom-= (obj::Time::DeltaTime);
+        // ===== ROTATE PARENT (E) =====
+        if (obj::Input::KeyHeld(obj::KeyCode::E)){
+            if (parentObj){
+                parentObj->Transform->LocalRotation += 100 * obj::Time::DeltaTime;
             }
         }
 
-        Win->ActiveCamera->Position += obj::Input::DirectionalInput * obj::Time::DeltaTime;
-
-        if (obj::Input::MouseButtonReleased(1)){
-            HeldObj = nullptr;
-        }
-
-        if (HeldObj){
-            HeldObj->Transform->Position = obj::Input::WorldMousePosition;
-
-            if (obj::Input::KeyHeld(obj::KeyCode::R)){
-                if (obj::Input::KeyHeld(obj::KeyCode::LShift)){
-                    HeldObj->Transform->Rotation += (150 * obj::Time::DeltaTime);
-                }else{
-                    HeldObj->Transform->Rotation -= (150 * obj::Time::DeltaTime);
-                }
+        // ===== SCALE PARENT (R) =====
+        if (obj::Input::KeyHeld(obj::KeyCode::R)){
+            if (parentObj){
+                float scaleAmount = 0.5f * obj::Time::DeltaTime;
+                parentObj->Transform->LocalScale += obj::vector2(scaleAmount, scaleAmount);
             }
         }
 
+        // ===== DRAG PARENT WITH MOUSE =====
+        if (obj::Input::MouseButtonHeld(1) && parentObj){
+            parentObj->Transform->SetWorldPosition(obj::Input::WorldMousePosition);
+        }
+
+        // ===== UPDATE DISPLAY TEXT =====
+        if (parentObj){
+            std::string posInfo = "Parent Pos: (" + std::to_string((int)parentObj->Transform->GetWorldPosition().x) + ", " + 
+                                  std::to_string((int)parentObj->Transform->GetWorldPosition().y) + ")";
+            if (childObj){
+                posInfo += "  Child Pos: (" + std::to_string((int)childObj->Transform->GetWorldPosition().x) + ", " + 
+                           std::to_string((int)childObj->Transform->GetWorldPosition().y) + ")";
+            }
+            posText->SetText(posInfo);
+        } else {
+            posText->SetText("Press Q to spawn parent object");
+        }
+
+        // ===== QUIT (Escape) =====
+        if (obj::Input::KeyPressed(obj::KeyCode::Escape)){
+            running = false;
+        }
+
+        obj::Apply();
         obj::Render();
     }
 
     obj::Quit();
     return 0;
-}*/
+}
 
 
-using namespace obj;
+
+/*using namespace obj;
 
 struct obst{
     gameObject* obj1 = nullptr;
@@ -286,6 +309,6 @@ int main(){
         Render();
     }
     return 0;
-}
+}*/
 
 
