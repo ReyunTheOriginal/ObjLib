@@ -16,7 +16,7 @@ namespace obj{
 
             auto windows = Internal::GlobalWindows;  // Make a copy
             for (window* Win : windows){
-                newSprite->Textures[Win->SDLrenderer] = SDL_CreateTextureFromSurface(Win->SDLrenderer,newSprite->SDLsurface);
+                newSprite->Textures[Win->GetSDLRenderer()] = SDL_CreateTextureFromSurface(Win->GetSDLRenderer(),newSprite->SDLsurface);
             }
 
             return newSprite;

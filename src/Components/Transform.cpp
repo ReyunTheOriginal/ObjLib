@@ -6,22 +6,18 @@ namespace obj{
     Internal::transform::~transform(){
         // Delete all children's GameObjects first
         auto Copy = Children;
+        Children.clear();
         for (auto child : Copy){
             if (child && child->GetGameObject()){
                 child->Parent = nullptr;
                 delete child->GetGameObject();
             }
         }
-        Children.clear();
-        Children.clear();
+        Copy.clear();
         
         // Clear parent reference
         if (Parent && Parent->Children.contains(this)){
             Parent->Children.erase(this);
-        }
-
-        if (!Parent){
-            std::erase(GameObject->GetScene()->ParentlessGameObjects, GameObject);
         }
     }
 
@@ -94,26 +90,28 @@ namespace obj{
         }
     
         void transform::SetParent(transform* ParentToSet){
-            if (Parent){
-                if (Parent->Children.contains(this)){
-                    Parent->Children.erase(this);
-                }
-            }
+            transform* parentSnapShot = ParentToSet;
 
-            if (ParentToSet && !ParentToSet->Children.contains(this)){
-                ParentToSet->Children.insert(this);
-            }
+            std::erase(GameObject->GetScene()->ParentlessGameObjects, GameObject);
 
-            if (ParentToSet == nullptr){
+            if ((parentSnapShot && parentSnapShot->IsDescendantOf(this)) || parentSnapShot == this)
+                parentSnapShot = nullptr;
+
+            if (Parent && Parent->Children.contains(this))
+                Parent->Children.erase(this);
+
+            if (parentSnapShot && !parentSnapShot->Children.contains(this))
+                parentSnapShot->Children.insert(this);
+
+            if (parentSnapShot == nullptr)
                 GameObject->GetScene()->ParentlessGameObjects.push_back(GameObject);
-            }
 
-            LocalPosition = ParentToSet ? WorldToLocal(Position) : Position;
-            LocalRotation = ParentToSet ? Rotation - ParentToSet->Rotation : Rotation;
-            LocalScale.x = ParentToSet ? Scale.x / ParentToSet->Scale.x : Scale.x;
-            LocalScale.y = ParentToSet ? Scale.y / ParentToSet->Scale.y : Scale.y;
+            Parent = parentSnapShot;
 
-            Parent = ParentToSet;
+            LocalPosition = WorldToLocal(LocalToWorld(LocalPosition));
+            LocalRotation = parentSnapShot ? Rotation - parentSnapShot->Rotation : Rotation;
+            LocalScale.x = parentSnapShot ? Scale.x / parentSnapShot->Scale.x : Scale.x;
+            LocalScale.y = parentSnapShot ? Scale.y / parentSnapShot->Scale.y : Scale.y;
         }
     }
 }

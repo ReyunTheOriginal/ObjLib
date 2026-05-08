@@ -7,7 +7,7 @@ namespace obj{
     struct gameObject;
 
     namespace Internal{
-        struct transform : component{
+        struct transform{
             private:
             gameObject* GameObject = nullptr;
             transform* Parent = nullptr;
@@ -27,6 +27,10 @@ namespace obj{
             std::unordered_set<transform*> GetChildren(){return Children;}
 
             void SetParent(transform* ParentToSet);
+            void SetChild(transform* ChildToSet){
+                if (ChildToSet)
+                    ChildToSet->SetParent(this);
+            }
 
             vector2 GetWorldPosition(){return Position;}
             vector2 GetWorldScale(){return Scale;}
@@ -42,6 +46,19 @@ namespace obj{
 
             vector2 WorldToLocal(vector2 WorldPos);
             vector2 LocalToWorld(vector2 LocalPos);
+
+            bool IsDescendantOf(transform* target){
+                transform* current = Parent;
+
+                while (current != nullptr){
+                    if (current == target)
+                        return true;
+
+                    current = current->Parent;
+                }
+
+                return false;
+            }
 
             transform(gameObject* gameObj){
                 GameObject = gameObj;

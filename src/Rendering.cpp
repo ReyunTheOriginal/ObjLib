@@ -15,12 +15,12 @@
 namespace obj{
     namespace Internal{
         struct renderCache{
-            component* com = nullptr;
+            ::obj::component* com = nullptr;
             renderSorter* Layer = nullptr;
         };
 
         struct screenRenderCache{
-            UI::Internal::screenComponent* com = nullptr;
+            UI::screenComponent* com = nullptr;
             renderSorter* Layer = nullptr;
         };
     } //Internal
@@ -66,27 +66,23 @@ namespace obj{
         scene* Scene = Win->GetScene();
         if (!Scene) return;
 
-        camera* ActiveCamera = Win->ActiveCamera;
+        camera* ActiveCamera = Win->GetCamera();
         if (!ActiveCamera)return;
 
-        UI::canvas* Canvas = ActiveCamera->ActiveCanvas;
+        UI::canvas* Canvas = ActiveCamera->GetCanvas();
         if (!Canvas)return;
 
         std::vector<Internal::screenRenderCache> DrawOrder;
-        DrawOrder.reserve(Canvas->ScreenObjects.size());
+        DrawOrder.reserve(Canvas->GetScreenObjects().size());
 
-        for (UI::screenObject* obj : Canvas->ParentlessScreenObjects){
+        for (UI::screenObject* obj : Canvas->GetParentlessScreenObjects()){
             AddChildrenToUIDraw(DrawOrder, obj->UITransform);
         }
 
         std::sort(DrawOrder.begin(), DrawOrder.end(), [](const Internal::screenRenderCache& A, const Internal::screenRenderCache& B){
-            if (A.Layer->Layer == B.Layer->Layer && A.Layer->Order == B.Layer->Order){
-                return A.com->ScreenObject->GetID() < B.com->ScreenObject->GetID();
-            }else if (A.Layer->Layer == B.Layer->Layer){
-                return A.Layer->Order < B.Layer->Order;
-            }else{
-                return A.Layer->Layer < B.Layer->Layer;
-            }
+            if (A.Layer->Layer != B.Layer->Layer) return A.Layer->Layer < B.Layer->Layer;
+            if (A.Layer->Order != B.Layer->Order) return A.Layer->Order < B.Layer->Order;
+            return A.com->ScreenObject->GetID() < B.com->ScreenObject->GetID();
         });
 
         //loop through all components and Draw them
@@ -109,13 +105,13 @@ namespace obj{
         if (!Win)return;
         
         // Always clear to black for letterbox effect
-        SDL_SetRenderDrawColor(Win->SDLrenderer, 0, 0, 0, 255);
-        SDL_RenderClear(Win->SDLrenderer);
+        SDL_SetRenderDrawColor(Win->GetSDLRenderer(), 0, 0, 0, 255);
+        SDL_RenderClear(Win->GetSDLRenderer());
 
         scene* Scene = Win->GetScene();
         if (!Scene) return;
 
-        camera* ActiveCamera = Win->ActiveCamera;
+        camera* ActiveCamera = Win->GetCamera();
         
         if (ActiveCamera){
             vector2 Logical = ActiveCamera->GetResolution();
@@ -123,7 +119,7 @@ namespace obj{
             //Draw the background first<
             color bgColor = Scene->BackGroundColor;
 
-            SDL_SetRenderDrawColor(Win->SDLrenderer,
+            SDL_SetRenderDrawColor(Win->GetSDLRenderer(),
                 (Uint8)bgColor.r,
                 (Uint8)bgColor.g,
                 (Uint8)bgColor.b,
@@ -131,7 +127,7 @@ namespace obj{
             );
 
             SDL_FRect rect = {0, 0, Logical.x, Logical.y};
-            SDL_RenderFillRect(Win->SDLrenderer, &rect);
+            SDL_RenderFillRect(Win->GetSDLRenderer(), &rect);
         }
 
     }
@@ -143,37 +139,30 @@ namespace obj{
 
         if (!Scene) return;
 
-        camera* ActiveCamera = Win->ActiveCamera;
+        camera* ActiveCamera = Win->GetCamera();
         
         if (ActiveCamera){
             std::vector<Internal::renderCache> DrawOrder;
-            DrawOrder.reserve(Scene->GameObjects.size());
+            DrawOrder.reserve(Scene->GetGameObjects().size());
 
-            for (gameObject* obj : Scene->ParentlessGameObjects){
+            for (gameObject* obj : Scene->GetParentlessGameObjects()){
                 AddChildrenToDraw(DrawOrder, obj->Transform);
             }
 
-            std::sort(DrawOrder.begin(), DrawOrder.end(), [](const Internal::renderCache& A, const Internal::renderCache& B){
-
-                if (A.Layer->Layer == B.Layer->Layer && A.Layer->Order == B.Layer->Order){
-                    return A.com->GameObject->GetID() < B.com->GameObject->GetID();
-                }else if (A.Layer->Layer == B.Layer->Layer){
-                    return A.Layer->Order < B.Layer->Order;
-                }else{
-                    return A.Layer->Layer < B.Layer->Layer;
-                }
+           std::sort(DrawOrder.begin(), DrawOrder.end(), [](const Internal::renderCache& A, const Internal::renderCache& B){
+                if (A.Layer->Layer != B.Layer->Layer) return A.Layer->Layer < B.Layer->Layer;
+                if (A.Layer->Order != B.Layer->Order) return A.Layer->Order < B.Layer->Order;
+                return A.com->GameObject->GetID() < B.com->GameObject->GetID();
             });
 
             //loop through all components and Draw them
-            auto copy = DrawOrder;
-            for (auto& renderer : copy){
+            for (const auto& renderer : DrawOrder){
                 renderer.com->Draw(Win);
             }
 
             if (Win->Debug){
-                auto copy = DrawOrder;
                 //loop through all components and Draw them
-                for (auto& renderer : copy){
+                for (const auto& renderer : DrawOrder){
                     renderer.com->DebugDraw(Win);
                 }
             }
@@ -191,7 +180,7 @@ namespace obj{
             RenderCanvases(Win);
 
             //present all renderers
-            SDL_RenderPresent(Win->SDLrenderer);
+            SDL_RenderPresent(Win->GetSDLRenderer());
         }
     }
 

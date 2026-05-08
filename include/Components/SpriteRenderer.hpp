@@ -8,7 +8,7 @@ struct SDL_Renderer;
 namespace obj{
     struct sprite;
 
-    struct spriteRenderer : Internal::component{
+    struct spriteRenderer : component{
         color Color = {255,255,255,255};
         sprite* Sprite = nullptr;
 

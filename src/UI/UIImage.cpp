@@ -5,29 +5,30 @@
 #include "Sprite.hpp"
 #include "Camera.hpp"
 #include "UI/ScreenObject.hpp"
+#include "UI/UITransform.hpp"
 
 namespace obj{
 
     namespace UI{
         void image::Draw(window* Window){
-            if (Window->SDLrenderer && ScreenObject->GetCanvas() != nullptr && Sprite && Sprite->Textures.contains(Window->SDLrenderer)){
-                auto tex = Sprite->Textures[Window->SDLrenderer];
+            if (Window->GetSDLRenderer() && ScreenObject->GetCanvas() != nullptr && Sprite && Sprite->Textures.contains(Window->GetSDLRenderer())){
+                auto tex = Sprite->Textures[Window->GetSDLRenderer()];
                 if (tex){
                     //get texture vectors
                     float w, h;
                     SDL_GetTextureSize(tex, &w, &h);
 
-                    camera* ActiveCamera = ScreenObject->GetCanvas()->Camera;
+                    camera* ActiveCamera = ScreenObject->GetCanvas()->GetCamera();
                     
                     if (!ActiveCamera) return;
 
                     //scale the rect
                     float zoom = ActiveCamera->Zoom;
-                    float scaledH = h * ScreenObject->UITransform->GetWorldScale().y;
-                    float scaledW = w * ScreenObject->UITransform->GetWorldScale().x;
+                    float scaledH = h * ScreenObject->UITransform->GetScreenScale().y;
+                    float scaledW = w * ScreenObject->UITransform->GetScreenScale().x;
 
-                    SDL_FRect dst = {ScreenObject->UITransform->GetWorldPosition().x - scaledW / 2.0f , 
-                        ScreenObject->UITransform->GetWorldPosition().y - scaledH / 2.0f, scaledW, scaledH };
+                    SDL_FRect dst = {ScreenObject->UITransform->GetScreenPosition().x - scaledW / 2.0f , 
+                        ScreenObject->UITransform->GetScreenPosition().y - scaledH / 2.0f, scaledW, scaledH };
 
                     //set the texture colors
                     SDL_SetTextureColorMod(tex, Color.r, Color.g, Color.b);
@@ -49,11 +50,11 @@ namespace obj{
                     
                     //render it rotated as necessary
                     SDL_RenderTextureRotated(
-                        Window->SDLrenderer,
+                        Window->GetSDLRenderer(),
                         tex,
                         NULL,   // src rect (whole texture)
                         &dst,   // dst rect
-                        ScreenObject->UITransform->GetWorldRotation(),
+                        ScreenObject->UITransform->GetScreenRotation(),
                         NULL,   // center (NULL = center of dst)
                         Flip
                     );

@@ -36,14 +36,14 @@ namespace obj{
         std::vector<vector2> WorldVerts = GetWorldVertices();
 
         for (vector2& vert : WorldVerts){
-            vert = Window->ActiveCamera->WorldToScreenPosition(vert);
+            vert = Window->GetCamera()->WorldToScreenPosition(vert);
         }
 
         int size = WorldVerts.size();
 
         for (int i=0; i<size; i++){
-            SDL_SetRenderDrawColor(Window->SDLrenderer, DebugColor.r, DebugColor.g, DebugColor.b, DebugColor.a);
-            SDL_RenderLine(Window->SDLrenderer, WorldVerts[i].x, WorldVerts[i].y,  WorldVerts[(i + 1) % size].x, WorldVerts[(i + 1) % size].y);
+            SDL_SetRenderDrawColor(Window->GetSDLRenderer(), DebugColor.r, DebugColor.g, DebugColor.b, DebugColor.a);
+            SDL_RenderLine(Window->GetSDLRenderer(), WorldVerts[i].x, WorldVerts[i].y,  WorldVerts[(i + 1) % size].x, WorldVerts[(i + 1) % size].y);
         }
     }
 }

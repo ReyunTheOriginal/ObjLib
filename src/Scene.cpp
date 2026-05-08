@@ -9,13 +9,14 @@ namespace obj{
         
         // Delete all game objects - use a snapshot to avoid issues
         auto GameObjectsSnapshot = ParentlessGameObjects;
+        
         for (gameObject* obj : GameObjectsSnapshot){
+            obj->SetScene(nullptr);
             delete obj;
         }
+
         GameObjects.clear();
         GameObjectsSnapshot.clear();
-        
-        // Clear windows (not owned by scene, just references)
         Windows.clear();
     }
 
@@ -27,6 +28,8 @@ namespace obj{
         Internal::GlobalScenes.push_back(newSce);
         newSce->ID = Internal::Obj_ID;
         Internal::Obj_ID++;
+
+        newSce->Name = "Scene" + std::to_string(newSce->ID);
 
         return newSce;  // Returns a copy/move; no dangling reference
     }

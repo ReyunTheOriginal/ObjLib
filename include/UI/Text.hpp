@@ -13,11 +13,11 @@ struct TTF_Font;
 
 namespace obj{
     namespace UI{
-        struct Text : Internal::screenComponent{
+        struct Text : screenComponent{
             private:
             std::string content = "Hello, World!";
             SDL_Texture* Texture = nullptr;
-            Font* FontI = nullptr;
+            font* FontI = nullptr;
 
             public:
             void SetText(std::string newText);
@@ -29,11 +29,11 @@ namespace obj{
                 return Texture;
             }
 
-            void SetFont(Font* font){
+            void SetFont(font* font){
                 FontI = font;
                 RecreateTextures();
             }
-            Font* GetFont(){return FontI;}
+            font* GetFont(){return FontI;}
 
             void RecreateTextures();
             

@@ -2,16 +2,21 @@
 #include "Scene.hpp"
 #include "Window.hpp"
 #include "EssentialProcesses.hpp"
+#include "UI/Canvas.hpp"
 
 namespace obj{
     camera* CreateCamera(window* Window){
-        camera* Camera = new camera();
-
-        Window->ActiveCamera = Camera;
-        return Camera;
+        camera* cam = new camera();
+        cam->ActiveWindow = Window;
+        return cam;
     }
-    void DestroyCamera(camera* Camera){
-        delete Camera;
+
+    UI::canvas* camera::SetCanvas(UI::canvas* Canvas){
+        if (!Canvas)return nullptr;
+
+        Canvas->Camera = this;
+        ActiveCanvas = Canvas;
+        return Canvas;
     }
 
     vector2 camera::SetResolution(const vector2& res){
@@ -19,8 +24,8 @@ namespace obj{
         
         Resolution = res;
 
-        if (ActiveWindow && ActiveWindow->SDLrenderer) {
-            SDL_SetRenderLogicalPresentation(ActiveWindow->SDLrenderer, res.x, res.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+        if (ActiveWindow && ActiveWindow->GetSDLRenderer()) {
+            SDL_SetRenderLogicalPresentation(ActiveWindow->GetSDLRenderer(), res.x, res.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
         }
 
         return Resolution;

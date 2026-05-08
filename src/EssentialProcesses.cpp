@@ -15,19 +15,18 @@
 #include "Window.hpp"
 #include "Input.hpp"
 #include "Camera.hpp"
-#include "UI/ScreenObject.hpp"
+#include "UI/UIBase.hpp"
 #include "Time.hpp"
 #include "Font.hpp"
 #include "Sprite.hpp"
-#include "UI/Canvas.hpp"
 #include <vector>
 #include <variant>
 
 namespace obj{
     using AnyType = std::variant<
-        Internal::component*,
+        component*,
         gameObject*,
-        Font*,
+        font*,
         UI::canvas*,
         UI::screenObject*,
         sprite*
@@ -70,29 +69,29 @@ namespace obj{
         if (!trans) return;
             
         // Update world position, rotation, and scale based on parent
-        vector2 worldPos = trans->LocalPosition;
+        vector2 ScreenPos = trans->LocalPosition;
         if (trans->GetParent()){
             // Rotate by parent's rotation
-            float rad = Math::Deg2Rad(trans->GetParent()->GetWorldRotation());
+            float rad = Math::Deg2Rad(trans->GetParent()->GetScreenRotation());
             float cs = Math::Cos(rad);
             float sn = Math::Sin(rad);
-            worldPos = { worldPos.x * cs - worldPos.y * sn, worldPos.x * sn + worldPos.y * cs };
+            ScreenPos = { ScreenPos.x * cs - ScreenPos.y * sn, ScreenPos.x * sn + ScreenPos.y * cs };
             
             // Scale by parent's scale
-            worldPos.x *= trans->GetParent()->GetWorldScale().x;
-            worldPos.y *= trans->GetParent()->GetWorldScale().y;
+            ScreenPos.x *= trans->GetParent()->GetScreenScale().x;
+            ScreenPos.y *= trans->GetParent()->GetScreenScale().y;
             
             // Add parent's position
-            worldPos += trans->GetParent()->GetWorldPosition();
+            ScreenPos += trans->GetParent()->GetScreenPosition();
         }
-        trans->SetWorldPositionRaw(worldPos);
+        trans->SetScreenPositionRaw(ScreenPos);
         
-        trans->SetWorldRotationRaw(trans->GetParent() ? 
-            trans->GetParent()->GetWorldRotation() + trans->LocalRotation : 
+        trans->SetScreenRotationRaw(trans->GetParent() ? 
+            trans->GetParent()->GetScreenRotation() + trans->LocalRotation : 
             trans->LocalRotation);
         
-        trans->SetWorldScaleRaw(trans->GetParent() ? 
-            trans->GetParent()->GetWorldScale() * trans->LocalScale : 
+        trans->SetScreenScaleRaw(trans->GetParent() ? 
+            trans->GetParent()->GetScreenScale() * trans->LocalScale : 
             trans->LocalScale);
         
         // Recursively update children
@@ -105,8 +104,8 @@ namespace obj{
         if (!transform || !transform->GetGameObject() || !transform->GetGameObject()->Enabled) return;
             
         gameObject* obj = transform->GetGameObject();
-        auto componentsCopy = obj->Components;
         
+        auto componentsCopy = obj->Components;
         for (auto& com : componentsCopy){
             if (com.second && com.second->Enabled){
                 if (!com.second->DidInit){com.second->Init(); com.second->DidInit = true;}
@@ -146,61 +145,42 @@ namespace obj{
             delete QueuedForDestruction[i];
         }   
         QueuedForDestruction.clear();
-        
-        // First pass: Update ALL transforms recursively (parents before children)
-        auto ScenesSnapshot = Internal::GlobalScenes;
-        for (auto& scene : ScenesSnapshot){
+
+        // Update UI from parentless screen objects
+        for (auto& Win : Internal::GlobalWindows){
+            if (!Win)return;
+
+            scene* scene = Win->GetScene();
+
             if (scene){
                 // Update all objects, handling both parentless and parented
-                for (gameObject* obj : scene->GameObjects){
+                for (gameObject* obj : scene->GetGameObjects()){
                     // Only update if object has no parent (root objects)
                     if (obj->Transform && !obj->Transform->GetParent()){
                         UpdateTransform(obj->Transform);
                     }
-                }
-            }
-        }
 
-        // Second pass: Update components (after all transforms are correct)
-        for (auto& scene : ScenesSnapshot){
-            if (scene){
-                for (gameObject* obj : scene->GameObjects){
                     if (obj->Transform && !obj->Transform->GetParent()){
                         RunComponents(obj->Transform);
                     }
                 }
             }
-        }
 
-        // Update UI from parentless screen objects
-        for (auto& Win : Internal::GlobalWindows){
-            if (Win->ActiveCamera->ActiveCanvas){
+            if (Win->GetCamera() && Win->GetCamera()->GetCanvas()){
                 // First pass: Update UI transforms recursively
-                for (UI::screenObject* obj : Win->ActiveCamera->ActiveCanvas->ParentlessScreenObjects){
+                for (UI::screenObject* obj : Win->GetCamera()->GetCanvas()->GetParentlessScreenObjects()){
                     if (obj->UITransform && !obj->UITransform->GetParent()){
                         UpdateUITransforms(obj->UITransform);
                     }
-                }
-                
-                // Second pass: Update UI components
-                for (UI::screenObject* obj : Win->ActiveCamera->ActiveCanvas->ParentlessScreenObjects){
+
                     if (obj->UITransform && !obj->UITransform->GetParent()){
                         RunUIComponents(obj->UITransform);
                     }
                 }
             }
-        }
 
-        //set all children/parent relationships to maintain correctness
-        // Create a snapshot of windows too
-        auto WindowsSnapshot = Internal::GlobalWindows;
-        for (auto& win : WindowsSnapshot){
-            if (win){
-                camera* ActiveCamera = win->ActiveCamera;
-                if (ActiveCamera) {
-                    ActiveCamera->ActiveWindow = win;
-                }
-            }
+            if (Win->Debug)
+                Win->DebugDisplay();
         }
     }
     
@@ -228,7 +208,6 @@ namespace obj{
             delete scene;
 
         Internal::GlobalScenes.clear();
-        Internal::GlobalGameObjects.clear(); // These are already deleted by scene destructors
 
         SDL_Quit();
         if (ObjMessages)std::cout << "\n" << "\033[1;32m--- Exited {\033[1;31mObjLib\033[1;32m} ---\033[0m" << "\n";

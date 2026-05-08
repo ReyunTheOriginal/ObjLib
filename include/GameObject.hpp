@@ -34,9 +34,9 @@ namespace obj{
 
         bool Enabled = true;
         
-        std::unordered_map<std::type_index, Internal::component*> Components;
+        std::unordered_map<std::type_index, component*> Components;
 
-        Internal::component* AddComponent();
+        component* AddComponent();
 
         int GetID(){return ID;}
 

@@ -2,10 +2,10 @@
 
 #include "Math.hpp"
 #include "GlobalTypes.hpp"
+#include "Window.hpp"
 
 namespace obj{
     struct scene;
-    struct window;
     
     namespace UI{
         struct canvas;
@@ -15,13 +15,22 @@ namespace obj{
         private:
         vector2 Resolution = {800, 600};
 
+        window* ActiveWindow = nullptr;
+        UI::canvas* ActiveCanvas = nullptr;
+
+        friend camera* CreateCamera(window* Window);
+        friend camera* window::SetCamera(camera* Camera);
+        friend window* CreateWindow(std::string title, obj::vector2 resolution);
+
         public:
         vector2 Position = {0,0};
         float Rotation = 0;
         float Zoom = 1;
 
-        window* ActiveWindow = nullptr;
-        UI::canvas* ActiveCanvas = nullptr;
+        UI::canvas* GetCanvas(){return ActiveCanvas;}
+        UI::canvas* SetCanvas(UI::canvas* Canvas);
+
+        window* GetWindow(){return ActiveWindow;}
 
         vector2 GetResolution(){return Resolution;}
         vector2 SetResolution(const vector2& res);
@@ -32,6 +41,5 @@ namespace obj{
     };
 
     camera* CreateCamera(window* Window);
-    void DestroyCamera(camera* Camera);
     
 }

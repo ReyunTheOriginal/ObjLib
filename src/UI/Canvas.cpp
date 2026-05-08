@@ -7,14 +7,8 @@ namespace obj{
 
     namespace UI{
 
-        canvas* CreateCanvas(camera* Camera){
-            if (!Camera) return nullptr;
-
-            canvas* newCanvas = new canvas();
-            newCanvas->Camera = Camera;
-            Camera->ActiveCanvas = newCanvas;
-
-            return newCanvas;
+        canvas* CreateCanvas(){
+            return new canvas();
         }
 
         canvas::~canvas(){

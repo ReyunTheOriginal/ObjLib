@@ -7,47 +7,49 @@
 
 #include "Math.hpp"
 #include "GlobalLists.hpp"
-#include "Scene.hpp"
 
 namespace obj{
+    struct scene;
+    struct camera;
     
     struct window{
         private:
         scene* Scene = nullptr;
         int ID = 0;
         vector2 CachedResolution = {0, 0};
+        std::string CachedTitle = "";
 
-        friend window* CreateWindow(std::string title, obj::vector2 resolution, Uint64 WindowFlags);
-        public:
-        
         SDL_Window* SDLwindow = nullptr;
         SDL_Renderer* SDLrenderer = nullptr;
-        bool Debug = false;
         camera* ActiveCamera = nullptr;
+
+        friend window* CreateWindow(std::string title, obj::vector2 resolution);
+        public:
+        
+        bool Debug = false;
 
         int GetID(){return ID;}
 
-        void SetScene(scene* SceneToSet);
+        camera* SetCamera(camera* Camera);
+        camera* GetCamera(){return ActiveCamera;}
+
+        SDL_Renderer* GetSDLRenderer(){return SDLrenderer;}
+        SDL_Window* GetSDLWindow(){return SDLwindow;}
+
+        scene* SetScene(scene* SceneToSet);
         scene* GetScene(){return Scene;}
         
-        void SetTitle(std::string NewTitle){SDL_SetWindowTitle(SDLwindow, NewTitle.c_str());}
-        std::string GetTitle(){return SDL_GetWindowTitle(SDLwindow);}
+        std::string SetTitle(std::string NewTitle);
+        std::string GetTitle();
 
         vector2 GetResolution(){return CachedResolution;}
         vector2 SetResolution(const vector2& res);
 
-        window();
-        ~window(){
-            std::erase(Internal::GlobalWindows, this);
-            
-            if (Scene){
-                if (Scene)std::erase(Scene->Windows, this);
-            }
+        virtual void DebugDisplay();
 
-            if (SDLrenderer)SDL_DestroyRenderer(this->SDLrenderer);
-            if (SDLwindow)SDL_DestroyWindow(this->SDLwindow);
-        };
+        window();
+        ~window();
     };
 
-    window* CreateWindow(std::string title,obj::vector2 resolution,Uint64 WindowFlags = SDL_WINDOW_RESIZABLE);
+    window* CreateWindow(std::string title,obj::vector2 resolution);
 }

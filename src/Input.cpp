@@ -89,7 +89,7 @@ namespace obj{
             auto windows = ::obj::Internal::GlobalWindows;  // Make a copy
             //loop through all windows and get the one with the correct sdlWindow
             for (auto win : windows){
-                if (win && win->SDLwindow == FoWindow){
+                if (win && win->GetSDLWindow() == FoWindow){
                     FocusedWindow = win;
                     break;
                 }
@@ -97,24 +97,17 @@ namespace obj{
         }
 
         //Adjust the mouse position for resolution difference
-        if (FocusedWindow){
-            scene* Scene = FocusedWindow->GetScene();
-            camera* camera = FocusedWindow->ActiveCamera;
-            camera->ActiveWindow = FocusedWindow;
-
+        if (FocusedWindow && FocusedWindow->GetCamera()){
             // Convert physical mouse coords to logical (letterboxed) render coords
             float logicalX, logicalY;
             SDL_RenderCoordinatesFromWindow(
-                FocusedWindow->SDLrenderer,
+                FocusedWindow->GetSDLRenderer(),
                 ScreenMousePosition.x, ScreenMousePosition.y,
                 &logicalX, &logicalY
             );
 
             ScreenMousePosition = {logicalX, logicalY};
-            WorldMousePosition = camera->ScreenToWorldPosition({logicalX, logicalY});
-        }else{
-            //default for World Mouse Position
-            WorldMousePosition = {-1, -1};
+            WorldMousePosition = FocusedWindow->GetCamera()->ScreenToWorldPosition({logicalX, logicalY});
         }
 
         DirectionalInput.y =

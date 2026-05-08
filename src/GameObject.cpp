@@ -9,24 +9,28 @@
 namespace obj{
     gameObject::~gameObject(){
         // Remove from scene
-            if (Scene){
-                std::erase(Scene->GameObjects, this);
-            }
-            
-            // Remove from global list
-            std::erase(Internal::GlobalGameObjects, this);
+        if (Scene){
+            std::erase(Scene->GameObjects, this);
+        }
+        
+        // Remove from global list
+        std::erase(Internal::GlobalGameObjects, this);
 
-            // Delete all components
-            for(auto& com : Components){
-                if (com.second){
-                    delete com.second;
-                }
+        // Delete all components
+        for(auto& com : Components){
+            if (com.second){
+                delete com.second;
             }
+        }
+        Components.clear();
 
-            // Delete Transform last (it will handle cascading deletion of children)
-            if (Transform)
-                delete Transform;
-             Components.clear();
+        if (Scene){
+            std::erase(Scene->ParentlessGameObjects, this);
+        }
+
+        if (Transform)delete Transform;
+
+        Transform = nullptr;
     }
     
     gameObject* CreateGameObject(scene* Scene, Internal::transform* Parent){
@@ -62,7 +66,9 @@ namespace obj{
         if (Scene){
             std::erase(Scene->GameObjects, this);
 
-            SceneToSendTo->GameObjects.push_back(this);
+            if (SceneToSendTo)
+                SceneToSendTo->GameObjects.push_back(this);
         }
+        Scene = SceneToSendTo;
     }
 }

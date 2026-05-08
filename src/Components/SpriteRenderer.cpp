@@ -11,10 +11,10 @@
 namespace obj{
 
     void spriteRenderer::Draw(window* Window){
-        if (Window->SDLrenderer && GameObject && GameObject->GetScene() && Sprite && Sprite->Textures.contains(Window->SDLrenderer)){
-            auto tex = Sprite->Textures[Window->SDLrenderer];
+        if (Window->GetSDLRenderer() && GameObject && GameObject->GetScene() && Sprite && Sprite->Textures.contains(Window->GetSDLRenderer())){
+            auto tex = Sprite->Textures[Window->GetSDLRenderer()];
             if (tex){
-                camera* ActiveCamera = Window->ActiveCamera;
+                camera* ActiveCamera = Window->GetCamera();
 
                 //scale the rect
                 float zoom = ActiveCamera->Zoom;
@@ -46,7 +46,7 @@ namespace obj{
                 
                 //render it rotated as necessary
                 SDL_RenderTextureRotated(
-                    Window->SDLrenderer,
+                    Window->GetSDLRenderer(),
                     tex,
                     NULL,   // src rect (whole texture)
                     &dst,   // dst rect

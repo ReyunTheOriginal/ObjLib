@@ -6,7 +6,7 @@
 #include "GlobalTypes.hpp"
 
 namespace obj{
-    struct collider : Internal::component{
+    struct collider : component{
         vector2 Offsit = {0,0};
         color DebugColor = {0,255,0,255};
 

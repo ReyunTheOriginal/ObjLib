@@ -7,12 +7,11 @@ const float PixelsPerUnit = 64;
 
 namespace obj{
     // Forward declarations
-    namespace Internal{
-        struct component;
-    }
     struct gameObject;
-    struct Font;
+    struct font;
     struct sprite;
+    struct component;
+
     namespace UI{
         struct canvas;
         struct screenObject;
@@ -29,10 +28,10 @@ namespace obj{
         delete Instance;
     }
 
-     using AnyType = std::variant<
-        Internal::component*,
+    using AnyType = std::variant<
+        component*,
         gameObject*,
-        Font*,
+        font*,
         UI::canvas*,
         UI::screenObject*,
         sprite*

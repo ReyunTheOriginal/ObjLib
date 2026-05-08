@@ -5,20 +5,20 @@
 #include <filesystem>
 
 namespace obj{
-    Font::~Font(){
+    font::~font(){
         if (TTFFont) TTF_CloseFont(TTFFont);
     }
 
-    void Font::ChangeSize(float newSize){
+    void font::ChangeSize(float newSize){
         if (newSize == Size) return;
         
         if (TTFFont)TTF_SetFontSize(TTFFont, newSize);
         Size = newSize;
     }
 
-    Font* CreateFont(std::string FontPath, float Size){
+    font* CreateFont(std::string FontPath, float Size){
         if (std::filesystem::exists(FontPath)){
-            Font* newFont = new Font();
+            font* newFont = new font();
 
             newFont->TTFFont = TTF_OpenFont(FontPath.c_str(), (int)Size);
             newFont->Size = Size;

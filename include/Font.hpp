@@ -5,12 +5,12 @@
 struct TTF_Font;
 
 namespace obj{
-    struct Font{
+    struct font{
         private:
         TTF_Font* TTFFont = nullptr;
         int Size = 64;
 
-        friend Font* CreateFont(std::string FontPath, float Size);
+        friend font* CreateFont(std::string FontPath, float Size);
 
         public:
 
@@ -18,8 +18,8 @@ namespace obj{
 
         TTF_Font* GetTTFFont(){return TTFFont;}
 
-        ~Font();
+        ~font();
     };
 
-    Font* CreateFont(std::string FontPath, float Size = 64);
+    font* CreateFont(std::string FontPath, float Size = 64);
 }
