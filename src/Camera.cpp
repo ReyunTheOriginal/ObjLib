@@ -11,12 +11,29 @@ namespace obj{
         return cam;
     }
 
-    UI::canvas* camera::SetCanvas(UI::canvas* Canvas){
-        if (!Canvas)return nullptr;
+    UI::canvas* camera::SetCanvas(UI::canvas* CanvasToSet){
+        if (CanvasToSet != ActiveCanvas){
+            // Unset and unload old canvas if it exists
+            if (ActiveCanvas){
+                ActiveCanvas->OnCanvasUnSet();
+                ActiveCanvas->Camera = nullptr;
+                ActiveCanvas->OnCanvasUnLoad();
+            }
 
-        Canvas->Camera = this;
-        ActiveCanvas = Canvas;
-        return Canvas;
+            // Load and set new canvas if it exists
+            if (CanvasToSet){
+                if (!CanvasToSet->Camera)
+                    CanvasToSet->OnCanvasLoad();
+
+                CanvasToSet->Camera = this;
+                CanvasToSet->OnCanvasSet();
+            }
+
+            OnCanvasChange();
+        }
+
+        ActiveCanvas = CanvasToSet;
+        return CanvasToSet;
     }
 
     vector2 camera::SetResolution(const vector2& res){
@@ -32,6 +49,7 @@ namespace obj{
     }
 
     vector2 Rotate(const vector2& RotateAround, float angle){
+        angle = -angle;  // Negate for clockwise rotation
         float c = cos(angle);
         float s = sin(angle);
 

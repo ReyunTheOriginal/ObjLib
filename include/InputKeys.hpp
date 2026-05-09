@@ -2,7 +2,7 @@
 #include <SDL3/SDL.h>
 
 namespace obj{
-    struct KeyCode{
+    struct InputCode{
         // Letters
         static constexpr SDL_Keycode A = SDLK_A;
         static constexpr SDL_Keycode B = SDLK_B;
@@ -30,6 +30,10 @@ namespace obj{
         static constexpr SDL_Keycode X = SDLK_X;
         static constexpr SDL_Keycode Y = SDLK_Y;
         static constexpr SDL_Keycode Z = SDLK_Z;
+
+        static constexpr int LeftMouseButton   = SDL_BUTTON_LEFT;
+        static constexpr int MiddleMouseButton = SDL_BUTTON_MIDDLE;
+        static constexpr int RightMouseButton  = SDL_BUTTON_RIGHT;
 
         // Numbers
         static constexpr SDL_Keycode Num0 = SDLK_0;

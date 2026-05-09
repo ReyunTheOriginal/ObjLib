@@ -39,6 +39,8 @@ namespace obj{
         UI::canvas* GetCanvas(){return ActiveCanvas;}
         UI::canvas* SetCanvas(UI::canvas* Canvas);
 
+        virtual void OnCanvasChange();
+
         window* GetWindow(){return ActiveWindow;}
 
         vector2 GetResolution(){return Resolution;}

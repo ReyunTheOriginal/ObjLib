@@ -50,7 +50,7 @@ namespace obj{
                     tex,
                     NULL,   // src rect (whole texture)
                     &dst,   // dst rect
-                    -(GetGameObject()->Transform->GetWorldRotation() + ActiveCamera->Rotation),
+                    (GetGameObject()->Transform->GetWorldRotation() + ActiveCamera->Rotation),
                     NULL,   // center (NULL = center of dst)
                     Flip
                 );

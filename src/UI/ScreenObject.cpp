@@ -25,7 +25,7 @@ namespace obj{
             vector2 screenPos = newObj->UITransform->LocalPosition;
             if (newObj->UITransform->GetParent()){
                 // Rotate by parent's rotation
-                float rad = Math::Deg2Rad(newObj->UITransform->GetParent()->GetScreenRotation());
+                float rad = Math::Deg2Rad(-newObj->UITransform->GetParent()->GetScreenRotation());  // Negate for clockwise
                 float cs = Math::Cos(rad);
                 float sn = Math::Sin(rad);
                 screenPos = { screenPos.x * cs - screenPos.y * sn, screenPos.x * sn + screenPos.y * cs };

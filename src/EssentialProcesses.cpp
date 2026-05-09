@@ -73,7 +73,7 @@ namespace obj{
         vector2 ScreenPos = trans->LocalPosition;
         if (trans->GetParent()){
             // Rotate by parent's rotation
-            float rad = Math::Deg2Rad(trans->GetParent()->GetScreenRotation());
+            float rad = Math::Deg2Rad(-trans->GetParent()->GetScreenRotation());  // Negate for clockwise
             float cs = Math::Cos(rad);
             float sn = Math::Sin(rad);
             ScreenPos = { ScreenPos.x * cs - ScreenPos.y * sn, ScreenPos.x * sn + ScreenPos.y * cs };
@@ -154,22 +154,7 @@ namespace obj{
             scene* scene = Win->GetScene();
             camera* camera = Win->GetCamera();
 
-            if (scene){
-                // Update all objects, handling both parentless and parented
-                for (gameObject* obj : scene->GetGameObjects()){
-                    // Only update if object has no parent (root objects)
-                    if (obj->Transform && !obj->Transform->GetParent()){
-                        UpdateTransform(obj->Transform);
-                    }
-
-                    if (obj->Transform && !obj->Transform->GetParent()){
-                        RunComponents(obj->Transform);
-                    }
-                }
-            }
-
             if (camera){
-
                 auto componentsCopy = camera->Components;
                 for (auto& com : componentsCopy){
                     if (com.second && com.second->Enabled){
@@ -188,6 +173,35 @@ namespace obj{
                         if (obj->UITransform && !obj->UITransform->GetParent()){
                             RunUIComponents(obj->UITransform);
                         }
+                    }
+
+                    // Final transform update pass - objects created during component execution need their transforms calculated
+                    for (UI::screenObject* obj : camera->GetCanvas()->GetParentlessScreenObjects()){
+                        if (obj->UITransform && !obj->UITransform->GetParent()){
+                            UpdateUITransforms(obj->UITransform);
+                        }
+                    }
+
+                }
+            }
+
+            if (scene){
+                // Update all objects, handling both parentless and parented
+                for (gameObject* obj : scene->GetParentlessGameObjects()){
+                    // Only update if object has no parent (root objects)
+                    if (obj->Transform && !obj->Transform->GetParent()){
+                        UpdateTransform(obj->Transform);
+                    }
+
+                    if (obj->Transform && !obj->Transform->GetParent()){
+                        RunComponents(obj->Transform);
+                    }
+                }
+                
+                // Final transform update pass - objects created during component execution need their transforms calculated
+                for (gameObject* obj : scene->GetParentlessGameObjects()){
+                    if (obj->Transform && !obj->Transform->GetParent()){
+                        UpdateTransform(obj->Transform);
                     }
                 }
             }

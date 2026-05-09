@@ -4,7 +4,7 @@
 
 namespace obj{
     namespace Internal{
-        int Obj_ID = std::numeric_limits<int>::min(); //incremental ID for Engine Objects
+        uint64_t Obj_ID = 0; //incremental ID for Engine Objects
 
         std::vector<gameObject*> GlobalGameObjects;
         std::vector<UI::screenObject*> GlobalScreenObjects;

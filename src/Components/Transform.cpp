@@ -28,7 +28,7 @@ namespace obj{
 
             Local = WorldPos - Parent->Position;
 
-            float rad = Math::Deg2Rad(-Parent->Rotation);
+            float rad = Math::Deg2Rad(Parent->Rotation);  // Negate removed for clockwise
             float cs = Math::Cos(rad);
             float sn = Math::Sin(rad);
 
@@ -45,7 +45,7 @@ namespace obj{
             vector2 World = LocalPos;
             
             // Apply parent's rotation to this position
-            float rad = Math::Deg2Rad(Parent->Rotation);
+            float rad = Math::Deg2Rad(-Parent->Rotation);  // Negate for clockwise
             float cs = Math::Cos(rad);
             float sn = Math::Sin(rad);
             World = { World.x * cs - World.y * sn, World.x * sn + World.y * cs };
@@ -92,6 +92,12 @@ namespace obj{
         void transform::SetParent(transform* ParentToSet){
             transform* parentSnapShot = ParentToSet;
 
+            // Capture world position/rotation/scale BEFORE changing parent
+            // Use LocalToWorld to compute actual world position since Position may be stale
+            vector2 WorldPosition = LocalToWorld(LocalPosition);
+            vector2 WorldScale = Parent ? (Scale.x / Parent->Scale.x != 0 ? Scale : LocalScale * Parent->Scale) : Scale;
+            float WorldRotation = Parent ? (Rotation - Parent->Rotation + Parent->Rotation) : Rotation;
+
             std::erase(GameObject->GetScene()->ParentlessGameObjects, GameObject);
 
             if ((parentSnapShot && parentSnapShot->IsDescendantOf(this)) || parentSnapShot == this)
@@ -108,10 +114,17 @@ namespace obj{
 
             Parent = parentSnapShot;
 
-            LocalPosition = WorldToLocal(LocalToWorld(LocalPosition));
-            LocalRotation = parentSnapShot ? Rotation - parentSnapShot->Rotation : Rotation;
-            LocalScale.x = parentSnapShot ? Scale.x / parentSnapShot->Scale.x : Scale.x;
-            LocalScale.y = parentSnapShot ? Scale.y / parentSnapShot->Scale.y : Scale.y;
+            // Convert world space to local space with new parent
+            if (parentSnapShot) {
+                LocalPosition = WorldToLocal(WorldPosition);
+                LocalRotation = WorldRotation - parentSnapShot->Rotation;
+                LocalScale.x = WorldScale.x / parentSnapShot->Scale.x;
+                LocalScale.y = WorldScale.y / parentSnapShot->Scale.y;
+            } else {
+                LocalPosition = WorldPosition;
+                LocalRotation = WorldRotation;
+                LocalScale = WorldScale;
+            }
         }
     }
 }

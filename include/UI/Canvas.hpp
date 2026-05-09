@@ -28,6 +28,11 @@ namespace obj{
 
             camera* GetCamera(){return Camera;}
 
+            virtual void OnCanvasSet(); // runs when the Canvas is set into a Camera
+            virtual void OnCanvasUnSet();// runs when a Camera running this Canvas runs another one
+            virtual void OnCanvasLoad();// runs when runs when the Canvas gets set in a Camera when it previously had no Camera
+            virtual void OnCanvasUnLoad(); // runs when a Canvas loses the Camera running it
+
             std::vector<screenObject*> GetScreenObjects(){return ScreenObjects;}
             std::vector<screenObject*> GetParentlessScreenObjects(){return ParentlessScreenObjects;}
 

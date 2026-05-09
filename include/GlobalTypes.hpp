@@ -74,6 +74,66 @@ namespace obj{
         static const color Transparent;
     #pragma endregion <Color Presets>
 
+    #pragma region <Operators>
+            color operator+ (const color other)const{
+                return {r + other.r, g + other.g, b + other.b, a + other.a};
+            }
+            color operator- (const color other)const{
+                return {r - other.r, g - other.g, b - other.b, a - other.a};
+            }
+
+            color operator* (const color other)const{
+                return {r * other.r, g * other.g, b * other.b, a * other.a};
+            }
+            color operator/ (const color other)const{
+                return {r / other.r, g / other.g, b / other.b, a / other.a};
+            }
+
+            color operator* (const float other)const{
+                return {r * other, g * other, b * other, a * other};
+            }
+            color operator/ (const float other)const{
+                return {r / other, g / other, b / other, a / other};
+            }
+            color& operator*=(const float other) {
+                r *= other; g *= other;b *= other; a *= other;
+                return *this;
+            }
+            color& operator/=(const float other) {
+                r /= other; g /= other;b /= other; a /= other;
+                return *this;
+            }
+            color& operator+=(const float other) {
+                r += other; g += other; b += other; a += other;
+                return *this;
+            }
+            color& operator-=(const float other) {
+                r -= other; g -= other; b -= other; a -= other;
+                return *this;
+            }
+
+            bool operator==(const color& other) const {
+                return r == other.r && g == other.g && b == other.b && a == other.a;
+            }
+
+            color operator+= (const color other){
+                r += other.r; g+= other.g;b += other.b; a+= other.a;
+                return *this;
+            }
+            color operator-= (const color other){
+                r -= other.r; g-= other.g;b -= other.b; a-= other.a;
+                return *this;
+            }
+            color operator*= (const color other){
+                r *= other.r; g*= other.g;b *= other.b; a*= other.a;
+                return *this;
+            }
+            color operator/= (const color other){
+                r /= other.r; g /= other.g;b /= other.b; a /= other.a;
+                return *this;
+            }
+        #pragma endregion
+
         static color FromHex(unsigned int hexValue, float alpha = 255) {
             float r = (float)((hexValue >> 16) & 0xFF);
             float g = (float)((hexValue >> 8) & 0xFF);

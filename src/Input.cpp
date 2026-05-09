@@ -111,12 +111,12 @@ namespace obj{
         }
 
         DirectionalInput.y =
-        (KeyHeld(KeyCode::W) || KeyHeld(KeyCode::Up)) -
-        (KeyHeld(KeyCode::S) || KeyHeld(KeyCode::Down));
+        (KeyHeld(InputCode::W) || KeyHeld(InputCode::Up)) -
+        (KeyHeld(InputCode::S) || KeyHeld(InputCode::Down));
 
     DirectionalInput.x =
-        (KeyHeld(KeyCode::D) || KeyHeld(KeyCode::Right)) -
-        (KeyHeld(KeyCode::A) || KeyHeld(KeyCode::Left));
+        (KeyHeld(InputCode::D) || KeyHeld(InputCode::Right)) -
+        (KeyHeld(InputCode::A) || KeyHeld(InputCode::Left));
         
     }
 

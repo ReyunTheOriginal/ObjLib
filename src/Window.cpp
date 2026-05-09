@@ -61,18 +61,28 @@ namespace obj{
     }
 
     scene* window::SetScene(scene* SceneToSet){
-        if (!SceneToSet) return nullptr;
-
-        if (Scene){
+        if (Scene && Scene != SceneToSet){
             std::erase(Scene->Windows, this);
+
+            if (Scene->Windows.size() == 0)
+                Scene->OnSceneUnLoad();
+            
+            Scene->OnSceneUnSet();
+        }
+
+        if (SceneToSet && SceneToSet != Scene){
+            if (SceneToSet->Windows.size() == 0)
+                SceneToSet->OnSceneLoad();
+            
+
+            if (std::find(SceneToSet->Windows.begin(), SceneToSet->Windows.end(), this) == SceneToSet->Windows.end())
+                SceneToSet->Windows.push_back(this);
+
+            SceneToSet->OnSceneSet();
         }
 
         Scene = SceneToSet;
-        // Add window to scene if not already present
-        if (std::find(SceneToSet->Windows.begin(), SceneToSet->Windows.end(), this) == SceneToSet->Windows.end()){
-            SceneToSet->Windows.push_back(this);
-        }
-
+        if (SceneToSet != Scene)OnSceneChange();
         return SceneToSet;
     }
 

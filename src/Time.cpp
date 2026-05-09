@@ -7,6 +7,7 @@ namespace obj{
         float TimeScale = 1;
         float DeltaTime = 0.016;
         float RealTime = 0.016;
+        float ElapsedTime = 0.0f;
 
         Uint64 last = SDL_GetPerformanceCounter();
         Uint64 perfFrequency = SDL_GetPerformanceFrequency();
@@ -37,6 +38,7 @@ namespace obj{
 
             ::obj::FPS::ExactFPS = 1/RealTime;
             
+            ElapsedTime += RealTime;
             Internal::FrameCount++;
             Internal::FrameTimer += RealTime;
 

@@ -16,8 +16,9 @@ namespace obj{
             // Apply scale
             vector2 scaled = vert * GetGameObject()->Transform->GetWorldScale();
             
-            float cos_rot = std::cos(Math::Deg2Rad(GetGameObject()->Transform->GetWorldRotation()));
-            float sin_rot = std::sin(Math::Deg2Rad(GetGameObject()->Transform->GetWorldRotation()));
+            float angle = Math::Deg2Rad(-GetGameObject()->Transform->GetWorldRotation());  // Negate for clockwise
+            float cos_rot = std::cos(angle);
+            float sin_rot = std::sin(angle);
             vector2 rotated = {
                 scaled.x * cos_rot - scaled.y * sin_rot,
                 scaled.x * sin_rot + scaled.y * cos_rot

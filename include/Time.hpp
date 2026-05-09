@@ -8,6 +8,7 @@ namespace obj{
         extern float TimeScale;
         extern float DeltaTime;
         extern float RealTime;
+        extern float ElapsedTime;
         
         void Update();
     }//Time

@@ -41,6 +41,14 @@ namespace obj{
                 x /= other; y /= other;
                 return *this;
             }
+            vector2& operator+=(const float other) {
+                x += other; y += other;
+                return *this;
+            }
+            vector2& operator-=(const float other) {
+                x -= other; y -= other;
+                return *this;
+            }
 
             bool operator==(const vector2& other) const {
                 return x == other.x && y == other.y;

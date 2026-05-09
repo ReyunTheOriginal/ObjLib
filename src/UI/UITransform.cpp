@@ -12,7 +12,7 @@ namespace obj{
 
             Local = ScreenPos - Parent->Position;
 
-            float rad = Math::Deg2Rad(-Parent->Rotation);
+            float rad = Math::Deg2Rad(Parent->Rotation);  // Negate removed for clockwise
             float cs = Math::Cos(rad);
             float sn = Math::Sin(rad);
 
@@ -30,7 +30,7 @@ namespace obj{
             vector2 Screen = LocalPos;
             
             // Apply parent's rotation to this position
-            float rad = Math::Deg2Rad(Parent->Rotation);
+            float rad = Math::Deg2Rad(-Parent->Rotation);  // Negate for clockwise
             float cs = Math::Cos(rad);
             float sn = Math::Sin(rad);
             Screen = { Screen.x * cs - Screen.y * sn, Screen.x * sn + Screen.y * cs };
@@ -79,6 +79,12 @@ namespace obj{
         void Internal::transformUI::SetParent(transformUI* ParentToSet){
             transformUI* parentSnapShot = ParentToSet;
 
+            // Capture screen position/rotation/scale BEFORE changing parent
+            // Use LocalToScreen to compute actual screen position since Position may be stale
+            vector2 ScreenPosition = LocalToScreen(LocalPosition);
+            vector2 ScreenScale = Parent ? (Scale.x / Parent->Scale.x != 0 ? Scale : LocalScale * Parent->Scale) : Scale;
+            float ScreenRotation = Parent ? (Rotation - Parent->Rotation + Parent->Rotation) : Rotation;
+
             std::erase(ScreenObject->GetCanvas()->ParentlessScreenObjects, ScreenObject);
 
             if ((parentSnapShot && parentSnapShot->IsDescendantOf(this)) || parentSnapShot == this)
@@ -95,10 +101,17 @@ namespace obj{
 
             Parent = parentSnapShot;
 
-            LocalPosition = ScreenToLocal(LocalToScreen(LocalPosition));
-            LocalRotation = parentSnapShot ? Rotation - parentSnapShot->Rotation : Rotation;
-            LocalScale.x = parentSnapShot ? Scale.x / parentSnapShot->Scale.x : Scale.x;
-            LocalScale.y = parentSnapShot ? Scale.y / parentSnapShot->Scale.y : Scale.y;
+            // Convert screen space to local space with new parent
+            if (parentSnapShot) {
+                LocalPosition = ScreenToLocal(ScreenPosition);
+                LocalRotation = ScreenRotation - parentSnapShot->Rotation;
+                LocalScale.x = ScreenScale.x / parentSnapShot->Scale.x;
+                LocalScale.y = ScreenScale.y / parentSnapShot->Scale.y;
+            } else {
+                LocalPosition = ScreenPosition;
+                LocalRotation = ScreenRotation;
+                LocalScale = ScreenScale;
+            }
         }
 
         Internal::transformUI::~transformUI(){

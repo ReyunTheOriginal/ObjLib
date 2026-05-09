@@ -38,6 +38,11 @@ namespace obj{
         
         int GetID(){return ID;}
 
+        virtual void OnSceneSet(); // runs when the scene is set into a window
+        virtual void OnSceneUnSet();// runs when a window running this scene runs another one
+        virtual void OnSceneLoad();// runs when runs when the scene gets set in a window when it previously had no window
+        virtual void OnSceneUnLoad(); // runs when a scene loses all windows running it
+
         std::vector<window*> GetWindows(){return Windows;}
         std::vector<gameObject*> GetGameObjects(){
             return GameObjects;

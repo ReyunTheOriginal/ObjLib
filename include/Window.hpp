@@ -38,6 +38,8 @@ namespace obj{
 
         scene* SetScene(scene* SceneToSet);
         scene* GetScene(){return Scene;}
+
+        virtual void OnSceneChange(); // runs when SetScene() runs with a new Scene
         
         std::string SetTitle(std::string NewTitle);
         std::string GetTitle();

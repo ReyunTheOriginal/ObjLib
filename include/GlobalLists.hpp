@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <utility>
+#include <cstdint>
 
 namespace obj{
     struct gameObject;
@@ -14,7 +14,7 @@ namespace obj{
     }
 
     namespace Internal{
-        extern int Obj_ID; //incremental ID for Engine Objects
+        extern uint64_t Obj_ID; //incremental ID for Engine Objects
 
         extern std::vector<gameObject*> GlobalGameObjects;
         extern std::vector<UI::screenObject*> GlobalScreenObjects;
