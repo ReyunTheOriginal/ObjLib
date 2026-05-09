@@ -5,7 +5,7 @@
 #include "InputKeys.hpp"
 #include "EssentialProcesses.hpp"
 #include "Window.hpp"
-#include "Camera.hpp"
+#include "Camera/Camera.hpp"
 
 namespace obj{
     namespace Input{

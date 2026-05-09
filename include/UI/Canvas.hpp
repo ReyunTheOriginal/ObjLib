@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <algorithm>
-#include "Camera.hpp"
+#include "Camera/Camera.hpp"
 #include "UI/ScreenObject.hpp"
 #include "UI/UITransform.hpp"
 

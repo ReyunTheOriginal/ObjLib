@@ -3,7 +3,7 @@
 #include "Window.hpp"
 #include "GameObject.hpp"
 #include "Components/Transform.hpp"
-#include "Camera.hpp"
+#include "Camera/Camera.hpp"
 
 #include <HelperFunctions.hpp>
 #include "Math.hpp"
@@ -14,17 +14,17 @@ namespace obj{
 
         for (vector2 vert : Vertices){
             // Apply scale
-            vector2 scaled = vert * GameObject->Transform->GetWorldScale();
+            vector2 scaled = vert * GetGameObject()->Transform->GetWorldScale();
             
-            float cos_rot = std::cos(Math::Deg2Rad(GameObject->Transform->GetWorldRotation()));
-            float sin_rot = std::sin(Math::Deg2Rad(GameObject->Transform->GetWorldRotation()));
+            float cos_rot = std::cos(Math::Deg2Rad(GetGameObject()->Transform->GetWorldRotation()));
+            float sin_rot = std::sin(Math::Deg2Rad(GetGameObject()->Transform->GetWorldRotation()));
             vector2 rotated = {
                 scaled.x * cos_rot - scaled.y * sin_rot,
                 scaled.x * sin_rot + scaled.y * cos_rot
             };
             
             // Apply position and offset
-            vector2 worldVert = rotated + GameObject->Transform->GetWorldPosition() + Offsit;
+            vector2 worldVert = rotated + GetGameObject()->Transform->GetWorldPosition() + Offsit;
 
             result.push_back(worldVert);
         }

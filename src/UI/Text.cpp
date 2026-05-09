@@ -5,7 +5,7 @@
 #include <SDL3_ttf/SDL_ttf.h>
 
 #include "UI/UIBase.hpp"
-#include "Camera.hpp"
+#include "Camera/Camera.hpp"
 
 namespace obj{
     namespace UI{
@@ -17,9 +17,9 @@ namespace obj{
         }
 
         void Text::RecreateTextures(){
-            if (!FontI || !ScreenObject) return;
+            if (!FontI || !GetScreenObject()) return;
 
-            canvas* Canvas = ScreenObject->GetCanvas();
+            canvas* Canvas = GetScreenObject()->GetCanvas();
             if (!Canvas || !Canvas->GetCamera() || !Canvas->GetCamera()->GetWindow()) return;
             
             SDL_Renderer* renderer = Canvas->GetCamera()->GetWindow()->GetSDLRenderer();
@@ -40,22 +40,22 @@ namespace obj{
         }
 
         void Text::Draw(window* Window){
-            if (Window && Window->GetSDLRenderer() && ScreenObject && ScreenObject->GetCanvas() && Texture){
+            if (Window && Window->GetSDLRenderer() && GetScreenObject() && GetScreenObject()->GetCanvas() && Texture){
                 //get texture vectors
                 float w, h;
                 SDL_GetTextureSize(Texture, &w, &h);
 
-                camera* ActiveCamera = ScreenObject->GetCanvas()->GetCamera();
+                camera* ActiveCamera = GetScreenObject()->GetCanvas()->GetCamera();
                 
                 if (!ActiveCamera) return;
 
                 //scale the rect
                 float zoom = ActiveCamera->Zoom;
-                float scaledH = h * ScreenObject->UITransform->GetScreenScale().y;
-                float scaledW = w * ScreenObject->UITransform->GetScreenScale().x;
+                float scaledH = h * GetScreenObject()->UITransform->GetScreenScale().y;
+                float scaledW = w * GetScreenObject()->UITransform->GetScreenScale().x;
 
-                SDL_FRect dst = {ScreenObject->UITransform->GetScreenPosition().x - scaledW / 2.0f , 
-                    ScreenObject->UITransform->GetScreenPosition().y - scaledH / 2.0f, scaledW, scaledH };
+                SDL_FRect dst = {GetScreenObject()->UITransform->GetScreenPosition().x - scaledW * Pivot.Point.x , 
+                    GetScreenObject()->UITransform->GetScreenPosition().y - scaledH * Pivot.Point.y, scaledW, scaledH };
 
                 //set the texture colors
                 SDL_SetTextureColorMod(Texture, Color.r, Color.g, Color.b);
@@ -69,7 +69,7 @@ namespace obj{
                     Texture,
                     NULL,   // src rect (whole texture)
                     &dst,   // dst rect
-                    ScreenObject->UITransform->GetScreenRotation(),
+                    GetScreenObject()->UITransform->GetScreenRotation(),
                     NULL,   // center (NULL = center of dst)
                     Flip
                 );

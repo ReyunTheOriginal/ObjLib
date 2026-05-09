@@ -24,6 +24,29 @@ void CreateScenes(std::vector<scene*>& Scenes){
     Scenes.push_back(Scene4);
 }
 
+struct MoveWithWASDObj : component{
+        float Speed = 1;
+        void Run() override{
+            GetGameObject()->Transform->LocalPosition += Input::DirectionalInput * 2.5 * Speed * Time::DeltaTime;
+        }
+    };
+
+    struct MoveWithWASDCam : cameraComponent{
+        float Speed = 1;
+        void Run() override{
+            GetCamera()->Position += Input::DirectionalInput * 2.5 * Speed * Time::DeltaTime;
+        }
+    };
+
+    struct MoveWithWASDScren : UI::screenComponent{
+        float Speed = 1;
+        void Run() override{
+            vector2 move = Input::DirectionalInput * 2.5 * Speed * Time::DeltaTime * PixelsPerUnit;
+            move.y *= -1;
+            GetScreenObject()->UITransform->LocalPosition += move;
+        }
+    };
+
 
 int main(){
     Init();
@@ -43,6 +66,9 @@ int main(){
     font* Font = CreateFont(exePath() + "/Fonts/Times New Roman.ttf");
 
     UI::Text* TextUI = ObjectsText->AddComponent<UI::Text>();
+    ObjectsText->AddComponent<MoveWithWASDScren>();
+    TextUI->Pivot = pivot::TopLeft;
+
     TextUI->SetFont(Font);
 
     Window->SetScene(Scenes[0]);
@@ -52,13 +78,6 @@ int main(){
     sprite* CircleSprite = CreateSprite(exePath() + "/Sprites/Default/Circle.png");
     sprite* TriangleSprite = CreateSprite(exePath() + "/Sprites/Default/Triangle.png");
 
-    struct MoveWithWASD : component{
-        float Speed = 1;
-        void Run() override{
-            GameObject->Transform->LocalPosition += Input::DirectionalInput * 2.5 * Speed * Time::DeltaTime;
-        }
-    };
-
     gameObject* A = CreateGameObject(Scenes[0]);
     gameObject* B = CreateGameObject(Scenes[0]);
     gameObject* C = CreateGameObject(Scenes[0]);
@@ -67,9 +86,9 @@ int main(){
     B->AddComponent<spriteRenderer>()->Sprite = CircleSprite;
     C->AddComponent<spriteRenderer>()->Sprite = TriangleSprite;
 
-    //A->AddComponent<MoveWithWASD>();
-    //B->AddComponent<MoveWithWASD>();
-    //C->AddComponent<MoveWithWASD>();
+    A->AddComponent<MoveWithWASDObj>();
+    B->AddComponent<MoveWithWASDObj>();
+    C->AddComponent<MoveWithWASDObj>();
 
     A->Transform->LocalPosition = {0,0};
     B->Transform->LocalPosition = {0,1};
@@ -104,7 +123,7 @@ int main(){
             n->AddComponent<spriteRenderer>()->Sprite = TriangleSprite;
         }
 
-        Window->GetCamera()->Position += Input::DirectionalInput * 5 * Time::DeltaTime;
+        Window->GetCamera()->AddComponent<MoveWithWASDCam>();
 
         Apply();
         Render();

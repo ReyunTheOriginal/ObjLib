@@ -1,4 +1,4 @@
-#include "Camera.hpp"
+#include "Camera/Camera.hpp"
 #include "Scene.hpp"
 #include "Window.hpp"
 #include "EssentialProcesses.hpp"

@@ -1,28 +1,18 @@
 #pragma once
 
-#include "GlobalTypes.hpp"
-#include "Math.hpp"
-
-struct SDL_Renderer;
-
 namespace obj{
-    struct gameObject;
+    struct camera;
     struct window;
 
-    namespace Internal{
-        struct renderSorter;
-    }
-        
-    struct component{
+    struct cameraComponent{
         private:
-        gameObject* GameObject = nullptr;
+        camera* Camera = nullptr;
 
         public:
         bool Enabled = true;
-        Internal::renderSorter* RenderLayer = nullptr;
         bool DidInit = false;
 
-        gameObject* GetGameObject(){return GameObject;}
+        camera* GetCamera(){return Camera;}
 
         virtual void Run() {} //any updating that needs to be done
         virtual void Draw(window* Window) {} //any rendering
@@ -30,15 +20,12 @@ namespace obj{
         virtual void Init() {} //any init that needs to be ran once
         virtual void OnDestroy(){}
 
-        void GStart(gameObject* obj){
-            GameObject = obj;
+        void CStart(camera* cam){
+            Camera = cam;
         }
-
-        ~component(){
+        ~cameraComponent(){
             OnDestroy();
-            
-            if (RenderLayer)
-                delete RenderLayer;
         }; //destructor
     };
+
 }

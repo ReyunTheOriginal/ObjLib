@@ -11,6 +11,7 @@ namespace obj{
     struct spriteRenderer : component{
         color Color = {255,255,255,255};
         sprite* Sprite = nullptr;
+        pivot Pivot = pivot::Center;
 
         bool FlipHorizontal = false;
         bool FlipVertical = false;

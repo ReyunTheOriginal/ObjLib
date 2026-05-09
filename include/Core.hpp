@@ -13,7 +13,7 @@
 #include "Sprite.hpp"
 #include "Components/ComponentBase.hpp"
 #include "GameObject.hpp"
-#include "Camera.hpp"
+#include "Camera/Camera.hpp"
 #include "Scene.hpp"
 #include "Window.hpp"
 #include "GlobalLists.hpp"

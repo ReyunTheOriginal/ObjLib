@@ -7,7 +7,7 @@
 #include "GameObject.hpp"
 #include "Scene.hpp"
 #include "Window.hpp"
-#include "Camera.hpp"
+#include "Camera/Camera.hpp"
 #include "UI/UIBase.hpp"
 #include "Components/Transform.hpp"
 
@@ -82,7 +82,7 @@ namespace obj{
         std::sort(DrawOrder.begin(), DrawOrder.end(), [](const Internal::screenRenderCache& A, const Internal::screenRenderCache& B){
             if (A.Layer->Layer != B.Layer->Layer) return A.Layer->Layer < B.Layer->Layer;
             if (A.Layer->Order != B.Layer->Order) return A.Layer->Order < B.Layer->Order;
-            return A.com->ScreenObject->GetID() < B.com->ScreenObject->GetID();
+            return A.com->GetScreenObject()->GetID() < B.com->GetScreenObject()->GetID();
         });
 
         //loop through all components and Draw them
@@ -152,7 +152,7 @@ namespace obj{
            std::sort(DrawOrder.begin(), DrawOrder.end(), [](const Internal::renderCache& A, const Internal::renderCache& B){
                 if (A.Layer->Layer != B.Layer->Layer) return A.Layer->Layer < B.Layer->Layer;
                 if (A.Layer->Order != B.Layer->Order) return A.Layer->Order < B.Layer->Order;
-                return A.com->GameObject->GetID() < B.com->GameObject->GetID();
+                return A.com->GetGameObject()->GetID() < B.com->GetGameObject()->GetID();
             });
 
             //loop through all components and Draw them

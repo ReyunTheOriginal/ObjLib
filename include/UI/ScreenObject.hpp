@@ -58,8 +58,8 @@ namespace obj{
             template<typename T>
             T* AddComponent(){
                 auto comp = new T();
+                comp->SStart(this);
                 comp->RenderLayer = new ::obj::Internal::renderSorter();
-                comp->ScreenObject = this;
 
                 auto [it, inserted] = Components.emplace(std::type_index(typeid(T)), comp);
                 return static_cast<T*>(it->second);

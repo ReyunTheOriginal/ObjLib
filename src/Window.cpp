@@ -2,7 +2,7 @@
 #include "Scene.hpp"
 #include <algorithm>
 #include "Sprite.hpp"
-#include "Camera.hpp"
+#include "Camera/Camera.hpp"
 #include <format>
 #include "Framerate.hpp"
 

@@ -22,6 +22,7 @@ namespace obj{
             public:
             void SetText(std::string newText);
             std::string GetText(){return content;}
+            pivot Pivot = pivot::Center;
 
             color Color = {255,255,255,255};
 

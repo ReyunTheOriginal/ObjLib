@@ -1,6 +1,36 @@
 #pragma once
 
+#include "Math.hpp"
+
 namespace obj{
+
+    struct pivot {
+        vector2 Point = {0.5f, 0.5f};
+
+        pivot(float X, float Y) : Point{X, Y} {}
+
+        // Just declare them here
+        static const pivot TopLeft;
+        static const pivot TopRight;
+        static const pivot BottomLeft;
+        static const pivot BottomRight;
+        static const pivot TopCenter;
+        static const pivot BottomCenter;
+        static const pivot LeftCenter;
+        static const pivot RightCenter;
+        static const pivot Center;
+    };
+
+    // Define them after the struct is complete
+    inline const pivot pivot::TopLeft     {0.0f, 0.0f};
+    inline const pivot pivot::TopRight    {1.0f, 0.0f};
+    inline const pivot pivot::BottomLeft  {0.0f, 1.0f};
+    inline const pivot pivot::BottomRight {1.0f, 1.0f};
+    inline const pivot pivot::TopCenter   {0.5f, 0.0f};
+    inline const pivot pivot::BottomCenter{0.5f, 1.0f};
+    inline const pivot pivot::LeftCenter  {0.0f, 0.5f};
+    inline const pivot pivot::RightCenter {1.0f, 0.5f};
+    inline const pivot pivot::Center      {0.5f, 0.5f};
 
     namespace Internal{
         struct renderSorter{

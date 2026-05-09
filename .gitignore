@@ -43,6 +43,7 @@ Uses.txt
 
 # debug information files
 *.dwo
+grabinfo.sh
 
 # Build and editor folders
 build/

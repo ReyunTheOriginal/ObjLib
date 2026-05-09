@@ -1,18 +1,12 @@
 Version: v4.9.1-beta
 
 ===== CODE STATS =====
-Total lines of code : 3055
-Header files        : 29
+Total lines of code : 3183
+Header files        : 30
 Source files        : 22
-Total files         : 51
+Total files         : 52
 
 Changes:
-- Added Debug Titles for Windows in Debug Mode (currently displays FPS, scene name, Object Count in Scene, Camera Position, and accounts for not having a Scene and/or camera and informs the user)
-- Prevented ciculer hiararchy (object having its grandparent object as its child)
-- Spent hours fixing bugs with transforms and their deleting
-- Took the UITransform out of ScreenObjects.hpp to its own header/source files
-- Took Internal::component out of the Internal namespace exposing it more for the user to make their own components
-- Allowed windows to have no active camera without crashing 
-- Refactored the library to hide a lot sensitive variables and instead use getters and setters
-- Fixed accidently naming the font struct "Font" breaking the struct name convention of the name must start with a lowercase letter
-- Fixed YET ANOTHER segfault at Quit() issue (it happens so much. help.)
+- Set Component parents to private and added getters for them
+- Added Camera Compoenents allowing users to insert code into the camera
+- Added Pivots for Rendering components instead of it always being the center

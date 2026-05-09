@@ -1,6 +1,6 @@
 #include "Scene.hpp"
 #include "GameObject.hpp"
-#include "Camera.hpp"
+#include "Camera/Camera.hpp"
 #include <algorithm>
 
 namespace obj{

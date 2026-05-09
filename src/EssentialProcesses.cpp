@@ -14,7 +14,8 @@
 #include "Scene.hpp"
 #include "Window.hpp"
 #include "Input.hpp"
-#include "Camera.hpp"
+#include "Camera/Camera.hpp"
+#include "Camera/CameraComponent.hpp"
 #include "UI/UIBase.hpp"
 #include "Time.hpp"
 #include "Font.hpp"
@@ -151,6 +152,7 @@ namespace obj{
             if (!Win)return;
 
             scene* scene = Win->GetScene();
+            camera* camera = Win->GetCamera();
 
             if (scene){
                 // Update all objects, handling both parentless and parented
@@ -166,15 +168,26 @@ namespace obj{
                 }
             }
 
-            if (Win->GetCamera() && Win->GetCamera()->GetCanvas()){
-                // First pass: Update UI transforms recursively
-                for (UI::screenObject* obj : Win->GetCamera()->GetCanvas()->GetParentlessScreenObjects()){
-                    if (obj->UITransform && !obj->UITransform->GetParent()){
-                        UpdateUITransforms(obj->UITransform);
-                    }
+            if (camera){
 
-                    if (obj->UITransform && !obj->UITransform->GetParent()){
-                        RunUIComponents(obj->UITransform);
+                auto componentsCopy = camera->Components;
+                for (auto& com : componentsCopy){
+                    if (com.second && com.second->Enabled){
+                        if (!com.second->DidInit){com.second->Init(); com.second->DidInit = true;}
+                        com.second->Run();
+                    }
+                }
+
+                if (camera->GetCanvas()){
+                    // First pass: Update UI transforms recursively
+                    for (UI::screenObject* obj : camera->GetCanvas()->GetParentlessScreenObjects()){
+                        if (obj->UITransform && !obj->UITransform->GetParent()){
+                            UpdateUITransforms(obj->UITransform);
+                        }
+
+                        if (obj->UITransform && !obj->UITransform->GetParent()){
+                            RunUIComponents(obj->UITransform);
+                        }
                     }
                 }
             }

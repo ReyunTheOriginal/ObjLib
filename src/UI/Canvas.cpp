@@ -1,6 +1,6 @@
 #include "UI/Canvas.hpp"
 
-#include "Camera.hpp"
+#include "Camera/Camera.hpp"
 #include "UI/ScreenObject.hpp"
 
 namespace obj{
