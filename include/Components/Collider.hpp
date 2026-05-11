@@ -1,23 +1,51 @@
 #pragma once
 
 #include "Component.hpp"
-#include <vector>
-#include "Math.hpp"
 #include "GlobalTypes.hpp"
+#include "Polygon.hpp"
 
 namespace obj{
     struct collider : component{
-        vector2 Offsit = {0,0};
-        color DebugColor = {0,255,0,255};
+        private:
+        Internal::polygon Polygon;
+        std::vector<Internal::polygon> ConvexPolygons;
 
-        std::vector<vector2> Vertices = {
-            {-0.5, -0.5},
-            {-0.5,  0.5},
-            { 0.5,  0.5},
-            { 0.5, -0.5} 
-        };
+        public:
+        vector2 Offsit = {0,0};
+
+        color DebugColor = {0,255,0,120};
+        color DebugBoundingBoxColor = {0,0,255,120};
+
+        std::vector<Internal::polygon> GetConvexSegments(){return ConvexPolygons;}
+
+        std::vector<vector2> GetPolygon(){return Polygon.Vertices;}
+        std::vector<vector2> SetPolygon(std::vector<vector2> poly);
 
         std::vector<vector2> GetWorldVertices();
+        std::vector<vector2> GetSegmentWorldVertices(int SegmentIndex);
+        std::vector<vector2> GetBoundingBox();
+
         void DebugDraw(window* Window) override;
+
+        void Run() override;
+
+        collider(){
+            SetPolygon({
+                {-0.5, -0.5},
+                {-0.5,  0.5},
+                { 0.5,  0.5},
+                { 0.5, -0.5} 
+            });
+        }
+    };
+
+    struct collisionInfo{
+        collider* Collider = nullptr;
+        collider* OtherCollider = nullptr;
+
+        vector2 CollisionNormal = {0,0};
+        float CollisionDepth = 0;
+
     };
 }
+

@@ -86,6 +86,11 @@ namespace Math{
     constexpr inline double PI = 3.141592653;
 //
     inline float Pow(float num, float power = 2.0){return std::pow(num, power);}
+//  
+    inline float cross(vector2& a, vector2& b, vector2& c) {
+        return (b.x - a.x) * (c.y - a.y)
+            - (b.y - a.y) * (c.x - a.x);
+    }
 //
     inline float Distance(const vector2& A, const vector2& B){return std::sqrt(Pow((B.x - A.x)) + Pow((B.y - A.y)));}
     inline float DistanceSqrt(const vector2& A, const vector2& B){return Pow((B.x - A.x)) + Pow((B.y - A.y));}

@@ -7,6 +7,11 @@ namespace obj{
 
     namespace UI{
 
+        void canvas::OnCanvasSet(){}
+        void canvas::OnCanvasUnSet(){}
+        void canvas::OnCanvasLoad(){}
+        void canvas::OnCanvasUnLoad(){}
+
         canvas* CreateCanvas(){
             return new canvas();
         }

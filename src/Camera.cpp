@@ -5,6 +5,8 @@
 #include "UI/Canvas.hpp"
 
 namespace obj{
+    void camera::OnCanvasChange(){}
+
     camera* CreateCamera(window* Window){
         camera* cam = new camera();
         cam->ActiveWindow = Window;

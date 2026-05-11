@@ -41,7 +41,7 @@ namespace obj{
 
         // Extra safety: check if it actually opened
         if (!file.is_open()) {
-            std::cout << "Polygon Json not Found\n";
+            std::cout << "Polygon Json not Found: " + filename + "\n";
             return points;
         }
 

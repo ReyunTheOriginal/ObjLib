@@ -25,3 +25,4 @@
 #include "Time.hpp"
 #include "Framerate.hpp"
 #include "UI/UIBase.hpp"
+#include "Polygon.hpp"

@@ -67,6 +67,20 @@ struct Scene1Stuff : component{
             std::vector<sprite*> sprites = {SquareSprite, CircleSprite, TriangleSprite};
 
             n->AddComponent<spriteRenderer>()->Sprite = sprites[RandomInt];
+            collider* col = n->AddComponent<collider>();
+            col->SetPolygon(ImportPolygon(exePath() + "/Polygon.json"));
+        }
+
+        if (Input::KeyPressed(InputCode::T)){
+            gameObject* n = CreateGameObject(GetGameObject()->GetScene());
+            n->Transform->LocalPosition = Input::WorldMousePosition;
+
+            int RandomInt = RandomRange(0,2);
+
+            std::vector<sprite*> sprites = {SquareSprite, CircleSprite, TriangleSprite};
+
+            n->AddComponent<spriteRenderer>()->Sprite = sprites[RandomInt];
+            n->AddComponent<collider>();
         }
 
         if (!HeldObject && Input::MouseButtonPressed(InputCode::LeftMouseButton)){
@@ -107,7 +121,6 @@ struct Scene1Stuff : component{
                 }
 
                 HeldObject->Transform->SetParent(nullptr);
-                Print("Unparented " +  HeldObject->Name);
             }
 
             if (Input::MouseButtonPressed(InputCode::RightMouseButton)){
@@ -128,7 +141,6 @@ struct Scene1Stuff : component{
                         ChangeAllColors(NewParent, HeldObject->GetComponent<spriteRenderer>()->Color);
                     }
 
-                    Print(NewParent->Name);
                 }else{
                     HeldObject->Transform->SetParent(nullptr);
 
@@ -141,17 +153,14 @@ struct Scene1Stuff : component{
                         );
                     }
                     
-                    Print("Unparented " +  HeldObject->Name);
                 }
             }
             HeldObject->Transform->LocalScale += Input::MouseScroll.y * Time::DeltaTime * 5;
         }else{
             GetGameObject()->GetScene()->GetWindows()[0]->GetCamera()->Zoom += Input::MouseScroll.y * Time::DeltaTime * 5;
         }
-
-    
         for (gameObject* parentless : GetGameObject()->GetScene()->GetParentlessGameObjects()){
-            float t = Time::ElapsedTime + parentless->GetID() * 0.5f;
+            float t = Time::ElapsedTime * 20 + parentless->GetID() * 1.5;
             color Color = {
                 (float)(Math::Sin(t) * 127.5f + 127.5f),
                 (float)(Math::Sin(t + 2.09f) * 127.5f + 127.5f),

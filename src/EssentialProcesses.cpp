@@ -46,6 +46,60 @@ namespace obj{
         return 0;
     }
 
+    void AddObjectAndChildren(scene* Scene, gameObject* obj, bool ParentDisabled = false){
+        if (!ParentDisabled && obj->Enabled){
+            Scene->PushActiveGameObjects(obj);
+
+            for (Internal::transform* child : obj->Transform->GetChildren()){
+                if (child->GetGameObject()->Enabled){
+                    AddObjectAndChildren(Scene, child->GetGameObject(), ParentDisabled);
+                }
+            }
+        }else{
+            Scene->PushInactiveGameObjects(obj);
+            for (Internal::transform* child : obj->Transform->GetChildren()){
+                AddObjectAndChildren(Scene, child->GetGameObject(), true);
+            }
+        }
+    }
+
+    void PopulateActiveLists(scene* Scene){
+        if (!Scene) return;
+        Scene->ClearActiveGameObjects();
+        Scene->ClearInactiveGameObjects();
+            
+        for (gameObject* obj : Scene->GetParentlessGameObjects()){
+            AddObjectAndChildren(Scene, obj);
+        }
+    }
+
+    void AddObjectAndChildrenUI(UI::canvas* Canvas, UI::screenObject* obj, bool ParentDisabled = false){
+        if (!ParentDisabled && obj->Enabled){
+            Canvas->PushActiveScreenObjects(obj);
+
+            for (UI::Internal::transformUI* child : obj->UITransform->GetChildren()){
+                if (child->GetScreenObject()->Enabled){
+                    AddObjectAndChildrenUI(Canvas, child->GetScreenObject(), ParentDisabled);
+                }
+            }
+        }else{
+            Canvas->PushInactiveScreenObjects(obj);
+            for (UI::Internal::transformUI* child : obj->UITransform->GetChildren()){
+                AddObjectAndChildrenUI(Canvas, child->GetScreenObject(), true);
+            }
+        }
+    }
+
+    void PopulateActiveListsUI(UI::canvas* Canvas){
+        if (!Canvas) return;
+        Canvas->ClearActiveScreenObjects();
+        Canvas->ClearInactiveScreenObjects();
+            
+        for (UI::screenObject* scren : Canvas->GetParentlessScreenObjects()){;
+            AddObjectAndChildrenUI(Canvas, scren);;
+        };
+    }
+
     void UpdateTransform(Internal::transform* trans){
         if (!trans) return;
             
@@ -164,6 +218,7 @@ namespace obj{
                 }
 
                 if (camera->GetCanvas()){
+                    PopulateActiveListsUI(camera->GetCanvas());
                     // First pass: Update UI transforms recursively
                     for (UI::screenObject* obj : camera->GetCanvas()->GetParentlessScreenObjects()){
                         if (obj->UITransform && !obj->UITransform->GetParent()){
@@ -186,6 +241,7 @@ namespace obj{
             }
 
             if (scene){
+                PopulateActiveLists(scene);
                 // Update all objects, handling both parentless and parented
                 for (gameObject* obj : scene->GetParentlessGameObjects()){
                     // Only update if object has no parent (root objects)

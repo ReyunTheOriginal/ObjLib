@@ -1,28 +1,13 @@
-Version: v4.9.2-beta
+Version: v4.9.3-beta
 
 ===== CODE STATS =====
-Total lines of code : 3341
-Header files        : 30
-Source files        : 22
-Total files         : 52
+Total lines of code : 3901
+Header files        : 31
+Source files        : 23
+Total files         : 54
 
 Changes:
-- Added{
-    virtual void OnSceneChange(); // runs when SetScene() runs with a new Scene
-
-    virtual void OnSceneSet(); // runs when the scene is set into a window
-    virtual void OnSceneUnSet();// runs when a window running this scene runs another one
-    virtual void OnSceneLoad();// runs when runs when the scene gets set in a window when it previously had no window
-    virtual void OnSceneUnLoad(); // runs when a scene loses all windows running it
-
-    
-    virtual void OnCanvasChange(); // runs when SetCanvas() runs with a new Canvas
-
-    virtual void OnCanvasSet(); // runs when the Canvas is set into a Camera
-    virtual void OnCanvasUnSet();// runs when a Camera running this Canvas runs another one
-    virtual void OnCanvasLoad();// runs when runs when the Canvas gets set in a Camera when it previously had no Camera
-    virtual void OnCanvasUnLoad(); // runs when a Canvas loses the Camera running it
-}
-
-- Renamed KeyCode to InputCode and included MouseButtons in it instead of using numbers for mouse MouseButtons
-- Added Time::ElapsedTime
+- Added Splitting concave polygons to convex OnSceneChange
+- Added polygon bounding boxes and their visualization
+- Added boundingBox overlap Checks
+- Added Active/Inactive GameObjects/ScreenObjects lists

@@ -7,13 +7,14 @@
 #include "UI/UITransform.hpp"
 
 namespace obj{
-    struct gameObject;
 
     namespace UI{
 
         struct canvas{
             private:
             std::vector<screenObject*> ScreenObjects;
+            std::vector<screenObject*> ActiveScreenObjects;
+            std::vector<screenObject*> InctiveScreenObjects;
             std::vector<screenObject*> ParentlessScreenObjects;
 
             camera* Camera = nullptr;
@@ -35,6 +36,13 @@ namespace obj{
 
             std::vector<screenObject*> GetScreenObjects(){return ScreenObjects;}
             std::vector<screenObject*> GetParentlessScreenObjects(){return ParentlessScreenObjects;}
+            std::vector<screenObject*> GetActiveScreenObjects(){return ActiveScreenObjects;}
+            std::vector<screenObject*> GetInactiveScreenObjects(){return InctiveScreenObjects;}
+
+            void PushActiveScreenObjects(screenObject* scren){ActiveScreenObjects.push_back(scren);}
+            void PushInactiveScreenObjects(screenObject* scren){InctiveScreenObjects.push_back(scren);}
+            void ClearActiveScreenObjects(){ActiveScreenObjects.clear();}
+            void ClearInactiveScreenObjects(){InctiveScreenObjects.clear();}
 
             canvas(){}
             ~canvas();

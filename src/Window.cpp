@@ -9,6 +9,8 @@
 namespace obj{
     window::window() = default;
 
+    void window::OnSceneChange(){}
+
     std::string window::SetTitle(std::string NewTitle){
         if (NewTitle != CachedTitle){
             SDL_SetWindowTitle(SDLwindow, NewTitle.c_str());
@@ -25,13 +27,14 @@ namespace obj{
 
         if (Scene && ActiveCamera){
             result = std::format(
-                "'{}' Debug: (FPS: {} | Scene: {} | Object Count: {} | Camera Position: ({:.2f}, {:.2f}))",
+                "'{}' Debug: (FPS: {} | Scene: {} | Object Count: {} | Camera Position: ({:.2f}, {:.2f} | Camera Zoom: {}))",
                 CachedTitle,
                 FPS::FPS,
                 Scene->Name,
                 Scene->GameObjects.size(),
                 ActiveCamera->Position.x,
-                ActiveCamera->Position.y
+                ActiveCamera->Position.y,
+                ActiveCamera->Zoom
             );
         }else if (!Scene && !ActiveCamera){
             result = std::format(
@@ -41,11 +44,12 @@ namespace obj{
             );
         }else if (!Scene){
             result = std::format(
-                "'{}' Debug: (FPS: {} | Has no Scene | Camera Position: ({:.2f}, {:.2f}))",
+                "'{}' Debug: (FPS: {} | Has no Scene | Camera Position: ({:.2f}, {:.2f} | Camera Zoom: {}))",
                 CachedTitle,
                 FPS::FPS,
                 ActiveCamera->Position.x,
-                ActiveCamera->Position.y
+                ActiveCamera->Position.y,
+                ActiveCamera->Zoom
             );
         }else if (!ActiveCamera){
             result = std::format(
@@ -116,6 +120,7 @@ namespace obj{
         newWin->ActiveCamera = CreateCamera(newWin);
         newWin->SDLwindow = SDL_CreateWindow(title.c_str(), (int)resolution.x, (int)resolution.y, SDL_WINDOW_RESIZABLE);
         newWin->SDLrenderer = SDL_CreateRenderer(newWin->SDLwindow, NULL);
+        SDL_SetRenderDrawBlendMode(newWin->SDLrenderer, SDL_BLENDMODE_BLEND);
         newWin->CachedResolution = resolution;
 
         newWin->ActiveCamera->ActiveWindow = newWin;

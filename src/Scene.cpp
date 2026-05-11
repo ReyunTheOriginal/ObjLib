@@ -4,6 +4,11 @@
 #include <algorithm>
 
 namespace obj{
+    void scene::OnSceneSet(){}
+    void scene::OnSceneUnSet(){}
+    void scene::OnSceneLoad(){}
+    void scene::OnSceneUnLoad(){}
+
     scene::~scene(){
         std::erase(Internal::GlobalScenes, this);
         

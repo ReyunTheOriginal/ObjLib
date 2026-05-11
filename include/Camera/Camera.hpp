@@ -39,7 +39,7 @@ namespace obj{
         UI::canvas* GetCanvas(){return ActiveCanvas;}
         UI::canvas* SetCanvas(UI::canvas* Canvas);
 
-        virtual void OnCanvasChange();
+        virtual void OnCanvasChange(); // runs when SetCanvas() runs with a new Canvas
 
         window* GetWindow(){return ActiveWindow;}
 

@@ -29,6 +29,8 @@ namespace obj{
 
         std::vector<window*> Windows;
         std::vector<gameObject*> GameObjects;
+        std::vector<gameObject*> ActiveGameObjects;
+        std::vector<gameObject*> InactiveGameObjects;
         std::vector<gameObject*> ParentlessGameObjects;
 
         public:
@@ -44,12 +46,15 @@ namespace obj{
         virtual void OnSceneUnLoad(); // runs when a scene loses all windows running it
 
         std::vector<window*> GetWindows(){return Windows;}
-        std::vector<gameObject*> GetGameObjects(){
-            return GameObjects;
-        }
-        std::vector<gameObject*> GetParentlessGameObjects(){
-            return ParentlessGameObjects;
-        }
+        std::vector<gameObject*> GetGameObjects(){return GameObjects;}
+        std::vector<gameObject*> GetParentlessGameObjects(){return ParentlessGameObjects;}
+        std::vector<gameObject*> GetActiveGameObjects(){return ActiveGameObjects;}
+        std::vector<gameObject*> GetInactiveGameObjects(){return InactiveGameObjects;}
+
+        void PushActiveGameObjects(gameObject* obj){ActiveGameObjects.push_back(obj);}
+        void PushInactiveGameObjects(gameObject* obj){InactiveGameObjects.push_back(obj);}
+        void ClearActiveGameObjects(){ActiveGameObjects.clear();}
+        void ClearInactiveGameObjects(){InactiveGameObjects.clear();}
         
         scene(){}
         ~scene();
