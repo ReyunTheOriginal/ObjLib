@@ -5,6 +5,7 @@
 #include "Camera/Camera.hpp"
 #include <format>
 #include "Framerate.hpp"
+#include "Rendering/Rendering.hpp"
 
 namespace obj{
     window::window() = default;
@@ -109,35 +110,30 @@ namespace obj{
                 if (Scene)std::erase(Scene->Windows, this);
             }
 
-            if (SDLrenderer)SDL_DestroyRenderer(this->SDLrenderer);
             if (SDLwindow)SDL_DestroyWindow(this->SDLwindow);
         };
 
-    window* CreateWindow(std::string title, obj::vector2 resolution){
+    window* CreateWindow(std::string title, obj::vector2 resolution, SDL_WindowFlags flags){
         //create a new window
         window* newWin = new window();
         newWin->CachedTitle = title;
         newWin->ActiveCamera = CreateCamera(newWin);
-        newWin->SDLwindow = SDL_CreateWindow(title.c_str(), (int)resolution.x, (int)resolution.y, SDL_WINDOW_RESIZABLE);
-        newWin->SDLrenderer = SDL_CreateRenderer(newWin->SDLwindow, NULL);
-        SDL_SetRenderDrawBlendMode(newWin->SDLrenderer, SDL_BLENDMODE_BLEND);
+        newWin->SDLwindow = SDL_CreateWindow(title.c_str(), (int)resolution.x, (int)resolution.y, flags | Internal::Renderer->GetWindowCreationFlag());
+        Internal::Renderer->OnWindowCreation(newWin);
         newWin->CachedResolution = resolution;
 
         newWin->ActiveCamera->ActiveWindow = newWin;
-        newWin->ActiveCamera->SetResolution(resolution);
+        Internal::Renderer->SetResolution(newWin, resolution);
 
+        auto sprites = Internal::GlobalSprites;
 
+        for (sprite* Sprite : sprites)
+            Sprite->CreateTextureForWindow(newWin);
 
         //add the window to the global list and increase the ID
         newWin->ID = Internal::Obj_ID;
         Internal::GlobalWindows.push_back(newWin);
         Internal::Obj_ID++;
-
-        for (sprite* spri : Internal::GlobalSprites){
-            if (spri->GetSDLSurface() && !spri->Textures.contains(newWin->SDLrenderer)){
-                spri->Textures[newWin->SDLrenderer] = SDL_CreateTextureFromSurface(newWin->SDLrenderer,spri->GetSDLSurface());
-            }
-        }
 
         return newWin;  // Returns a copy/move; no dangling reference
     }

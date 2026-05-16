@@ -5,30 +5,27 @@
 #include "Camera/Camera.hpp"
 #include "Components/Transform.hpp"
 #include "EssentialProcesses.hpp"
+#include "Rendering/Rendering.hpp"
 
 #include <unordered_map>
 
 namespace obj{
 
     void spriteRenderer::Draw(window* Window){
-        if (Window->GetSDLRenderer() && GetGameObject() && GetGameObject()->GetScene() && Sprite && Sprite->Textures.contains(Window->GetSDLRenderer())){
-            auto tex = Sprite->Textures[Window->GetSDLRenderer()];
-            if (tex){
+        if (Internal::Renderer && GetGameObject() && GetGameObject()->GetScene()){
+            auto Texture = Sprite->Textures[Window];
+            if (Texture){
                 camera* ActiveCamera = Window->GetCamera();
 
                 //scale the rect
                 float zoom = ActiveCamera->Zoom;
-                float scaledH = (GetGameObject()->Transform->GetWorldScale().y * PixelsPerUnit) * zoom;
-                float scaledW = (GetGameObject()->Transform->GetWorldScale().x * PixelsPerUnit) * zoom;
+                vector2 scaled = {(GetGameObject()->Transform->GetWorldScale().x * PixelsPerUnit) * zoom,
+                                (GetGameObject()->Transform->GetWorldScale().y * PixelsPerUnit) * zoom};
 
                 vector2 ScreenPos = ActiveCamera->WorldToScreenPosition(GetGameObject()->Transform->GetWorldPosition());
 
-                SDL_FRect dst = {ScreenPos.x - scaledW * Pivot.Point.x , 
-                    ScreenPos.y - scaledH * Pivot.Point.y, scaledW, scaledH };
-
                 //set the texture colors
-                SDL_SetTextureColorMod(tex, Color.r, Color.g, Color.b);
-                SDL_SetTextureAlphaMod(tex, Color.a);
+                Texture->SetTextureColorMod(Color);
 
                 SDL_FlipMode Flip = SDL_FLIP_NONE;
                 if (FlipHorizontal){
@@ -42,18 +39,19 @@ namespace obj{
                         Flip = SDL_FLIP_HORIZONTAL_AND_VERTICAL;
                     }
                 }
-
                 
                 //render it rotated as necessary
-                SDL_RenderTextureRotated(
-                    Window->GetSDLRenderer(),
-                    tex,
-                    NULL,   // src rect (whole texture)
-                    &dst,   // dst rect
+                Internal::Renderer->DrawSpriteRotated(
+                    Window, 
+                    Sprite, 
+                    ScreenPos, 
+                    scaled, 
                     (GetGameObject()->Transform->GetWorldRotation() + ActiveCamera->Rotation),
-                    NULL,   // center (NULL = center of dst)
+                    Pivot,
                     Flip
                 );
+            }else{
+                std::cout << "Sprite Has No Texture for:" + GetGameObject()->Name << "\n";
             }
         }
     }

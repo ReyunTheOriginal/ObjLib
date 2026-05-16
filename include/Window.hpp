@@ -20,10 +20,9 @@ namespace obj{
         std::string CachedTitle = "";
 
         SDL_Window* SDLwindow = nullptr;
-        SDL_Renderer* SDLrenderer = nullptr;
         camera* ActiveCamera = nullptr;
 
-        friend window* CreateWindow(std::string title, obj::vector2 resolution);
+        friend window* CreateWindow(std::string title, obj::vector2 resolution, SDL_WindowFlags flags);
         public:
         
         bool Debug = false;
@@ -33,7 +32,6 @@ namespace obj{
         camera* SetCamera(camera* Camera);
         camera* GetCamera(){return ActiveCamera;}
 
-        SDL_Renderer* GetSDLRenderer(){return SDLrenderer;}
         SDL_Window* GetSDLWindow(){return SDLwindow;}
 
         scene* SetScene(scene* SceneToSet);
@@ -53,5 +51,5 @@ namespace obj{
         ~window();
     };
 
-    window* CreateWindow(std::string title,obj::vector2 resolution);
+    window* CreateWindow(std::string title,obj::vector2 resolution, SDL_WindowFlags flags = 0);
 }

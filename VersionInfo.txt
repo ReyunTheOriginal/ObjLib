@@ -1,13 +1,10 @@
-Version: v4.9.3-beta
+Version: v4.10.0-beta
 
 ===== CODE STATS =====
-Total lines of code : 3901
-Header files        : 31
-Source files        : 23
-Total files         : 54
+Total lines of code : 4070
+Header files        : 32
+Source files        : 24
+Total files         : 56
 
 Changes:
-- Added Splitting concave polygons to convex OnSceneChange
-- Added polygon bounding boxes and their visualization
-- Added boundingBox overlap Checks
-- Added Active/Inactive GameObjects/ScreenObjects lists
+- refactored to abstract rendering to make it easy to easier implement other rendering backends than plain SDL3

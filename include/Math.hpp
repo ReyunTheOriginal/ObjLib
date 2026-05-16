@@ -4,6 +4,7 @@
 #include <cmath>
 #include <algorithm>
 #include <type_traits>
+#include "SDL3/SDL.h"
 
 namespace obj{
     struct vector2{
@@ -13,6 +14,10 @@ namespace obj{
         vector2(float X, float Y){x = X, y = Y;}
 
         #pragma region <Operators>
+            operator SDL_FPoint() const{
+                return SDL_FPoint{ x, y };
+            }
+
             vector2 operator+ (const vector2 other)const{
                 return {x + other.x, y + other.y};
             }

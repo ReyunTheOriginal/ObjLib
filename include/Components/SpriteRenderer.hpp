@@ -3,8 +3,6 @@
 #include "Component.hpp"
 #include "GlobalTypes.hpp"
 
-struct SDL_Renderer;
-
 namespace obj{
     struct sprite;
 

@@ -1,8 +1,12 @@
 #pragma once
 
 #include "Math.hpp"
+#include "SDL3/SDL.h"
 
 namespace obj{
+
+    using rect = SDL_FRect;
+    using FlipMode = SDL_FlipMode;
 
     struct pivot {
         vector2 Point = {0.5f, 0.5f};
@@ -34,8 +38,8 @@ namespace obj{
 
     namespace Internal{
         struct renderSorter{
-            int Order;
-            int Layer;
+            int Order = 0;
+            int Layer = 0;
         };
     }
     struct color{

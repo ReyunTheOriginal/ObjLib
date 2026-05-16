@@ -3,6 +3,7 @@
 #include "Window.hpp"
 #include "EssentialProcesses.hpp"
 #include "UI/Canvas.hpp"
+#include "Rendering/Rendering.hpp"
 
 namespace obj{
     void camera::OnCanvasChange(){}
@@ -38,18 +39,6 @@ namespace obj{
         return CanvasToSet;
     }
 
-    vector2 camera::SetResolution(const vector2& res){
-        //if (Resolution.x == res.x && Resolution.y == res.y) return Resolution; // Skip if unchanged
-        
-        Resolution = res;
-
-        if (ActiveWindow && ActiveWindow->GetSDLRenderer()) {
-            SDL_SetRenderLogicalPresentation(ActiveWindow->GetSDLRenderer(), res.x, res.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
-        }
-
-        return Resolution;
-    }
-
     vector2 Rotate(const vector2& RotateAround, float angle){
         angle = -angle;  // Negate for clockwise rotation
         float c = cos(angle);
@@ -65,7 +54,7 @@ namespace obj{
         if (Zoom <= 0) Zoom = 0.01f;
         vector2 result = PosToTranslate;
 
-        vector2 res = GetResolution();
+        vector2 res = Internal::Renderer->GetResolution(ActiveWindow);
         result -= (res / 2);
 
         result.y *= -1;
@@ -81,7 +70,7 @@ namespace obj{
         result *= (Zoom * PixelsPerUnit);
         result.y *= -1;
 
-        vector2 res = GetResolution();
+        vector2 res = Internal::Renderer->GetResolution(ActiveWindow);
         result += (res / 2);
 
         return result;

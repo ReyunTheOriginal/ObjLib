@@ -57,10 +57,33 @@ sprite* TriangleSprite = CreateSprite(exePath() + "/Sprites/Default/Triangle.png
 gameObject* HeldObject = nullptr;
 
 struct Scene1Stuff : component{
+    UI::canvas* Canvas = nullptr;
+    window* Window = nullptr;
+
+    UI::text* Text = nullptr;
+    UI::image* Image = nullptr;
+
+    void Init() override{
+        Canvas = UI::CreateCanvas();
+
+        Window->GetCamera()->SetCanvas(Canvas);
+
+        UI::screenObject* scren = UI::CreateScreenObject(Canvas);
+
+        Text = scren->AddComponent<UI::text>();
+        Image = scren->AddComponent<UI::image>();
+
+        font* Font = CreateFont(exePath() + "/Fonts/Times New Roman.ttf");
+
+        Text->SetFont(Font);
+        Image->Sprite = TriangleSprite;
+    }
+
     void Run() override{
         if (Input::KeyPressed(InputCode::Q)){
             gameObject* n = CreateGameObject(GetGameObject()->GetScene());
             n->Transform->LocalPosition = Input::WorldMousePosition;
+            //Print(Input::WorldMousePosition);
 
             int RandomInt = RandomRange(0,2);
 
@@ -69,6 +92,11 @@ struct Scene1Stuff : component{
             n->AddComponent<spriteRenderer>()->Sprite = sprites[RandomInt];
             collider* col = n->AddComponent<collider>();
             col->SetPolygon(ImportPolygon(exePath() + "/Polygon.json"));
+        }
+
+        if (Input::KeyHeld(InputCode::U)){
+            Text->GetScreenObject()->UITransform->SetScreenPosition(Input::ScreenMousePosition);
+            Image->GetScreenObject()->UITransform->SetScreenPosition(Input::ScreenMousePosition);
         }
 
         if (Input::KeyPressed(InputCode::T)){
@@ -176,13 +204,13 @@ struct Scene1Stuff : component{
     }
 };
 
-void CreateScenes(std::vector<scene*>& Scenes){
+void CreateScenes(std::vector<scene*>& Scenes, window* Window){
     scene* Scene1 = CreateScene();
     Scene1->Name = "Scene1";
     Scene1->BackGroundColor = {64, 0 , 0};
     gameObject* sc = CreateGameObject(Scene1);
     sc->Transform->LocalPosition = {9999,999};
-    sc->AddComponent<Scene1Stuff>();
+    sc->AddComponent<Scene1Stuff>()->Window = Window;
     Scenes.push_back(Scene1);
 
     scene* Scene2 = CreateScene();
@@ -204,9 +232,11 @@ void CreateScenes(std::vector<scene*>& Scenes){
 int main(){
     Init();
 
+    SetRenderer(rendererBackend::SDL);
+
     window* Window = CreateWindow("ObjLib Test", {800, 600});
     std::vector<scene*> Scenes;
-    CreateScenes(Scenes);
+    CreateScenes(Scenes, Window);
 
     Window->SetScene(Scenes[0]);
     Window->SetTitle(Scenes[0]->Name);

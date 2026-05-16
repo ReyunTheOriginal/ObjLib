@@ -5,6 +5,7 @@
 #include "Scene.hpp"
 #include "Components/Transform.hpp"
 #include "Camera/Camera.hpp"
+#include "Rendering/Rendering.hpp"
 
 namespace obj{
     
@@ -108,15 +109,10 @@ namespace obj{
                 vert = Window->GetCamera()->WorldToScreenPosition(vert);
 
             int WorldSize = WorldVerts.size();
-            SDL_SetRenderDrawColor(Window->GetSDLRenderer(), 
-                (Uint8)(DebugColor.r * (i * 0.6)) % 256, 
-                (Uint8)(DebugColor.g * (i * 0.3)) % 256, 
-                (Uint8)(DebugColor.b * (i * 0.1)) % 256, 
-                DebugColor.a
-            );
+            Internal::Renderer->SetDrawColor(Window, DebugColor);
 
             for (int j=0; j<WorldSize; j++)
-                SDL_RenderLine(Window->GetSDLRenderer(), WorldVerts[j].x, WorldVerts[j].y,  WorldVerts[(j + 1) % WorldSize].x, WorldVerts[(j + 1) % WorldSize].y);
+                Internal::Renderer->DrawLine(Window, WorldVerts[j],  WorldVerts[(j + 1) % WorldSize]);
         }
 
 
@@ -134,18 +130,12 @@ namespace obj{
         vector2 bottomRight = {max.x, min.y};
         vector2 bottomLeft  = {min.x, min.y};
 
-        SDL_SetRenderDrawColor(
-            Window->GetSDLRenderer(),
-            DebugBoundingBoxColor.r,
-            DebugBoundingBoxColor.g,
-            DebugBoundingBoxColor.b,
-            DebugBoundingBoxColor.a
-        );
+        Internal::Renderer->SetDrawColor(Window, DebugBoundingBoxColor);
 
-        SDL_RenderLine(Window->GetSDLRenderer(), topLeft.x, topLeft.y, topRight.x, topRight.y);
-        SDL_RenderLine(Window->GetSDLRenderer(), topRight.x, topRight.y, bottomRight.x, bottomRight.y);
-        SDL_RenderLine(Window->GetSDLRenderer(), bottomRight.x, bottomRight.y, bottomLeft.x, bottomLeft.y);
-        SDL_RenderLine(Window->GetSDLRenderer(), bottomLeft.x, bottomLeft.y, topLeft.x, topLeft.y);
+        Internal::Renderer->DrawLine(Window, topLeft, topRight);
+        Internal::Renderer->DrawLine(Window, topRight, bottomRight);
+        Internal::Renderer->DrawLine(Window, bottomRight, bottomLeft);
+        Internal::Renderer->DrawLine(Window, bottomLeft, topLeft);
     }
 
     void collider::Run(){

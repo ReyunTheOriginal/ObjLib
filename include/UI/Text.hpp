@@ -7,16 +7,16 @@
 
 #include "GlobalTypes.hpp"
 
-struct SDL_Texture;
 struct SDL_Renderer;
 struct TTF_Font;
 
 namespace obj{
+    struct texture;
     namespace UI{
-        struct Text : screenComponent{
+        struct text : screenComponent{
             private:
             std::string content = "Hello, World!";
-            SDL_Texture* Texture = nullptr;
+            texture* Texture = nullptr;
             font* FontI = nullptr;
 
             public:
@@ -26,7 +26,7 @@ namespace obj{
 
             color Color = {255,255,255,255};
 
-            SDL_Texture* GetTexture(){
+            texture* GetTexture(){
                 return Texture;
             }
 

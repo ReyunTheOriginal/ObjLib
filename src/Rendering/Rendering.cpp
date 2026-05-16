@@ -1,8 +1,10 @@
-#include "Rendering.hpp"
+#include "Rendering/Rendering.hpp"
 #include <iostream>
 #include <algorithm>
 
+
 #include "Component.hpp"
+#include "Rendering/SDLRenderer.hpp"
 #include "GlobalTypes.hpp"
 #include "GameObject.hpp"
 #include "Scene.hpp"
@@ -13,6 +15,7 @@
 
 
 namespace obj{
+    
     namespace Internal{
         struct renderCache{
             ::obj::component* com = nullptr;
@@ -23,7 +26,20 @@ namespace obj{
             UI::screenComponent* com = nullptr;
             renderSorter* Layer = nullptr;
         };
+
+        renderer* Renderer = nullptr;
     } //Internal
+
+    void SetRenderer(rendererBackend backend){
+        if (Internal::Renderer)
+            delete Internal::Renderer;
+
+        switch (backend){
+            case rendererBackend::SDL:
+                Internal::Renderer = new sdlRenderer();
+                break;
+        }
+    }
 
     void AddChildrenToUIDraw(std::vector<Internal::screenRenderCache>& List, UI::Internal::transformUI* transform){
         if (!transform || !transform->GetScreenObject() || !transform->GetScreenObject()->Enabled) return;
@@ -105,8 +121,8 @@ namespace obj{
         if (!Win)return;
         
         // Always clear to black for letterbox effect
-        SDL_SetRenderDrawColor(Win->GetSDLRenderer(), 0, 0, 0, 255);
-        SDL_RenderClear(Win->GetSDLRenderer());
+        Internal::Renderer->SetDrawColor(Win, {0, 0, 0, 255});
+        Internal::Renderer->Clear(Win);
 
         scene* Scene = Win->GetScene();
         if (!Scene) return;
@@ -114,20 +130,20 @@ namespace obj{
         camera* ActiveCamera = Win->GetCamera();
         
         if (ActiveCamera){
-            vector2 Logical = ActiveCamera->GetResolution();
+            vector2 Logical = Internal::Renderer->GetResolution(Win);
 
             //Draw the background first<
             color bgColor = Scene->BackGroundColor;
 
-            SDL_SetRenderDrawColor(Win->GetSDLRenderer(),
-                (Uint8)bgColor.r,
-                (Uint8)bgColor.g,
-                (Uint8)bgColor.b,
-                255
+            Internal::Renderer->SetDrawColor(Win,
+                {bgColor.r,
+                bgColor.g,
+                bgColor.b,
+                255}
             );
 
-            SDL_FRect rect = {0, 0, Logical.x, Logical.y};
-            SDL_RenderFillRect(Win->GetSDLRenderer(), &rect);
+            rect Rect = {0, 0, Logical.x, Logical.y};
+            Internal::Renderer->FillRect(Win, Rect);
         }
 
     }
@@ -156,14 +172,14 @@ namespace obj{
             });
 
             //loop through all components and Draw them
-            for (const auto& renderer : DrawOrder){
-                renderer.com->Draw(Win);
+            for (const auto& com : DrawOrder){
+                com.com->Draw(Win);
             }
 
             if (Win->Debug){
                 //loop through all components and Draw them
-                for (const auto& renderer : DrawOrder){
-                    renderer.com->DebugDraw(Win);
+                for (const auto& com : DrawOrder){
+                    com.com->DebugDraw(Win);
                 }
             }
         }
@@ -180,7 +196,7 @@ namespace obj{
             RenderCanvases(Win);
 
             //present all renderers
-            SDL_RenderPresent(Win->GetSDLRenderer());
+            Internal::Renderer->Present(Win);
         }
     }
 

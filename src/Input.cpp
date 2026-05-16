@@ -6,6 +6,7 @@
 #include "EssentialProcesses.hpp"
 #include "Window.hpp"
 #include "Camera/Camera.hpp"
+#include "Rendering/Rendering.hpp"
 
 namespace obj{
     namespace Input{
@@ -99,18 +100,16 @@ namespace obj{
         //Adjust the mouse position for resolution difference
         if (FocusedWindow && FocusedWindow->GetCamera()){
             // Convert physical mouse coords to logical (letterboxed) render coords
-            float logicalX, logicalY;
-            SDL_RenderCoordinatesFromWindow(
-                FocusedWindow->GetSDLRenderer(),
-                ScreenMousePosition.x, ScreenMousePosition.y,
-                &logicalX, &logicalY
+            ScreenMousePosition = ::obj::Internal::Renderer->RenderCoordinatesFromWindow(
+                FocusedWindow,
+                ScreenMousePosition
             );
 
-            ScreenMousePosition = {logicalX, logicalY};
-            WorldMousePosition = FocusedWindow->GetCamera()->ScreenToWorldPosition({logicalX, logicalY});
+            //ScreenMousePosition = {logicalX, logicalY};
+            WorldMousePosition = FocusedWindow->GetCamera()->ScreenToWorldPosition(ScreenMousePosition);
         }
-
-        DirectionalInput.y =
+            
+            DirectionalInput.y =
         (KeyHeld(InputCode::W) || KeyHeld(InputCode::Up)) -
         (KeyHeld(InputCode::S) || KeyHeld(InputCode::Down));
 
