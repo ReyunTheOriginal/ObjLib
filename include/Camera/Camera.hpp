@@ -53,12 +53,21 @@ namespace obj{
 
         template<typename T>
         T* AddComponent(){
+            // 1. Check if a component of this type already exists
+            auto ref = Components.find(typeid(T));
+            if (ref != Components.end()) {
+                delete ref->second; // Delete the old component first!
+                Components.erase(ref);
+            }
+
+            // 2. Now allocate and insert the new one
             auto comp = new T();
             comp->CStart(this);
 
-            auto [it, inserted] = Components.emplace(std::type_index(typeid(T)), comp);
-            return static_cast<T*>(it->second);
+            Components[std::type_index(typeid(T))] = comp;
+            return comp;
         }
+        
         template<typename T>
         void DestroyComponent(){
             auto ref = Components.find(typeid(T));

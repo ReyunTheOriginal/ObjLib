@@ -43,8 +43,6 @@ namespace obj{
                         Pivot,
                         Flip
                     );
-                    
-                    Print(Pivot.Point);
                 }else{
                     std::cout << "Sprite Has No Texture for:" + GetScreenObject()->Name << "\n";
                 }

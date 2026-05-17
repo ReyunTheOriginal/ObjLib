@@ -12,8 +12,6 @@ namespace obj {
 
     void Render();
 
-    void SetRenderer(rendererBackend backend);
-
     struct vector2;
     struct color;
     struct window;
@@ -28,16 +26,12 @@ namespace obj {
 
     // Abstract renderer struct
     struct renderer{
-        protected:
-        vector2 Resolution = {800,600};
-
-        public:
         virtual ~renderer() = default;
         virtual SDL_WindowFlags GetWindowCreationFlag() = 0;
         virtual void OnWindowCreation(window* Window){std::cout << "Created Window" << "\n";};
         virtual void Clear(window* Window) = 0;
         virtual void SetResolution(window* Window, const vector2 Size) = 0;
-        vector2 GetResolution(window* Window){return Resolution;}
+        virtual vector2 GetResolution(window* Window) = 0;
         virtual vector2 RenderCoordinatesFromWindow(window* Window, vector2 WindowPos) = 0;
         virtual void Present(window* Window) = 0;
         virtual void SetDrawColor(window* Window, const color& Color) = 0;

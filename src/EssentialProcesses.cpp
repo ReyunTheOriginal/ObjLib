@@ -16,6 +16,7 @@
 #include "Input.hpp"
 #include "Camera/Camera.hpp"
 #include "Camera/CameraComponent.hpp"
+#include "Rendering/SDLRenderer.hpp"
 #include "UI/UIBase.hpp"
 #include "Time.hpp"
 #include "Font.hpp"
@@ -35,14 +36,28 @@ namespace obj{
 
     std::vector<AnyType*> QueuedForDestruction;
 
+    bool IsRunning = true;
+    bool HasQuit = false;
     bool ObjMessages = true;
 
     //Start up all necessary code to prepare the program
-    int Init(){
+    int Init(rendererBackend backEnd){
+        if (HasQuit) return 0;
+
         SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS);
         TTF_Init();
         MIX_Init();
         if (ObjMessages)std::cout << "\033[1;32m--- Initiated {\033[1;31mObjLib\033[1;32m} ---\033[0m" << "\n";
+        
+        if (Internal::Renderer)
+            delete Internal::Renderer;
+
+        switch (backEnd){
+            case rendererBackend::SDL:
+                Internal::Renderer = new sdlRenderer();
+                break;
+        }
+
         return 0;
     }
 
@@ -100,6 +115,7 @@ namespace obj{
         };
     }
 
+
     void UpdateTransform(Internal::transform* trans){
         if (!trans) return;
             
@@ -155,7 +171,8 @@ namespace obj{
         }
     }
 
-    void RunComponents(Internal::transform* transform){
+
+    void RunComponents(Internal::transform* transform, int order){
         if (!transform || !transform->GetGameObject() || !transform->GetGameObject()->Enabled) return;
             
         gameObject* obj = transform->GetGameObject();
@@ -164,16 +181,22 @@ namespace obj{
         for (auto& com : componentsCopy){
             if (com.second && com.second->Enabled){
                 if (!com.second->DidInit){com.second->Init(); com.second->DidInit = true;}
-                com.second->Run();
+
+                if (order == 0)
+                    com.second->EarlyRun();
+                else if (order == 1)
+                    com.second->Run();
+                else if (order == 2)
+                    com.second->LateRun();
             }
         }
         
         for (Internal::transform* child : transform->GetChildren()){
-            RunComponents(child);
+            RunComponents(child, order);
         }
     }
 
-    void RunUIComponents(UI::Internal::transformUI* transform){
+    void RunUIComponents(UI::Internal::transformUI* transform, int order){
         if (!transform || !transform->GetScreenObject() || !transform->GetScreenObject()->Enabled) return;
             
         UI::screenObject* obj = transform->GetScreenObject();
@@ -182,17 +205,69 @@ namespace obj{
         for (auto& com : componentsCopy){
             if (com.second && com.second->Enabled){
                 if (!com.second->DidInit){com.second->Init(); com.second->DidInit = true;}
-                com.second->Run();
+                
+                if (order == 0)
+                    com.second->EarlyRun();
+                else if (order == 1)
+                    com.second->Run();
+                else if (order == 2)
+                    com.second->LateRun();
             }
         }
         
         for (UI::Internal::transformUI* child : transform->GetChildren()){
-            RunUIComponents(child);
+            RunUIComponents(child, order);
         }
     }
 
-    //Apply things like Phyiscs, Hiararchies, and Delete things
-    void Apply(){
+
+    void RunAllComponent(std::vector<gameObject*> Objects){
+        for (gameObject* obj : Objects)
+            if (obj->Transform && !obj->Transform->GetParent())
+                RunComponents(obj->Transform, 0);
+
+        for (gameObject* obj : Objects)
+            if (obj->Transform && !obj->Transform->GetParent())
+                RunComponents(obj->Transform, 1);
+
+        for (gameObject* obj : Objects)
+            if (obj->Transform && !obj->Transform->GetParent())
+                RunComponents(obj->Transform, 2);
+    }
+
+    void RunAllUIComponent(std::vector<UI::screenObject*> ScreenObjects){
+        for (UI::screenObject* obj : ScreenObjects)
+            if (obj->UITransform && !obj->UITransform->GetParent())
+                RunUIComponents(obj->UITransform, 0);
+
+        for (UI::screenObject* obj : ScreenObjects)
+            if (obj->UITransform && !obj->UITransform->GetParent())
+                RunUIComponents(obj->UITransform, 1);
+
+        for (UI::screenObject* obj : ScreenObjects)
+            if (obj->UITransform && !obj->UITransform->GetParent())
+                RunUIComponents(obj->UITransform, 2);
+    }
+
+
+    void RunCameraComponents(camera* Camera, int order){
+        auto componentsCopy = Camera->Components;
+        for (auto& com : componentsCopy){
+            if (com.second && com.second->Enabled){
+                if (!com.second->DidInit){com.second->Init(); com.second->DidInit = true;}
+
+                if (order == 0)
+                    com.second->EarlyRun();
+                else if (order == 1)
+                    com.second->Run();
+                else if (order == 2)
+                    com.second->LateRun();
+
+            }
+        }
+    }
+
+    void DestroyObjectsInQueue(){
         for (int i=0;i<QueuedForDestruction.size();i++){
             std::visit([](auto* ptr) {
                 delete ptr;
@@ -200,22 +275,49 @@ namespace obj{
             delete QueuedForDestruction[i];
         }   
         QueuedForDestruction.clear();
+    }
+
+    //Apply things like Phyiscs, Hiararchies, and Delete things
+    void Apply(){
+        if (HasQuit) return;
+
+        DestroyObjectsInQueue();
+
+        auto SceneCopy = Internal::GlobalScenes;
+        for (scene* Scene : SceneCopy){
+            if (!Scene->GetWindows().size() > 0) continue;
+
+            PopulateActiveLists(Scene);
+            // Update all objects, handling both parentless and parented
+            for (gameObject* obj : Scene->GetParentlessGameObjects()){
+                // Only update if object has no parent (root objects)
+                if (obj->Transform && !obj->Transform->GetParent()){
+                    UpdateTransform(obj->Transform);
+                }
+            }
+
+            RunAllComponent(Scene->GetParentlessGameObjects());
+            
+            // Final transform update pass - objects created during component execution need their transforms calculated
+            for (gameObject* obj : Scene->GetParentlessGameObjects()){
+                if (obj->Transform && !obj->Transform->GetParent()){
+                    UpdateTransform(obj->Transform);
+                }
+            }
+        }
 
         // Update UI from parentless screen objects
-        for (auto& Win : Internal::GlobalWindows){
-            if (!Win)return;
+        auto WindowCopy = Internal::GlobalWindows;
+        for (auto& Win : WindowCopy){
+            if (!Win)continue;
 
             scene* scene = Win->GetScene();
             camera* camera = Win->GetCamera();
 
             if (camera){
-                auto componentsCopy = camera->Components;
-                for (auto& com : componentsCopy){
-                    if (com.second && com.second->Enabled){
-                        if (!com.second->DidInit){com.second->Init(); com.second->DidInit = true;}
-                        com.second->Run();
-                    }
-                }
+                RunCameraComponents(camera, 0);
+                RunCameraComponents(camera, 1);
+                RunCameraComponents(camera, 2);
 
                 if (camera->GetCanvas()){
                     PopulateActiveListsUI(camera->GetCanvas());
@@ -224,11 +326,9 @@ namespace obj{
                         if (obj->UITransform && !obj->UITransform->GetParent()){
                             UpdateUITransforms(obj->UITransform);
                         }
-
-                        if (obj->UITransform && !obj->UITransform->GetParent()){
-                            RunUIComponents(obj->UITransform);
-                        }
                     }
+
+                    RunAllUIComponent(camera->GetCanvas()->GetParentlessScreenObjects());
 
                     // Final transform update pass - objects created during component execution need their transforms calculated
                     for (UI::screenObject* obj : camera->GetCanvas()->GetParentlessScreenObjects()){
@@ -240,41 +340,21 @@ namespace obj{
                 }
             }
 
-            if (scene){
-                PopulateActiveLists(scene);
-                // Update all objects, handling both parentless and parented
-                for (gameObject* obj : scene->GetParentlessGameObjects()){
-                    // Only update if object has no parent (root objects)
-                    if (obj->Transform && !obj->Transform->GetParent()){
-                        UpdateTransform(obj->Transform);
-                    }
-
-                    if (obj->Transform && !obj->Transform->GetParent()){
-                        RunComponents(obj->Transform);
-                    }
-                }
-                
-                // Final transform update pass - objects created during component execution need their transforms calculated
-                for (gameObject* obj : scene->GetParentlessGameObjects()){
-                    if (obj->Transform && !obj->Transform->GetParent()){
-                        UpdateTransform(obj->Transform);
-                    }
-                }
-            }
-
             if (Win->Debug)
                 Win->DebugDisplay();
         }
     }
-    
     //update processes like Input, Time, and FPS
     void Update(){
+        if (HasQuit) return;
         Input::Update();
         Time::Update();
     }
-    
     //safely quit the entire program
     void Quit(){
+        if (HasQuit) return;
+
+        HasQuit = true;
         QueuedForDestruction.clear();
 
         //clear all windows
@@ -292,8 +372,21 @@ namespace obj{
 
         Internal::GlobalScenes.clear();
 
+        auto CopySprites = Internal::GlobalSprites;  // Make a copy
+        for (auto& spri : CopySprites){
+            delete spri;
+        }
+        Internal::GlobalSprites.clear();
+
+        auto CopyFonts = Internal::GlobalFonts;  // Make a copy
+        for (auto& font : CopyFonts){
+            delete font;
+        }
+        Internal::GlobalFonts.clear();
+        
+        delete Internal::Renderer;
         SDL_Quit();
         if (ObjMessages)std::cout << "\n" << "\033[1;32m--- Exited {\033[1;31mObjLib\033[1;32m} ---\033[0m" << "\n";
-        std::exit(0);
+        IsRunning = false;
     }
 }

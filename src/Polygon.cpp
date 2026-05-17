@@ -44,15 +44,15 @@ namespace obj{
             return false;
         }
 
-        bool diagonalClear(const polygon& poly, int i, int j) {
-            int n = poly.Vertices.size();
-            vector2 a = poly.Vertices[i];
-            vector2 b = poly.Vertices[j];
+        bool diagonalClear(const polygon* poly, int i, int j) {
+            int n = poly->Vertices.size();
+            vector2 a = poly->Vertices[i];
+            vector2 b = poly->Vertices[j];
 
             for (int k = 0; k < n; k++) {
                 int next = (k + 1) % n;
                 if (k == i || k == j || next == i || next == j) continue;
-                if (segmentsIntersect(a, b, poly.Vertices[k], poly.Vertices[next]))
+                if (segmentsIntersect(a, b, poly->Vertices[k], poly->Vertices[next]))
                     return false;
             }
             return true;
@@ -60,18 +60,18 @@ namespace obj{
 
         // Simplified: rely on midpoint-inside test + diagonalClear.
         // The old wedge test was too strict and winding-dependent.
-        bool diagonalValid(const polygon& poly, int i, int j) {
+        bool diagonalValid(const polygon* poly, int i, int j) {
             if (!diagonalClear(poly, i, j)) return false;
 
             vector2 mid = {
-                (poly.Vertices[i].x + poly.Vertices[j].x) * 0.5f,
-                (poly.Vertices[i].y + poly.Vertices[j].y) * 0.5f
+                (poly->Vertices[i].x + poly->Vertices[j].x) * 0.5f,
+                (poly->Vertices[i].y + poly->Vertices[j].y) * 0.5f
             };
-            return pointInPolygon(poly.Vertices, mid);
+            return pointInPolygon(poly->Vertices, mid);
         }
 
-        int findSplitTarget(const polygon& poly, int reflexIdx) {
-            int n = poly.Vertices.size();
+        int findSplitTarget(const polygon* poly, int reflexIdx) {
+            int n = poly->Vertices.size();
             int best = -1;
 
             for (int j = 0; j < n; j++) {
@@ -84,17 +84,17 @@ namespace obj{
                 if (best == -1) { best = j; continue; }
 
                 // Bug 3 fix: prefer convex targets over reflex ones
-                bool jIsReflex    = isReflex(poly.Vertices, j);
-                bool bestIsReflex = isReflex(poly.Vertices, best);
+                bool jIsReflex    = isReflex(poly->Vertices, j);
+                bool bestIsReflex = isReflex(poly->Vertices, best);
                 if (!jIsReflex && bestIsReflex) best = j;
             }
 
             return best;
         }
 
-        int findSteinerPoint(const polygon& poly, int reflexIdx, vector2& outPoint) {
-            int n = poly.Vertices.size();
-            vector2 origin = poly.Vertices[reflexIdx];
+        int findSteinerPoint(const polygon* poly, int reflexIdx, vector2& outPoint) {
+            int n = poly->Vertices.size();
+            vector2 origin = poly->Vertices[reflexIdx];
 
             float bestT = std::numeric_limits<float>::max();
             int bestEdge = -1;
@@ -109,8 +109,8 @@ namespace obj{
                 if (k == (reflexIdx - 1 + n) % n) continue;
                 if (kn == (reflexIdx + 1) % n) continue;
 
-                vector2 e0 = poly.Vertices[k];
-                vector2 e1 = poly.Vertices[kn];
+                vector2 e0 = poly->Vertices[k];
+                vector2 e1 = poly->Vertices[kn];
 
                 float ex = e1.x - e0.x;
                 float ey = e1.y - e0.y;
@@ -138,8 +138,8 @@ namespace obj{
                     if (k == (reflexIdx - 1 + n) % n) continue;
                     if (kn == (reflexIdx + 1) % n) continue;
 
-                    vector2 e0 = poly.Vertices[k];
-                    vector2 e1 = poly.Vertices[kn];
+                    vector2 e0 = poly->Vertices[k];
+                    vector2 e1 = poly->Vertices[kn];
 
                     float ex = e1.x - e0.x;
                     float ey = e1.y - e0.y;
@@ -174,33 +174,34 @@ namespace obj{
         }
 
         // Insert a Steiner point after edge index `edgeIdx`, return new polygon
-        polygon insertVertex(const polygon& poly, int edgeIdx, vector2 pt) {
-            polygon result;
-            int n = poly.Vertices.size();
+        polygon* insertVertex(const polygon* poly, int edgeIdx, vector2 pt) {
+            polygon* result = new polygon;
+            int n = poly->Vertices.size();
             for (int i = 0; i <= edgeIdx; i++)
-                result.Vertices.push_back(poly.Vertices[i]);
-            result.Vertices.push_back(pt);
+                result->Vertices.push_back(poly->Vertices[i]);
+            result->Vertices.push_back(pt);
             for (int i = edgeIdx + 1; i < n; i++)
-                result.Vertices.push_back(poly.Vertices[i]);
+                result->Vertices.push_back(poly->Vertices[i]);
             return result;
         }
 
-        std::pair<polygon, polygon> splitPolygon(const polygon& poly, int i, int j) {
-            int n = poly.Vertices.size();
-            polygon A, B;
+        std::pair<polygon*, polygon*> splitPolygon(const polygon* poly, int i, int j) {
+            int n = poly->Vertices.size();
+            polygon* A = new polygon;
+            polygon* B = new polygon;
 
-            A.Vertices.clear();
-            B.Vertices.clear();
+            A->Vertices.clear();
+            B->Vertices.clear();
 
             // A: from i to j (inclusive)
             for (int k = i; ; k = (k + 1) % n) {
-                A.Vertices.push_back(poly.Vertices[k]);
+                A->Vertices.push_back(poly->Vertices[k]);
                 if (k == j) break;
             }
 
             // B: from j to i (inclusive)
             for (int k = j; ; k = (k + 1) % n) {
-                B.Vertices.push_back(poly.Vertices[k]);
+                B->Vertices.push_back(poly->Vertices[k]);
                 if (k == i) break;
             }
 
@@ -215,34 +216,34 @@ namespace obj{
             return true;
         }
 
-        float signedArea(const polygon& poly) {
+        float signedArea(const polygon* poly) {
             float area = 0;
-            int n = poly.Vertices.size();
+            int n = poly->Vertices.size();
             for (int i = 0; i < n; i++) {
-                vector2 a = poly.Vertices[i];
-                vector2 b = poly.Vertices[(i + 1) % n];
+                vector2 a = poly->Vertices[i];
+                vector2 b = poly->Vertices[(i + 1) % n];
                 area += (b.x - a.x) * (b.y + a.y);
             }
             return area;
         }
 
-        std::vector<polygon> SplitIntoConvex(polygon& Poly) {
-            std::vector<polygon> result;
-            std::stack<polygon> toProcess;
+        std::vector<polygon*> SplitIntoConvex(polygon* Poly) {
+            std::vector<polygon*> result;
+            std::stack<polygon*> toProcess;
             toProcess.push(Poly);
 
             while (!toProcess.empty()) {
-                polygon current = toProcess.top(); toProcess.pop();
+                polygon* current = toProcess.top(); toProcess.pop();
 
-                if (current.isConvex()) {
+                if (current->isConvex()) {
                     result.push_back(current);
                     continue;
                 }
 
                 // Find first reflex vertex
                 int reflexIdx = -1;
-                for (int i = 0; i < (int)current.Vertices.size(); i++) {
-                    if (isReflex(current.Vertices, i)) { reflexIdx = i; break; }
+                for (int i = 0; i < (int)current->Vertices.size(); i++) {
+                    if (isReflex(current->Vertices, i)) { reflexIdx = i; break; }
                 }
 
                 int target = findSplitTarget(current, reflexIdx);
@@ -251,22 +252,25 @@ namespace obj{
                     auto [A, B] = splitPolygon(current, reflexIdx, target);
                     toProcess.push(A);
                     toProcess.push(B);
+                    delete current;
                 } else {
                     // No existing vertex works — insert a Steiner point on the boundary
                     vector2 steinerPt;
                     int edgeIdx = findSteinerPoint(current, reflexIdx, steinerPt);
 
                     if (edgeIdx != -1) {
-                        if (edgeIdx < (int)current.Vertices.size()) {
+                        if (edgeIdx < (int)current->Vertices.size()) {
                             // An existing endpoint works — split directly to it
                             auto [A, B] = splitPolygon(current, reflexIdx, edgeIdx);
                             toProcess.push(A);
                             toProcess.push(B);
+                            delete current;
                         } else {
                             // Insert a new vertex
-                            int realEdge = edgeIdx - (int)current.Vertices.size();
-                            polygon expanded = insertVertex(current, realEdge, steinerPt);
+                            int realEdge = edgeIdx - (int)current->Vertices.size();
+                            polygon* expanded = insertVertex(current, realEdge, steinerPt);
                             toProcess.push(expanded);
+                            delete current;
                         }
                     } else {
                         result.push_back(current); // truly degenerate

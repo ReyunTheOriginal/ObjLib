@@ -27,7 +27,10 @@ namespace obj{
 
             screenObject* GetScreenObject(){return ScreenObject;}
 
+            virtual void EarlyRun() {}
             virtual void Run() {} //any updating that needs to be done
+            virtual void LateRun() {}
+
             virtual void Draw(window* Window) {} //any rendering
             virtual void DebugDraw(window* Window) {} //any rendering in the window debug mode
             virtual void Init() {} //any init that needs to be ran once

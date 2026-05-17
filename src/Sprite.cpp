@@ -14,7 +14,7 @@ namespace obj{
         newSprite->ID = Internal::Obj_ID;
         Internal::Obj_ID++;
 
-        newSprite->SDLsurface = IMG_Load(ImagePath.c_str());
+        newSprite->SDLsurface = surf;
         newSprite->SpritePath = ImagePath;
 
         newSprite->CreateTextures();

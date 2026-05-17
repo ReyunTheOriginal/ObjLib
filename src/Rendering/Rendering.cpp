@@ -30,17 +30,6 @@ namespace obj{
         renderer* Renderer = nullptr;
     } //Internal
 
-    void SetRenderer(rendererBackend backend){
-        if (Internal::Renderer)
-            delete Internal::Renderer;
-
-        switch (backend){
-            case rendererBackend::SDL:
-                Internal::Renderer = new sdlRenderer();
-                break;
-        }
-    }
-
     void AddChildrenToUIDraw(std::vector<Internal::screenRenderCache>& List, UI::Internal::transformUI* transform){
         if (!transform || !transform->GetScreenObject() || !transform->GetScreenObject()->Enabled) return;
         

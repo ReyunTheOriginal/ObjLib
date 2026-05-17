@@ -17,17 +17,19 @@ namespace obj{
         SDL_SetRenderDrawColor(SDLRenderers[Window], (Uint8)Color.r, (Uint8)Color.g, (Uint8)Color.b, (Uint8)Color.a); 
     }
 
-    sdlRenderer::sdlRenderer(){}
-    sdlRenderer::~sdlRenderer(){}
+    sdlRenderer::~sdlRenderer(){
+        for (auto& renderer : SDLRenderers)
+            if (renderer.second) SDL_DestroyRenderer(renderer.second);
+        
+    }
 
     void sdlRenderer::OnWindowCreation(window* Window){
         SDLRenderers[Window] = SDL_CreateRenderer(Window->GetSDLWindow(), NULL);
-        std::cout << "Created SDL Rendered-Window" << "\n";
     }
 
     void sdlRenderer::SetResolution(window* Window, const vector2 Size){
         SDL_SetRenderLogicalPresentation(SDLRenderers[Window], Size.x, Size.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
-        Resolution = Size;
+        Resolutions[Window] = Size;
     }
 
     vector2 sdlRenderer::RenderCoordinatesFromWindow(window* Window, vector2 WindowPos){

@@ -24,14 +24,16 @@ namespace obj {
     struct sdlRenderer : renderer {
     private:
         std::unordered_map<window*, SDL_Renderer*> SDLRenderers;
+        std::unordered_map<window*, vector2> Resolutions;
 
     public:
-        sdlRenderer();
+        sdlRenderer() {}
         ~sdlRenderer() override;
         void OnWindowCreation(window* Window) override;
         SDL_WindowFlags GetWindowCreationFlag() {return SDL_WINDOW_RESIZABLE;};
         void Clear(window* Window) override;
         void SetResolution(window* Window, const vector2 Size) override;
+        vector2 GetResolution(window* Window) override{return Resolutions[Window];}
         void Present(window* Window) override;
         void SetDrawColor(window* Window, const color& Color) override;
         vector2 RenderCoordinatesFromWindow(window* Window, vector2 WindowPos) override;

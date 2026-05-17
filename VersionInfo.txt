@@ -1,10 +1,10 @@
-Version: v4.10.0-beta
+Version: v4.10.1-beta
 
 ===== CODE STATS =====
-Total lines of code : 4070
+Total lines of code : 4240
 Header files        : 32
 Source files        : 24
 Total files         : 56
 
 Changes:
-- refactored to abstract rendering to make it easy to easier implement other rendering backends than plain SDL3
+- fixed a whole lot of performance and data leak issues that no doubt would've made me suffer

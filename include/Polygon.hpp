@@ -26,7 +26,7 @@ namespace obj{
             }
         };
 
-        std::vector<polygon> SplitIntoConvex(polygon& Poly);
+        std::vector<polygon*> SplitIntoConvex(Internal::polygon* Poly);
     }
 
     inline bool pointInPolygon(const std::vector<vector2>& poly, vector2 p) {

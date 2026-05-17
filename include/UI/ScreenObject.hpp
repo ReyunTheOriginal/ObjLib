@@ -35,6 +35,7 @@ namespace obj{
 
             friend screenObject* CreateScreenObject(canvas* Canvas, Internal::transformUI* Parent);
 
+            std::unordered_set<std::string> Tags;
             public:
             std::string Name = "new GameObject";
             Internal::transformUI* UITransform;
@@ -48,6 +49,24 @@ namespace obj{
 
             screenComponent AddComponent();
 
+            std::string AddTag(std::string newTag){
+                if (!Tags.contains(newTag)){
+                    Tags.insert(newTag);
+                }
+
+                return newTag;
+            }
+
+            void RemoveTag(std::string Tag){
+                if (Tags.contains(Tag)){
+                    Tags.erase(Tag);
+                }
+            }
+
+            bool HasTag(std::string Tag){
+                return Tags.contains(Tag);
+            }
+
             template<typename T>
             T* GetComponent(){
                 auto ref = Components.find(typeid(T));
@@ -57,13 +76,21 @@ namespace obj{
 
             template<typename T>
             T* AddComponent(){
-                auto comp = new T();
-                comp->SStart(this);
-                comp->RenderLayer = new ::obj::Internal::renderSorter();
+                // 1. Check if a component of this type already exists
+                auto ref = Components.find(typeid(T));
+                if (ref != Components.end()) {
+                    delete ref->second; // Delete the old component first!
+                    Components.erase(ref);
+                }
 
-                auto [it, inserted] = Components.emplace(std::type_index(typeid(T)), comp);
-                return static_cast<T*>(it->second);
+                // 2. Now allocate and insert the new one
+                auto comp = new T();
+                comp->CStart(this);
+
+                Components[std::type_index(typeid(T))] = comp;
+                return comp;
             }
+
             template<typename T>
             void RemoveComponent(){
                 auto ref = Components.find(typeid(T));

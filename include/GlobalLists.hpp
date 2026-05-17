@@ -8,6 +8,7 @@ namespace obj{
     struct scene;
     struct window;
     struct sprite;
+    struct font;
 
     namespace UI{
         struct screenObject;
@@ -21,6 +22,7 @@ namespace obj{
         extern std::vector<scene*> GlobalScenes;
         extern std::vector<window*> GlobalWindows;
         extern std::vector<sprite*> GlobalSprites;
+        extern std::vector<font*> GlobalFonts;
 
     }
 } // namespace obj

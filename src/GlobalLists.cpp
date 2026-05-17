@@ -11,5 +11,6 @@ namespace obj{
         std::vector<scene*> GlobalScenes;
         std::vector<window*> GlobalWindows;
         std::vector<sprite*> GlobalSprites;
+        std::vector<font*> GlobalFonts;
     }
 } // namespace obj

@@ -70,13 +70,21 @@ namespace obj{
 
         template<typename T>
         T* AddComponent(){
-            auto comp = new T();
-            comp->GStart(this);
-            comp->RenderLayer = new Internal::renderSorter();
+            // 1. Check if a component of this type already exists
+            auto ref = Components.find(typeid(T));
+            if (ref != Components.end()) {
+                delete ref->second; // Delete the old component first!
+                Components.erase(ref);
+            }
 
-            auto [it, inserted] = Components.emplace(std::type_index(typeid(T)), comp);
-            return static_cast<T*>(it->second);
+            // 2. Now allocate and insert the new one
+            auto comp = new T();
+            comp->CStart(this);
+
+            Components[std::type_index(typeid(T))] = comp;
+            return comp;
         }
+
         template<typename T>
         void DestroyComponent(){
             auto ref = Components.find(typeid(T));

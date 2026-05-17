@@ -50,9 +50,9 @@ struct MoveWithWASDScren : UI::screenComponent{
     }
 };
 
-sprite* SquareSprite = CreateSprite(exePath() + "/Sprites/Default/Square.png");
-sprite* CircleSprite = CreateSprite(exePath() + "/Sprites/Default/Circle.png");
-sprite* TriangleSprite = CreateSprite(exePath() + "/Sprites/Default/Triangle.png");
+sprite* SquareSprite = nullptr;
+sprite* CircleSprite = nullptr;
+sprite* TriangleSprite = nullptr;
 
 gameObject* HeldObject = nullptr;
 
@@ -64,6 +64,11 @@ struct Scene1Stuff : component{
     UI::image* Image = nullptr;
 
     void Init() override{
+
+        SquareSprite = CreateSprite(exePath() + "/Sprites/Default/Square.png");
+        CircleSprite = CreateSprite(exePath() + "/Sprites/Default/Circle.png");
+        TriangleSprite = CreateSprite(exePath() + "/Sprites/Default/Triangle.png");
+        
         Canvas = UI::CreateCanvas();
 
         Window->GetCamera()->SetCanvas(Canvas);
@@ -230,22 +235,24 @@ void CreateScenes(std::vector<scene*>& Scenes, window* Window){
 }
 
 int main(){
-    Init();
-
-    SetRenderer(rendererBackend::SDL);
+    Init(rendererBackend::SDL);
 
     window* Window = CreateWindow("ObjLib Test", {800, 600});
+    window* Window2 = CreateWindow("ObjLib Test", {1200, 500});
     std::vector<scene*> Scenes;
     CreateScenes(Scenes, Window);
 
     Window->SetScene(Scenes[0]);
+    Window2->SetScene(Scenes[0]);
     Window->SetTitle(Scenes[0]->Name);
 
     int CurrentSceneIndex = 0;
 
     FPS::SetTargetFrameRate(70);
 
-    while (true){
+    Window->GetCamera()->AddComponent<MoveWithWASDCam>();
+
+    while (obj::IsRunning){
         Update();
 
         if (Input::KeyPressed(InputCode::Escape)){
@@ -257,8 +264,6 @@ int main(){
         if (Input::KeyPressed(InputCode::F1)){
             Window->Debug = !Window->Debug;
         }
-
-        Window->GetCamera()->AddComponent<MoveWithWASDCam>();
 
         Apply();
         Render();

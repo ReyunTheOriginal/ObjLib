@@ -9,12 +9,15 @@ namespace obj{
         private:
         TTF_Font* TTFFont = nullptr;
         int Size = 64;
+        int ID = 0;
 
         friend font* CreateFont(std::string FontPath, float Size);
 
         public:
 
         void ChangeSize(float newSize);
+
+        int GetID(){return ID;}
 
         TTF_Font* GetTTFFont(){return TTFFont;}
 

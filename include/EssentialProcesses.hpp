@@ -12,13 +12,15 @@ namespace obj{
     struct sprite;
     struct component;
 
+    enum class rendererBackend;
+
     namespace UI{
         struct canvas;
         struct screenObject;
     }
     
     extern bool ObjMessages;
-    int  Init(); //Start up all necessary code to prepare the program
+    int  Init(rendererBackend backEnd); //Start up all necessary code to prepare the program
     void Apply(); //Apply things like Phyiscs, Hiararchies, and Delete things
     void Update(); //update processes like Input, Time, and FPS
     void Quit(); //safely quit the entire program
@@ -37,6 +39,7 @@ namespace obj{
         sprite*
     >;
     
+    extern bool IsRunning;
     extern std::vector<AnyType*> QueuedForDestruction;
     
     template<typename T>

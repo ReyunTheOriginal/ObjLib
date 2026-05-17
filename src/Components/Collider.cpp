@@ -8,12 +8,21 @@
 #include "Rendering/Rendering.hpp"
 
 namespace obj{
+
+    std::vector<std::vector<vector2>> collider::GetConvexSegments(){
+        std::vector<std::vector<vector2>> result;
+
+        for (const auto& Polygon : ConvexPolygons)
+            result.push_back(Polygon->Vertices);
+
+        return result;
+    }
     
     std::vector<vector2> collider::GetWorldVertices(){
         std::vector<vector2> result;
 
-        for (Internal::polygon poly : ConvexPolygons){
-            for (vector2 vert : poly.Vertices){
+        for (const auto& poly : ConvexPolygons){
+            for (vector2 vert : poly->Vertices){
                 // Apply scale
                 vector2 scaled = vert * GetGameObject()->Transform->GetWorldScale();
                 
@@ -38,7 +47,7 @@ namespace obj{
     std::vector<vector2> collider::GetSegmentWorldVertices(int SegmentIndex){
         std::vector<vector2> result;
 
-        for (vector2 vert : ConvexPolygons[SegmentIndex].Vertices){
+        for (vector2 vert : ConvexPolygons[SegmentIndex]->Vertices){
             // Apply scale
             vector2 scaled = vert * GetGameObject()->Transform->GetWorldScale();
             
@@ -90,12 +99,12 @@ namespace obj{
     }
     
     std::vector<vector2> collider::SetPolygon(std::vector<vector2> poly){
-        Polygon.Vertices.clear();
+        if (Polygon)Polygon->Vertices.clear();
         ConvexPolygons.clear();
 
-        Polygon.Vertices = poly;
-        Internal::polygon newPolygon = Internal::polygon();
-        newPolygon.Vertices = poly;
+        if (Polygon)Polygon->Vertices = poly;
+        Internal::polygon* newPolygon = new Internal::polygon;
+        newPolygon->Vertices = poly;
 
         ConvexPolygons = Internal::SplitIntoConvex(newPolygon);
 
@@ -103,6 +112,18 @@ namespace obj{
     }   
 
     void collider::DebugDraw(window* Window){
+        DebugBoundingBoxColor = {0,0,255,255}; // default: no overlap
+
+        for (gameObject* ActiveObject : GetGameObject()->GetScene()->GetActiveGameObjects()){
+            collider* otherCol = ActiveObject->GetComponent<collider>();
+            if (otherCol && ActiveObject != this->GetGameObject()){
+                if (BoundingBoxOverlap(GetBoundingBox(), otherCol->GetBoundingBox())){
+                    DebugBoundingBoxColor = {255,0,0,255};
+                    break; // optional: no need to keep checking once we know we overlap
+                }
+            }
+        }
+
         for (int i=0;i<ConvexPolygons.size();i++){
             std::vector<vector2> WorldVerts = GetSegmentWorldVertices(i);
             for (vector2& vert : WorldVerts)
@@ -114,8 +135,6 @@ namespace obj{
             for (int j=0; j<WorldSize; j++)
                 Internal::Renderer->DrawLine(Window, WorldVerts[j],  WorldVerts[(j + 1) % WorldSize]);
         }
-
-
 
         std::vector<vector2> boundingCorners = GetBoundingBox();
 
@@ -136,19 +155,8 @@ namespace obj{
         Internal::Renderer->DrawLine(Window, topRight, bottomRight);
         Internal::Renderer->DrawLine(Window, bottomRight, bottomLeft);
         Internal::Renderer->DrawLine(Window, bottomLeft, topLeft);
+
+       // collisionInfo AreColliding = GetCollision(this, other);
     }
 
-    void collider::Run(){
-        DebugBoundingBoxColor = {0,0,255,255}; // default: no overlap
-
-        for (gameObject* ActiveObject : GetGameObject()->GetScene()->GetActiveGameObjects()){
-            collider* otherCol = ActiveObject->GetComponent<collider>();
-            if (otherCol && ActiveObject != this->GetGameObject()){
-                if (BoundingBoxOverlap(GetBoundingBox(), otherCol->GetBoundingBox())){
-                    DebugBoundingBoxColor = {255,0,0,255};
-                    break; // optional: no need to keep checking once we know we overlap
-                }
-            }
-        }
-    }
 }

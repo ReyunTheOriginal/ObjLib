@@ -45,10 +45,10 @@ namespace obj{
             switch (event.type) {
                 case SDL_EVENT_QUIT:
                     Quit();
-                    break;
+                    return;
                 case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
                     Quit();
-                    break;
+                    return;
                 case SDL_EVENT_KEY_DOWN:
                     if (event.key.repeat == 0) Internal::KeysPressed.insert(event.key.key);
                     Internal::KeysHeld.insert(event.key.key);
